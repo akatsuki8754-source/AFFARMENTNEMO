@@ -1,24 +1,23 @@
 //
 //  ContentView.swift
-//  AFFARMENTNEMO
-//
-//  Created by TSUBOI AKIRA on 2026/04/29.
+//  ルート分岐: 初回 → オンボーディング、以降 → メインタブ
 //
 
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @AppStorage("kotodama.onboarding.completed") private var onboardingCompleted: Bool = false
 
-#Preview {
-    ContentView()
+    var body: some View {
+        ZStack {
+            if onboardingCompleted {
+                MainTabView()
+                    .transition(.opacity)
+            } else {
+                OnboardingFlowView()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: onboardingCompleted)
+    }
 }
