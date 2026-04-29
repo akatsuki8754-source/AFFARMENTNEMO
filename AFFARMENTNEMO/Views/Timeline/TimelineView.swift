@@ -18,21 +18,27 @@ struct TimelineView: View {
     @State private var posts: [TimelinePost] = []
     @State private var showCompose = false
     @State private var showOptInForPost = false
+    @State private var showEULAGate = false
+    @State private var showContact = false
     @StateObject private var blocks = UserBlockStore.shared
+    @State private var locallyHiddenPostIds: Set<String> = []
     #if canImport(FirebaseFirestore)
     @State private var listener: ListenerRegistration?
     #endif
 
-    /// ローカルでブロックしたユーザーの投稿を除外
+    /// ローカルでブロック / 隠したユーザーの投稿を除外
     private var visiblePosts: [TimelinePost] {
-        posts.filter { !blocks.isBlocked($0.authorUid) }
+        posts.filter { p in
+            !blocks.isBlocked(p.authorUid) && !locallyHiddenPostIds.contains(p.id)
+        }
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.bgPrimary.ignoresSafeArea()
-                if !firstSeen {
+                if !firstSeen || !eulaAccepted {
+                    // Apple Guideline 1.2: 流すだけ機能を初めて使う前に正式 EULA への同意必須
                     optInView
                 } else {
                     streamView
@@ -40,22 +46,35 @@ struct TimelineView: View {
             }
             .navigationTitle(Text("timeline.title"))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showContact = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .accessibilityLabel(Text("settings.contact"))
+                }
+            }
             .sheet(isPresented: $showCompose) {
                 ComposeView(room: room) { posted in
                     if posted { canPost = true }
                 }
             }
-            .alert("timeline.optin.post.title", isPresented: $showOptInForPost) {
-                Button("common.cancel", role: .cancel) {}
-                Button("timeline.optin.post.cta") {
-                    // EULA + 1日24h以内モデレーション宣言に同意したとして記録
-                    canPost = true
-                    eulaAccepted = true
-                    showCompose = true
-                }
-            } message: {
-                Text("timeline.optin.post.body")
+            .sheet(isPresented: $showEULAGate) {
+                TimelineEULAGate(
+                    onAgreed: {
+                        firstSeen = true
+                        eulaAccepted = true
+                        canPost = true
+                        showEULAGate = false
+                        subscribe()
+                    },
+                    onCancel: { showEULAGate = false }
+                )
+                .interactiveDismissDisabled(true)
             }
+            .sheet(isPresented: $showContact) { ContactView() }
         }
         .onAppear { subscribe() }
         .onDisappear { unsubscribe() }
@@ -93,10 +112,19 @@ struct TimelineView: View {
 
             Spacer()
 
-            PrimaryButton(titleKey: "timeline.optin.cta") {
-                firstSeen = true
-                subscribe()
+            // Apple Guideline 1.2: タイムライン使用前に正式 EULA への明示同意が必要
+            PrimaryButton(titleKey: "timeline.eula.gate.cta") {
+                showEULAGate = true
             }
+
+            Button {
+                showContact = true
+            } label: {
+                Text("settings.contact")
+                    .appFont(.caption)
+                    .foregroundStyle(Color.brandSecondary)
+            }
+            .padding(.top, AppSpacing.xs)
 
             Spacer().frame(height: AppSpacing.lg)
         }
@@ -148,11 +176,8 @@ struct TimelineView: View {
         }
         .overlay(alignment: .bottomTrailing) {
             Button {
-                if canPost && eulaAccepted {
-                    showCompose = true
-                } else {
-                    showOptInForPost = true
-                }
+                // EULA はタイムライン入場時に同意済 (eulaAccepted=true)。投稿前の追加同意は不要
+                showCompose = true
             } label: {
                 Label("timeline.compose", systemImage: "square.and.pencil")
                     .appFont(.bodyEmphasis)
@@ -195,13 +220,19 @@ struct TimelineView: View {
                             Task {
                                 try? await TimelineService.shared.deleteOwnPost(
                                     postId: post.id, room: post.languageRoom)
+                                locallyHiddenPostIds.insert(post.id) // 即時非表示
                             }
                         }
                     } else {
+                        Button("timeline.hide") {
+                            // 自分のフィードからのみ即時除外 (Apple Guideline 1.2)
+                            locallyHiddenPostIds.insert(post.id)
+                        }
                         Button("timeline.report", role: .destructive) {
                             Task {
                                 try? await TimelineService.shared.report(
                                     postId: post.id, room: post.languageRoom, reason: "user-reported")
+                                locallyHiddenPostIds.insert(post.id)
                             }
                         }
                         Button("timeline.block", role: .destructive) {
@@ -209,10 +240,12 @@ struct TimelineView: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.system(size: 22))
                         .foregroundStyle(Color.textSecondary)
                         .frame(width: AppTouchTarget.minimum, height: AppTouchTarget.minimum)
                 }
+                .accessibilityLabel(Text("timeline.menu"))
             }
             Text(post.text)
                 .appFont(.body)
