@@ -125,6 +125,10 @@ private struct WelcomeStep: View {
     let onContinue: () -> Void
 
     var body: some View {
+        welcomeContent.responsivePage()
+    }
+
+    private var welcomeContent: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
             Spacer().frame(height: AppSpacing.xxl)
 
@@ -187,6 +191,10 @@ private struct FirstAffirmationStep: View {
     private let maxLen = 200
 
     var body: some View {
+        firstContent.responsivePage()
+    }
+
+    private var firstContent: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             // 進捗インジケータ 1/2 (MASTER §10.3)
             Text("onboard.step.1")
@@ -315,6 +323,10 @@ private struct NotificationStep: View {
     let onComplete: () -> Void
 
     var body: some View {
+        notifContent.responsivePage()
+    }
+
+    private var notifContent: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
             // 進捗インジケータ 2/2 (MASTER §10.4)
             Text("onboard.step.2")

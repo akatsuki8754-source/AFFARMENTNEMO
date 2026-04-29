@@ -46,6 +46,7 @@ struct HelpView: View {
                 }
                 .padding(.horizontal, AppSpacing.screenEdge)
                 .padding(.vertical, AppSpacing.lg)
+                .responsivePage()
             }
             .background(Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Text("help.title"))

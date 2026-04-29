@@ -16,7 +16,13 @@ struct LibraryView: View {
         let items = store.allAffirmations(activeOnly: true)
 
         NavigationStack {
-            VStack(spacing: 0) {
+            mainContent(items: items).responsivePage(maxWidth: 720)
+        }
+    }
+
+    @ViewBuilder
+    private func mainContent(items: [Affirmation]) -> some View {
+        VStack(spacing: 0) {
                 if items.isEmpty {
                     emptyState
                         .frame(maxHeight: .infinity)
@@ -66,7 +72,6 @@ struct LibraryView: View {
             .sheet(isPresented: $showAdd) {
                 AddAffirmationView()
             }
-        }
     }
 
     private var emptyState: some View {

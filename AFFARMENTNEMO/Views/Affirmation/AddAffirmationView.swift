@@ -70,6 +70,7 @@ struct AddAffirmationView: View {
                 }
                 .padding(.horizontal, AppSpacing.screenEdge)
                 .padding(.vertical, AppSpacing.md)
+                .responsivePage()
             }
             .background(Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Text("add.title"))

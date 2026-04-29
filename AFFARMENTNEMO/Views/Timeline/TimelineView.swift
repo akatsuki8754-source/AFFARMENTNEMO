@@ -54,6 +54,10 @@ struct TimelineView: View {
 
     // MASTER §14.1
     private var optInView: some View {
+        optInContent.responsivePage()
+    }
+
+    private var optInContent: some View {
         VStack(spacing: AppSpacing.lg) {
             Spacer()
             Text("💬").font(.system(size: 72))
@@ -91,6 +95,10 @@ struct TimelineView: View {
     }
 
     private var streamView: some View {
+        streamContent.responsivePage(maxWidth: 720)
+    }
+
+    private var streamContent: some View {
         VStack(spacing: 0) {
             HStack {
                 Image(systemName: "globe").foregroundStyle(Color.semanticInfo)

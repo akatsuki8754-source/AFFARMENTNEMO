@@ -29,9 +29,11 @@ struct ReadAloudView: View {
                 ReadCompleteView(result: result, onClose: {
                     showInterstitialThenDismiss()
                 })
+                .responsivePage()
                 .transition(.opacity)
             } else {
                 readingScreen
+                    .responsivePage()
             }
         }
         .onDisappear {

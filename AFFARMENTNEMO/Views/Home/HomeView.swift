@@ -40,6 +40,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, AppSpacing.screenEdge)
                 .padding(.bottom, AppSpacing.lg)
+                .responsivePage()
             }
             .background(Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(greetingTitle)
