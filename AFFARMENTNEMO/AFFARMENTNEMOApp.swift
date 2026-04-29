@@ -10,6 +10,10 @@ import SwiftData
 import FirebaseCore
 #endif
 
+#if canImport(FirebaseAnalytics)
+import FirebaseAnalytics
+#endif
+
 @main
 struct AFFARMENTNEMOApp: App {
     let modelContainer: ModelContainer
