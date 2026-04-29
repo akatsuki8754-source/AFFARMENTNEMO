@@ -21,6 +21,9 @@ struct SettingsView: View {
     @State private var showHelp = false
     @State private var showResetConfirm = false
     @State private var showDeleteConfirm = false
+    @State private var showBlockList = false
+    @State private var showEULA = false
+    @State private var showContact = false
 
     var body: some View {
         NavigationStack {
@@ -59,6 +62,44 @@ struct SettingsView: View {
                         }
                     }
                     .foregroundStyle(Color.textPrimary)
+
+                    Button {
+                        showEULA = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "doc.plaintext")
+                            Text("settings.eula")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                    }
+                    .foregroundStyle(Color.textPrimary)
+
+                    Button {
+                        showContact = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "envelope")
+                            Text("settings.contact")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                    }
+                    .foregroundStyle(Color.textPrimary)
+                }
+
+                Section(header: Text("settings.privacy")) {
+                    Button {
+                        showBlockList = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "person.crop.circle.badge.xmark")
+                            Text("settings.blockedUsers")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                    }
+                    .foregroundStyle(Color.textPrimary)
                 }
 
                 Section(header: Text("settings.about")) {
@@ -85,6 +126,9 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $showHelp) { HelpView() }
+            .sheet(isPresented: $showEULA) { EULAView() }
+            .sheet(isPresented: $showContact) { ContactView() }
+            .sheet(isPresented: $showBlockList) { BlockListView() }
             .alert("settings.account.delete.confirm.title",
                    isPresented: $showDeleteConfirm) {
                 Button("common.cancel", role: .cancel) {}

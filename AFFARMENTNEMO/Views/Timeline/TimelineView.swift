@@ -13,13 +13,20 @@ import FirebaseFirestore
 struct TimelineView: View {
     @AppStorage("kotodama.timeline.firstSeen") private var firstSeen: Bool = false
     @AppStorage("kotodama.timeline.canPost") private var canPost: Bool = false
+    @AppStorage("kotodama.eula.accepted") private var eulaAccepted: Bool = false
     @State private var room: String = TimelineService.defaultLanguageRoom()
     @State private var posts: [TimelinePost] = []
     @State private var showCompose = false
     @State private var showOptInForPost = false
+    @StateObject private var blocks = UserBlockStore.shared
     #if canImport(FirebaseFirestore)
     @State private var listener: ListenerRegistration?
     #endif
+
+    /// ローカルでブロックしたユーザーの投稿を除外
+    private var visiblePosts: [TimelinePost] {
+        posts.filter { !blocks.isBlocked($0.authorUid) }
+    }
 
     var body: some View {
         NavigationStack {
@@ -41,7 +48,9 @@ struct TimelineView: View {
             .alert("timeline.optin.post.title", isPresented: $showOptInForPost) {
                 Button("common.cancel", role: .cancel) {}
                 Button("timeline.optin.post.cta") {
+                    // EULA + 1日24h以内モデレーション宣言に同意したとして記録
                     canPost = true
+                    eulaAccepted = true
                     showCompose = true
                 }
             } message: {
@@ -114,7 +123,7 @@ struct TimelineView: View {
             .padding(.vertical, AppSpacing.sm)
             .background(Color.bgSecondary)
 
-            if posts.isEmpty {
+            if visiblePosts.isEmpty {
                 Spacer()
                 VStack(spacing: AppSpacing.sm) {
                     ProgressView()
@@ -126,7 +135,7 @@ struct TimelineView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        ForEach(posts) { post in
+                        ForEach(visiblePosts) { post in
                             postCard(post)
                         }
                     }
@@ -139,7 +148,7 @@ struct TimelineView: View {
         }
         .overlay(alignment: .bottomTrailing) {
             Button {
-                if canPost {
+                if canPost && eulaAccepted {
                     showCompose = true
                 } else {
                     showOptInForPost = true
@@ -159,20 +168,44 @@ struct TimelineView: View {
     }
 
     private func postCard(_ post: TimelinePost) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+        let isMyPost: Bool = {
+            #if canImport(FirebaseAuth)
+            return post.authorUid == AuthService.shared.currentUID
+            #else
+            return false
+            #endif
+        }()
+        return VStack(alignment: .leading, spacing: AppSpacing.xs) {
             HStack {
                 Text(relativeTime(post.createdAt))
                     .appFont(.micro)
                     .foregroundStyle(Color.textSecondary)
+                if isMyPost {
+                    Text("timeline.myPost")
+                        .appFont(.micro)
+                        .foregroundStyle(Color.brandSecondary)
+                }
                 Spacer()
                 Menu {
                     Button("timeline.copy") {
                         UIPasteboard.general.string = post.text
                     }
-                    Button("timeline.report", role: .destructive) {
-                        Task {
-                            try? await TimelineService.shared.report(
-                                postId: post.id, room: post.languageRoom, reason: "user-reported")
+                    if isMyPost {
+                        Button("common.delete", role: .destructive) {
+                            Task {
+                                try? await TimelineService.shared.deleteOwnPost(
+                                    postId: post.id, room: post.languageRoom)
+                            }
+                        }
+                    } else {
+                        Button("timeline.report", role: .destructive) {
+                            Task {
+                                try? await TimelineService.shared.report(
+                                    postId: post.id, room: post.languageRoom, reason: "user-reported")
+                            }
+                        }
+                        Button("timeline.block", role: .destructive) {
+                            blocks.block(post.authorUid)
                         }
                     }
                 } label: {

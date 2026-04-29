@@ -1,6 +1,6 @@
 //
 //  AFFARMENTNEMOApp.swift
-//  ルート: SwiftData ModelContainer + Firebase + AdMob 起動 + オンボーディング分岐
+//  ルート: SwiftData ModelContainer + Firebase + ATT → AdMob 起動 + オンボーディング分岐
 //
 
 import SwiftUI
@@ -17,9 +17,11 @@ import FirebaseAnalytics
 @main
 struct AFFARMENTNEMOApp: App {
     let modelContainer: ModelContainer
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var didRequestATT = false
 
     init() {
-        // Firebase 初期化 (GoogleService-Info.plist が必要)
+        // Firebase 初期化
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
         #endif
@@ -31,9 +33,9 @@ struct AFFARMENTNEMOApp: App {
         } catch {
             fatalError("Failed to initialize ModelContainer: \(error)")
         }
-        AdMobService.shared.start()
 
-        // 匿名サインイン (アプリ全体で UID を保証)
+        // ⚠️ AdMob はここでは起動しない (ATT 後に起動)
+        // 匿名サインインのみ先行
         Task { @MainActor in
             await AuthService.shared.signInAnonymouslyIfNeeded()
         }
@@ -43,7 +45,26 @@ struct AFFARMENTNEMOApp: App {
         WindowGroup {
             ContentView()
                 .environment(AffirmationStore(context: modelContainer.mainContext))
+                .onAppear {
+                    requestATTAndStartAdsIfNeeded()
+                }
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                requestATTAndStartAdsIfNeeded()
+            }
+        }
+    }
+
+    /// アクティブ scene が確実に存在する状態で ATT ダイアログ → AdMob 起動 (Apple Guideline 2.1 準拠)
+    @MainActor
+    private func requestATTAndStartAdsIfNeeded() {
+        guard !didRequestATT else { return }
+        didRequestATT = true
+        ATTService.requestAuthorizationIfNeeded {
+            // 許可/拒否どちらでも AdMob は起動 (拒否時は IDFA を取らない非個別化広告)
+            AdMobService.shared.start()
+        }
     }
 }

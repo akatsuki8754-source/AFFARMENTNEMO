@@ -42,7 +42,7 @@ final class TimelineService {
 
     private var db: Firestore { Firestore.firestore() }
 
-    /// PII (URL/email/phone) パターン拒否 (MASTER §14.6)
+    /// PII (URL/email/phone) + 不適切コンテンツ パターン拒否 (MASTER §14.6 + Apple Guideline 1.2)
     static func validatePost(_ text: String) -> ValidationResult {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return .error("テキストを入力してください") }
@@ -59,6 +59,10 @@ final class TimelineService {
             if trimmed.range(of: p, options: [.regularExpression, .caseInsensitive]) != nil {
                 return .error("URL・連絡先などは投稿できません")
             }
+        }
+        // 不適切コンテンツチェック (Apple 1.2)
+        if case .blocked(let reason) = ContentModerationService.check(trimmed) {
+            return .error(reason)
         }
         return .ok
     }
@@ -104,6 +108,19 @@ final class TimelineService {
         ]
         try await db.collection("timelineRooms").document(room).collection("posts")
             .addDocument(data: data)
+    }
+
+    /// 自分の投稿を即時削除 (Apple 1.2 「ユーザーがフィードから即時削除」)
+    func deleteOwnPost(postId: String, room: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let ref = db.collection("timelineRooms").document(room).collection("posts").document(postId)
+        let snap = try await ref.getDocument()
+        guard let data = snap.data(), data["authorUid"] as? String == uid else {
+            throw NSError(domain: "TimelineService", code: -2,
+                          userInfo: [NSLocalizedDescriptionKey: "Not your post"])
+        }
+        // 物理削除はセキュリティルールで禁止 (allow delete: false) のため、isHidden=true で論理削除
+        try await ref.updateData(["isHidden": true])
     }
 
     /// 通報
