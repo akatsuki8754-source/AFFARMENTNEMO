@@ -34,7 +34,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0298325B00B1BC16BCAF3A25 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		0298325B00B1BC16BCAF3A25 /* Exceptions for "AFFARMENTNEMO" folder in "AFFARMENTNEMO" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -54,15 +54,11 @@
 		};
 		629F0DD12FA16CC20069E4A5 /* AFFARMENTNEMOTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = AFFARMENTNEMOTests;
 			sourceTree = "<group>";
 		};
 		629F0DDB2FA16CC20069E4A5 /* AFFARMENTNEMOUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = AFFARMENTNEMOUITests;
 			sourceTree = "<group>";
 		};

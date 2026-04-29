@@ -2609,6 +2609,635 @@
           }
         }
       }
+    },
+    "tab.affirmations": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affirmations"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アファメ"
+          }
+        }
+      }
+    },
+    "tab.timeline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流すだけ"
+          }
+        }
+      }
+    },
+    "common.next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次へ"
+          }
+        }
+      }
+    },
+    "onboard.step.1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 / 2"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 / 2"
+          }
+        }
+      }
+    },
+    "onboard.step.2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 / 2"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 / 2"
+          }
+        }
+      }
+    },
+    "timeline.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流すだけタイムライン"
+          }
+        }
+      }
+    },
+    "timeline.optin.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream timeline"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流すだけタイムライン"
+          }
+        }
+      }
+    },
+    "timeline.optin.lead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words written by others flow by, right now."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今、誰かが書いた言葉が流れてきます"
+          }
+        }
+      }
+    },
+    "timeline.optin.b1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything disappears in 24 hours"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24時間で全て消えます"
+          }
+        }
+      }
+    },
+    "timeline.optin.b2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No likes, follows, or comments"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いいね・フォロー・コメントなし"
+          }
+        }
+      }
+    },
+    "timeline.optin.b3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No history"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "履歴は残りません"
+          }
+        }
+      }
+    },
+    "timeline.optin.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just looking is fine. Posting is optional."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見るだけでもOK。投稿は任意です。"
+          }
+        }
+      }
+    },
+    "timeline.optin.cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a look"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見てみる"
+          }
+        }
+      }
+    },
+    "timeline.placeholder.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream is coming in Phase 1.5"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流すだけタイムラインは Phase 1.5 で公開予定です"
+          }
+        }
+      }
+    },
+    "timeline.placeholder.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live posts via Firebase Firestore (24-hour TTL) will arrive here in the next release. The opt-in flow is already wired."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firebase連携 (24時間TTL) によるライブストリームは次回リリース予定。オプトイン同意フローは実装済みです。"
+          }
+        }
+      }
+    },
+    "tip.morning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning is when the brain is most receptive — try reading right after waking."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朝は脳が最も受容的な時間帯。起きてすぐ読むのが効果的です。"
+          }
+        }
+      }
+    },
+    "tip.evening": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading before bed strengthens memory consolidation during sleep."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寝る前に読むと、睡眠中の記憶定着が強まると言われています。"
+          }
+        }
+      }
+    },
+    "tip.specific": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete numbers and dates make goals feel more real."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "具体的な数字や日付を入れると、目標がリアルに感じられます。"
+          }
+        }
+      }
+    },
+    "tip.process": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Process-focused phrases (\"growing every day\") often outperform fixed self-labels."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「毎日成長している」のような過程に注目した書き方が、自己評価より続きやすいです。"
+          }
+        }
+      }
+    },
+    "tip.gratitude": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding one gratitude item to evening reading reduces stress."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜の音読に感謝を1つ加えるとストレスが下がる研究があります。"
+          }
+        }
+      }
+    },
+    "tip.smallstep": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small steps win. \"Walk 5 min\" beats \"go to gym\"."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小さな一歩が勝ち。「5分歩く」は「ジムに行く」より続きます。"
+          }
+        }
+      }
+    },
+    "tip.values_alignment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phrasing aligned with your values feels less forced."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分の価値観と合った言葉は、無理なく続きます。"
+          }
+        }
+      }
+    },
+    "tip.no_perfection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping a day is fine. Just resume the next day."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日抜けてもOK。翌日再開すれば大丈夫です。"
+          }
+        }
+      }
+    },
+    "tip.review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review your words occasionally — they evolve as you do."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言葉は時々見直しを。あなたと一緒に言葉も育ちます。"
+          }
+        }
+      }
+    },
+    "tip.repeat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the same words multiple times builds deeper familiarity."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同じ言葉を繰り返し読むと、深いなじみが生まれます。"
+          }
+        }
+      }
+    },
+    "tip.context": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tying actions to specific cues (\"after coffee\") doubles follow-through."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「コーヒーの後に」など具体的な合図につけると実行率が倍増します。"
+          }
+        }
+      }
+    },
+    "tip.self_kind": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to yourself as you would to a good friend."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "親友に話すように、自分にも優しい言葉を。"
+          }
+        }
+      }
+    },
+    "tip.realistic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievable goals beat aspirational ones — for habit formation."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "習慣化には、夢のような目標より達成可能な目標が効きます。"
+          }
+        }
+      }
+    },
+    "tip.business": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quarterly business goals work better with concrete outcome metrics."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "四半期のビジネス目標は具体的な成果指標があると続きます。"
+          }
+        }
+      }
+    },
+    "tip.flexible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust your words as life changes — flexibility is a feature."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "人生は変わるもの。言葉も柔軟に変えていきましょう。"
+          }
+        }
+      }
+    },
+    "tip.write_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short and clear beats long and elaborate."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "短く明確な言葉ほど、長く凝った言葉に勝ちます。"
+          }
+        }
+      }
+    },
+    "tip.no_negative": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Stop X\" is harder than \"Do Y\". Reframe avoidance as approach."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「やめる」より「する」の方が脳に届きます。回避を行動に置き換えてみて。"
+          }
+        }
+      }
+    },
+    "tip.cue_response": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong cue → fast response. Make your trigger unmistakable."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強い合図 → 素早い反応。合図ははっきり明確に。"
+          }
+        }
+      }
+    },
+    "tip.values_remind": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming core values softens defensive reactions to stress."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分の核となる価値を確認することは、ストレスへの防御反応を和らげます。"
+          }
+        }
+      }
+    },
+    "tip.daily_check": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A 30-second self check-in beats hour-long planning."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30秒の自分への問いかけは、1時間の計画より続きます。"
+          }
+        }
+      }
+    },
+    "tip.mood_first": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On hard days, lower the bar. Just open the app counts."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辛い日は基準を下げる。アプリを開くだけでも価値があります。"
+          }
+        }
+      }
+    },
+    "tip.celebrate_small": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celebrate small wins. The brain learns from positive signals."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小さな成功を祝う。脳はポジティブな合図から学びます。"
+          }
+        }
+      }
     }
   }
 }

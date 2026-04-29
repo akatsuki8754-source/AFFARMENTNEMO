@@ -188,6 +188,11 @@ private struct FirstAffirmationStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
+            // 進捗インジケータ 1/2 (MASTER §10.3)
+            Text("onboard.step.1")
+                .appFont(.micro)
+                .foregroundStyle(Color.textSecondary)
+
             HStack {
                 Text("first.title")
                     .appFont(.h2)
@@ -239,13 +244,13 @@ private struct FirstAffirmationStep: View {
 
             HStack(spacing: AppSpacing.md) {
                 SecondaryButton(titleKey: "common.skip", action: onSkip)
+                // MASTER §10.3: ボタンは「次へ」、空でも進める
                 PrimaryButton(
-                    titleKey: "common.register",
+                    titleKey: "common.next",
                     action: {
                         focused = false
                         onSubmit()
-                    },
-                    isEnabled: !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    }
                 )
             }
         }
@@ -311,6 +316,11 @@ private struct NotificationStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            // 進捗インジケータ 2/2 (MASTER §10.4)
+            Text("onboard.step.2")
+                .appFont(.micro)
+                .foregroundStyle(Color.textSecondary)
+
             Text("notif.title")
                 .appFont(.h2)
                 .foregroundStyle(Color.textPrimary)

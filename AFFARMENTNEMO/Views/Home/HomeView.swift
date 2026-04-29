@@ -80,6 +80,15 @@ struct HomeView: View {
         }
     }
 
+    /// 内部分類 → 表示アイコン (MASTER §11.2)
+    private func iconFor(_ aff: Affirmation) -> String {
+        switch aff.internalMode {
+        case "value": return "⭐"
+        case "ifThen": return "💪"
+        default:      return "🌟"
+        }
+    }
+
     private var greetingTitle: String {
         let hour = Calendar.current.component(.hour, from: Date())
         let key: String
@@ -137,8 +146,9 @@ struct HomeView: View {
 
                 ForEach(items.prefix(3)) { aff in
                     HStack(alignment: .top, spacing: AppSpacing.xs) {
-                        Text("・")
-                            .foregroundStyle(Color.textSecondary)
+                        // MASTER §11.2: 内部分類でアイコン自動付与
+                        Text(iconFor(aff))
+                            .font(.system(size: 14))
                         Text(aff.text)
                             .appFont(.body)
                             .foregroundStyle(Color.textPrimary)
