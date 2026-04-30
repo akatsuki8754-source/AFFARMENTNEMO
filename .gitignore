@@ -27,3 +27,6 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 *.bak.*
+
+# Firebase secrets (committed to local backup only, never push)
+AFFARMENTNEMO/GoogleService-Info.plist

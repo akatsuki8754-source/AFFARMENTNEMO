@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  本物の GoogleService-Info.plist は Git に含めない。
+  https://console.firebase.google.com/project/kotodama-86a14/settings/general
+  から「iOS apps」→ 該当 app → GoogleService-Info.plist をダウンロードし、
+  AFFARMENTNEMO/GoogleService-Info.plist に配置する。
+  (このファイルは API キー等を含むため、必ず .gitignore で除外)
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>API_KEY</key>
+    <string>__REPLACE_WITH_YOUR_KEY__</string>
+    <key>BUNDLE_ID</key>
+    <string>com.mendoi.AFFARMENTNEMO</string>
+    <key>PROJECT_ID</key>
+    <string>kotodama-86a14</string>
+    <!-- 他のフィールドは Firebase コンソールからダウンロード -->
+</dict>
+</plist>
