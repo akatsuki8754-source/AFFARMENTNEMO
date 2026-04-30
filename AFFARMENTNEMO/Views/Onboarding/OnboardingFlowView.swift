@@ -128,24 +128,40 @@ private struct WelcomeStep: View {
         welcomeContent.responsivePage()
     }
 
+    /// Hybrid alignment: Hero (title/sub) は中央寄せで「飲み込みやすさ」最大化、
+    /// Bullet 本文は左寄せで読戻り負荷を減らす (NN/g F-pattern + Ling 2007)
     private var welcomeContent: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+        VStack(spacing: AppSpacing.lg) {
             Spacer().frame(height: AppSpacing.xxl)
 
-            Text("welcome.title")
-                .appFont(.display)
-                .foregroundStyle(Color.textPrimary)
+            // Hero (中央寄せ — 7秒で価値訴求)
+            VStack(spacing: AppSpacing.sm) {
+                Image(systemName: "quote.bubble.fill")
+                    .font(.system(size: 44, weight: .light))
+                    .foregroundStyle(Color.brandAccent)
+                    .padding(.bottom, AppSpacing.xs)
 
-            Text("welcome.sub")
-                .appFont(.body)
-                .foregroundStyle(Color.textSecondary)
+                Text("welcome.title")
+                    .appFont(.display)
+                    .foregroundStyle(Color.textPrimary)
+                    .multilineTextAlignment(.center)
 
+                Text("welcome.sub")
+                    .appFont(.body)
+                    .foregroundStyle(Color.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 360)
+            }
+            .frame(maxWidth: .infinity)
+
+            // Body (左寄せ — リスト形式は左寄せが視認性最高)
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 BulletRow(titleKey: "welcome.bullet1.title", bodyKey: "welcome.bullet1.body")
                 BulletRow(titleKey: "welcome.bullet2.title", bodyKey: "welcome.bullet2.body")
                 BulletRow(titleKey: "welcome.bullet3.title", bodyKey: nil)
             }
             .padding(.vertical, AppSpacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()
 
@@ -188,10 +204,24 @@ private struct FirstAffirmationStep: View {
     let onSkip: () -> Void
 
     @FocusState private var focused: Bool
+    @State private var showReplaceConfirm: Bool = false
+    @State private var pendingTemplate: AffirmationTemplate?
+    @State private var insertionFeedback: String? = nil
     private let maxLen = 200
 
     var body: some View {
         firstContent.responsivePage()
+            .alert("テンプレートを使う?", isPresented: $showReplaceConfirm, presenting: pendingTemplate) { tpl in
+                Button("キャンセル", role: .cancel) {
+                    pendingTemplate = nil
+                }
+                Button("置き換える", role: .destructive) {
+                    performInsert(tpl)
+                    pendingTemplate = nil
+                }
+            } message: { _ in
+                Text("入力中の文字はクリアされます。")
+            }
     }
 
     private var firstContent: some View {
@@ -248,6 +278,13 @@ private struct FirstAffirmationStep: View {
 
             templateGrid
 
+            if let feedback = insertionFeedback {
+                Label(feedback, systemImage: "checkmark.circle.fill")
+                    .appFont(.caption)
+                    .foregroundStyle(Color.semanticSuccess)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
             Spacer()
 
             HStack(spacing: AppSpacing.md) {
@@ -301,15 +338,46 @@ private struct FirstAffirmationStep: View {
         }
     }
 
+    /// テンプレ選択 — 入力欄が空 → 即挿入 / 既に文字あり → 確認後置換
+    /// (Apple HIG: 破壊的操作は確認、空状態はワンタップで使えるように)
     private func insertTemplate(_ tpl: AffirmationTemplate) {
+        // 同じテンプレを2回タップ → 解除
+        if selectedTemplate?.id == tpl.id {
+            selectedTemplate = nil
+            withAnimation { insertionFeedback = nil }
+            return
+        }
+
         selectedTemplate = tpl
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            performInsert(tpl)
+        } else if !tpl.placeholderText.isEmpty {
+            pendingTemplate = tpl
+            showReplaceConfirm = true
+        } else {
+            // ビジネスの計画など placeholder 空のテンプレ — 選択のみ
+            withAnimation { insertionFeedback = "テンプレートを選択しました" }
+            scheduleFeedbackDismiss()
+        }
+    }
+
+    private func performInsert(_ tpl: AffirmationTemplate) {
         if !tpl.placeholderText.isEmpty {
-            // 既存テキストが空ならひな型挿入
-            if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                text = tpl.placeholderText
-            }
+            text = tpl.placeholderText
+            withAnimation { insertionFeedback = "ひな型を挿入しました — 続きを入力してください" }
+        } else {
+            withAnimation { insertionFeedback = "テンプレートを選択しました" }
         }
         focused = true
+        scheduleFeedbackDismiss()
+    }
+
+    private func scheduleFeedbackDismiss() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            withAnimation { insertionFeedback = nil }
+        }
     }
 }
 

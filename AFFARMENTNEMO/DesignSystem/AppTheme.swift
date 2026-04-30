@@ -64,11 +64,38 @@ enum AppFont {
     }
 }
 
+extension AppFont {
+    /// 日本語可読性のための line spacing (Ling & van Schaik 2007 / Hayataki 2020 — CJK は英文比 +0.1em 推奨)
+    /// SwiftUI の lineSpacing は 行間の "追加余白" のため、目標行高 1.65-1.7 を達成するための値
+    var lineSpacing: CGFloat {
+        switch self {
+        case .display: 6
+        case .h1: 5
+        case .h2: 4
+        case .h3: 3
+        case .body, .bodyEmphasis: 5   // 17pt 文字 + 5pt → 行高 ~1.65
+        case .caption: 3
+        case .micro: 2
+        }
+    }
+
+    /// 日本語の "詰まり感" を防ぐ字間 (kerning) — タイトル系のみ若干広め
+    var tracking: CGFloat {
+        switch self {
+        case .display, .h1: 0.4
+        case .h2, .h3: 0.3
+        default: 0.0
+        }
+    }
+}
+
 extension View {
-    /// Dynamic Type 対応済みのフォント適用
+    /// Dynamic Type 対応 + 日本語可読性最適化された行間/字間
     func appFont(_ token: AppFont) -> some View {
         self
             .font(.system(token.relativeTo, weight: token.weight))
+            .lineSpacing(token.lineSpacing)
+            .tracking(token.tracking)
     }
 }
 
