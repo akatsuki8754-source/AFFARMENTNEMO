@@ -79,14 +79,23 @@ struct OnboardingFlowView: View {
     }
 
     private func complete() async {
-        // 通知許可ダイアログ (UX v4 §2.4: [完了] の後にOSダイアログ)
+        let cal = Calendar.current
+        let mh = cal.component(.hour, from: morningTime)
+        let mm = cal.component(.minute, from: morningTime)
+        let eh = cal.component(.hour, from: eveningTime)
+        let em = cal.component(.minute, from: eveningTime)
+
+        // バグ修正: 設定画面の @AppStorage キーと同期 (\u30aa\u30f3\u30dc\u3067\u8a2d\u5b9a\u3057\u305f\u5024\u304c\u8a2d\u5b9a\u753b\u9762\u306b\u53cd\u6620\u3055\u308c\u306a\u3044\u30d0\u30b0)
+        let ud = UserDefaults.standard
+        ud.set(morningEnabled, forKey: "kotodama.notif.morningEnabled")
+        ud.set(eveningEnabled, forKey: "kotodama.notif.eveningEnabled")
+        ud.set(mh, forKey: "kotodama.notif.morningHour")
+        ud.set(mm, forKey: "kotodama.notif.morningMinute")
+        ud.set(eh, forKey: "kotodama.notif.eveningHour")
+        ud.set(em, forKey: "kotodama.notif.eveningMinute")
+
         if morningEnabled || eveningEnabled {
             _ = await NotificationService.shared.requestAuthorization()
-            let cal = Calendar.current
-            let mh = cal.component(.hour, from: morningTime)
-            let mm = cal.component(.minute, from: morningTime)
-            let eh = cal.component(.hour, from: eveningTime)
-            let em = cal.component(.minute, from: eveningTime)
             NotificationService.shared.scheduleDaily(
                 morningEnabled: morningEnabled, morningHour: mh, morningMinute: mm,
                 eveningEnabled: eveningEnabled, eveningHour: eh, eveningMinute: em

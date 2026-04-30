@@ -43,12 +43,16 @@ struct HomeView: View {
                             .padding(.top, AppSpacing.sm)
                     }
 
-                    AdBannerSlot()
-                        .padding(.top, AppSpacing.md)
+                    // バナーは Stack 内には置かず、ScrollView 外で safeAreaInset で底固定 (上に来すぎバグ修正)
                 }
                 .padding(.horizontal, AppSpacing.screenEdge)
                 .padding(.bottom, AppSpacing.lg)
                 .responsivePage()
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // AdMob バナーを画面底部に固定 (内容が短くても上に被ってこない)
+                AdBannerSlot()
+                    .background(Color.bgPrimary)
             }
             .background(Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(greetingTitle)
@@ -123,17 +127,87 @@ struct HomeView: View {
                 }
             }
         } else {
+            // 「朝」「夜」名称中立化 + RPA見た目の順次フロー UI
+            // ユーザー要望: 「朝のセット」も中立に / RPAみたいな見た目で順次タスク化
+            let combined: [Affirmation] = {
+                // 重複排除して順序保持
+                var seen = Set<String>()
+                var result: [Affirmation] = []
+                for a in (morningSet + eveningSet) where seen.insert(a.id.uuidString).inserted {
+                    result.append(a)
+                }
+                return result
+            }()
             VStack(spacing: AppSpacing.md) {
-                if !morningSet.isEmpty {
-                    setCard(titleKey: "home.set.morning",
-                            items: morningSet,
-                            slot: "morning")
+                routineFlowCard(items: combined)
+            }
+        }
+    }
+
+    /// RPA "見た目だけ" の順次フロー UI: ステップ番号 + 矢印 + 全部読むCTA
+    private func routineFlowCard(items: [Affirmation]) -> some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                HStack {
+                    Text("home.todaysSet")
+                        .appFont(.h3)
+                        .foregroundStyle(Color.textPrimary)
+                    Spacer()
+                    Text("(\(items.count))")
+                        .appFont(.caption)
+                        .foregroundStyle(Color.textSecondary)
                 }
-                if !eveningSet.isEmpty {
-                    setCard(titleKey: "home.set.evening",
-                            items: eveningSet,
-                            slot: "evening")
+
+                // RPA風ステップ表示 (上から順に①②③)
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    ForEach(Array(items.prefix(5).enumerated()), id: \.element.id) { idx, aff in
+                        HStack(alignment: .top, spacing: AppSpacing.xs) {
+                            // ステップ番号
+                            ZStack {
+                                Circle()
+                                    .fill(Color.brandAccent.opacity(0.2))
+                                    .frame(width: 22, height: 22)
+                                Text("\(idx + 1)")
+                                    .appFont(.micro)
+                                    .foregroundStyle(Color.brandPrimary)
+                            }
+                            Text(iconFor(aff))
+                                .font(.system(size: 14))
+                            Text(aff.text)
+                                .appFont(.body)
+                                .foregroundStyle(Color.textPrimary)
+                                .lineLimit(2)
+                        }
+                        // 矢印 (最後以外)
+                        if idx < min(items.count, 5) - 1 {
+                            Image(systemName: "arrow.down")
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color.textDisabled)
+                                .padding(.leading, 11)
+                        }
+                    }
+                    if items.count > 5 {
+                        Text("home.set.more.\(items.count - 5)")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
+                            .padding(.top, AppSpacing.xs)
+                    }
                 }
+
+                Button {
+                    showReadAloud = true
+                } label: {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("home.set.read")
+                    }
+                    .appFont(.bodyEmphasis)
+                    .foregroundStyle(Color.bgPrimary)
+                    .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                    .background(Color.brandPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
+                }
+                .padding(.top, AppSpacing.xs)
             }
         }
     }

@@ -137,11 +137,34 @@ struct TimelineView: View {
 
     private var streamContent: some View {
         VStack(spacing: 0) {
+            // ロケーション切替Picker (ユーザー要望: 国別タップで切替)
             HStack {
                 Image(systemName: "globe").foregroundStyle(Color.semanticInfo)
-                Text("timeline.room.\(roomLabel)")
-                    .appFont(.caption)
-                    .foregroundStyle(Color.textSecondary)
+                Menu {
+                    ForEach(supportedRooms, id: \.code) { entry in
+                        Button {
+                            if room != entry.code {
+                                room = entry.code
+                                resubscribe()
+                            }
+                        } label: {
+                            HStack {
+                                Text("\(entry.flag)  \(entry.label)")
+                                if room == entry.code { Image(systemName: "checkmark") }
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(currentRoomFlag)
+                        Text(roomLabel)
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.textPrimary)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                }
                 Spacer()
                 Text("timeline.expires.note")
                     .appFont(.micro)
@@ -255,17 +278,57 @@ struct TimelineView: View {
         .padding(AppSpacing.md)
         .background(Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+        // ユーザー要望: 投稿長押しでブロック等のメニュー直接表示
+        .contextMenu {
+            if !isMyPost {
+                Button(role: .destructive) {
+                    blocks.block(post.authorUid)
+                } label: {
+                    Label("このユーザーをブロック", systemImage: "person.crop.circle.badge.xmark")
+                }
+                Button {
+                    locallyHiddenPostIds.insert(post.id)
+                } label: {
+                    Label("このフィードから隠す", systemImage: "eye.slash")
+                }
+                Button(role: .destructive) {
+                    Task {
+                        try? await TimelineService.shared.report(
+                            postId: post.id, room: post.languageRoom, reason: "long-press-report")
+                        locallyHiddenPostIds.insert(post.id)
+                    }
+                } label: {
+                    Label("報告する", systemImage: "exclamationmark.triangle")
+                }
+            }
+            Button {
+                UIPasteboard.general.string = post.text
+            } label: {
+                Label("コピー", systemImage: "doc.on.doc")
+            }
+        }
     }
 
+    private struct RoomEntry { let code: String; let label: String; let flag: String }
+    private let supportedRooms: [RoomEntry] = [
+        RoomEntry(code: "ja_JP", label: "日本語", flag: "🇯🇵"),
+        RoomEntry(code: "en",    label: "English", flag: "🇺🇸"),
+        RoomEntry(code: "zh_CN", label: "中文(简)", flag: "🇨🇳"),
+        RoomEntry(code: "zh_TW", label: "中文(繁)", flag: "🇹🇼"),
+        RoomEntry(code: "ko_KR", label: "한국어", flag: "🇰🇷"),
+    ]
+
     private var roomLabel: String {
-        switch room {
-        case "ja_JP": "日本語"
-        case "en": "English"
-        case "zh_CN": "中文(简)"
-        case "zh_TW": "中文(繁)"
-        case "ko_KR": "한국어"
-        default: room
-        }
+        supportedRooms.first { $0.code == room }?.label ?? room
+    }
+    private var currentRoomFlag: String {
+        supportedRooms.first { $0.code == room }?.flag ?? "🌐"
+    }
+
+    private func resubscribe() {
+        unsubscribe()
+        posts = []
+        subscribe()
     }
 
     private func relativeTime(_ date: Date) -> String {

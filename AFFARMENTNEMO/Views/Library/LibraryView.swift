@@ -152,6 +152,10 @@ struct LibraryView: View {
 private struct AffirmationRow: View {
     let affirmation: Affirmation
 
+    private var categoryKind: AffirmationCategoryKind {
+        AffirmationCategoryKind(rawValue: affirmation.category) ?? .custom
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(affirmation.text)
@@ -160,12 +164,15 @@ private struct AffirmationRow: View {
                 .lineLimit(3)
 
             HStack(spacing: AppSpacing.sm) {
+                // バグ修正: カテゴリ表示が抜けていた → カテゴリバッジ追加
+                categoryBadge(categoryKind)
                 if affirmation.morningEnabled {
                     badge(systemImage: "sun.max.fill", textKey: "notif.slot.morning")
                 }
                 if affirmation.eveningEnabled {
                     badge(systemImage: "moon.fill", textKey: "notif.slot.evening")
                 }
+                Spacer()
                 Text("read.\(affirmation.readCount)")
                     .appFont(.micro)
                     .foregroundStyle(Color.textSecondary)
@@ -173,6 +180,18 @@ private struct AffirmationRow: View {
         }
         .padding(.vertical, AppSpacing.xs)
         .listRowBackground(Color.bgPrimary)
+    }
+
+    private func categoryBadge(_ kind: AffirmationCategoryKind) -> some View {
+        HStack(spacing: 2) {
+            Text(LocalizedStringKey(kind.localizedKey))
+        }
+        .appFont(.micro)
+        .foregroundStyle(Color.brandPrimary)
+        .padding(.horizontal, AppSpacing.xs + 2)
+        .padding(.vertical, 2)
+        .background(Color.brandAccent.opacity(0.2))
+        .clipShape(Capsule())
     }
 
     private func badge(systemImage: String, textKey: LocalizedStringKey) -> some View {

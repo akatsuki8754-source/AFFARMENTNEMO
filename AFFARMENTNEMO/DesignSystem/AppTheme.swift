@@ -28,13 +28,14 @@ enum AppFont {
 
     var size: CGFloat {
         switch self {
-        case .display: 32
-        case .h1: 24
-        case .h2: 20
-        case .h3: 17
-        case .body, .bodyEmphasis: 15
-        case .caption: 13
-        case .micro: 11
+        // ユーザー要望: 文字小さい/見にくい → 全体サイズアップ (CJK 推奨値ベース)
+        case .display: 34
+        case .h1: 26
+        case .h2: 22
+        case .h3: 18
+        case .body, .bodyEmphasis: 17
+        case .caption: 14
+        case .micro: 12
         }
     }
 

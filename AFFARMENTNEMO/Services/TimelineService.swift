@@ -72,8 +72,9 @@ final class TimelineService {
         case error(String)
     }
 
-    /// 24時間以内の投稿をストリーム購読
-    func subscribePosts(room: String, limit: Int = 20,
+    /// ユーザー要望: ロケーションごとに最新100件のみ表示。
+    /// 期限切れはサーバ側 + クライアント側でも二重フィルタ (24h cleanup バグ対策)。
+    func subscribePosts(room: String, limit: Int = 100,
                         onUpdate: @escaping ([TimelinePost]) -> Void) -> ListenerRegistration {
         let ref = db.collection("timelineRooms").document(room).collection("posts")
             .whereField("isHidden", isEqualTo: false)
@@ -83,8 +84,13 @@ final class TimelineService {
             .limit(to: limit)
         return ref.addSnapshotListener { snapshot, _ in
             guard let docs = snapshot?.documents else { onUpdate([]); return }
-            let posts = docs.compactMap { Self.decode($0) }
-            onUpdate(posts)
+            let now = Date()
+            // クライアント側でも expireAt 再チェック (古いキャッシュ対策)
+            let posts = docs
+                .compactMap { Self.decode($0) }
+                .filter { $0.expireAt > now }
+                .prefix(100)
+            onUpdate(Array(posts))
         }
     }
 

@@ -7,6 +7,26 @@
 import SwiftUI
 import AVFoundation
 import UIKit
+import Combine
+
+/// TTS イベントログ用 (シミュレータ音量問題切り分け)
+@MainActor
+final class TTSLogger: NSObject, AVSpeechSynthesizerDelegate, ObservableObject {
+    static let shared = TTSLogger()
+    @Published var lastEvent: String = "idle"
+    func speechSynthesizer(_ s: AVSpeechSynthesizer, didStart u: AVSpeechUtterance) {
+        print("[TTS] didStart len=\(u.speechString.count)")
+        lastEvent = "didStart \(u.speechString.count)文字"
+    }
+    func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish u: AVSpeechUtterance) {
+        print("[TTS] didFinish")
+        lastEvent = "didFinish"
+    }
+    func speechSynthesizer(_ s: AVSpeechSynthesizer, didCancel u: AVSpeechUtterance) {
+        print("[TTS] didCancel")
+        lastEvent = "didCancel"
+    }
+}
 
 struct ReadAloudView: View {
     @Environment(AffirmationStore.self) private var store
@@ -177,8 +197,12 @@ struct ReadAloudView: View {
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
 
+        // delegate を装着 (didStart/didFinish/didCancel をログ + UI 反映)
+        synthesizer.delegate = TTSLogger.shared
+
         ttsSpeaking = true
         synthesizer.speak(utterance)
+        print("[TTS] speak() called text='\(items[index].text)' lang=\(preferred) volume=\(utterance.volume)")
 
         // 文字数で簡易完了タイマー (1文字 ~150ms)
         let estimatedDuration = max(2.0, Double(items[index].text.count) * 0.18)

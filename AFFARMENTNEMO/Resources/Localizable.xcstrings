@@ -3816,6 +3816,516 @@
           }
         }
       }
+    },
+    "tip.tanabata1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanabata uses Wu Xing colors: blue (growth), red (gratitude), yellow (trust), white (discipline), purple (dreams)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "七夕は中国五行に基づく文化。青(成長)・赤(感謝)・黄(信頼)・白(規律)・紫(夢)で願いを書き分けます。"
+          }
+        }
+      }
+    },
+    "tip.tanabata2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing down a wish increases its likelihood of becoming reality by 42% (Dr. Gail Matthews, 2015)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「願いを書く」習慣は、紙に書くだけで実現確率が42%上がるという研究があります (Dr. Gail Matthews 2015)。"
+          }
+        }
+      }
+    },
+    "tip.ema": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese ema plaques extend the kotodama belief — written words carry spirit and reshape intention."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "神社の絵馬は『言葉に魂が宿る』言霊文化の延長。書いて奉納することで意識が変わります。"
+          }
+        }
+      }
+    },
+    "tip.wishtree_world": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish trees exist across cultures: Clootie wells (Scotland), Lam Tsuen (HK), Anatolian Wish Trees (Turkey)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "世界の Wish Tree (願いの木): スコットランドの Clootie wells、トルコの Wish Tree、香港の Lam Tsuen 等、文化を越えて『木に願いを掛ける』儀礼が存在します。"
+          }
+        }
+      }
+    },
+    "tip.dreamcatcher": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Ojibwe dreamcatcher symbolizes filtering bad dreams while letting good wishes through — wish culture in form."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先住民族 Ojibwe のドリームキャッチャーは『良い夢を通し、悪夢をフィルタする』象徴。願い文化の心理学的機能を体現しています。"
+          }
+        }
+      }
+    },
+    "tip.trevi_fountain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€1.5M of coins are thrown into the Trevi Fountain yearly. Physically releasing wishes creates closure in the brain."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローマのトレヴィの泉では年間 €1.5 million のコインが投げ込まれます。願いを物理的に手放す行為が脳に区切りを生みます。"
+          }
+        }
+      }
+    },
+    "tip.korean_wish": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korea's Sowonui Namu (Wish Tree) ties colored ribbons by Wu Xing symbolism — same 5-color cosmology as tanabata."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "韓国の소원의 나무 (Sowonui Namu) はリボンに願いを書いて結ぶ伝統。色は5色で五行に対応します。"
+          }
+        }
+      }
+    },
+    "tip.tibetan_prayer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tibetan prayer flags release wishes to the wind. Write → release → accept calms the mind."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チベットのタルチョ(祈祷旗)は風に願いを乗せる文化。書く→流す→受容のサイクルが心を整えます。"
+          }
+        }
+      }
+    },
+    "tip.shinto_kotodama": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama from Kojiki: spoken words shape reality — Japan's foundational view of language."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "『言霊(ことだま)』は古事記から続く日本の世界観。発する言葉が現実を形作るという哲学です。"
+          }
+        }
+      }
+    },
+    "tip.first_dream": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo-era \"Hatsuyume\" symbols (Fuji-Hawk-Eggplant) prove neuroscience: vivid imagery encodes memory deeper."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初夢に『一富士・二鷹・三茄子』を願う江戸文化。具体的な象徴は記憶に定着しやすいと脳科学でも実証されています。"
+          }
+        }
+      }
+    },
+    "tip.quote_emerson": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"What you believe becomes you.\" — Emerson. Written words seed beliefs."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「自分が信じたものが、自分を作る」 — エマソン。書いた言葉は信念の種になります。"
+          }
+        }
+      }
+    },
+    "tip.quote_aurelius": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Such as are your thoughts, such will be your mind.\" — Marcus Aurelius, Meditations."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「人は自分の心が思っているもので作られる」 — マルクス・アウレリウス『自省録』。"
+          }
+        }
+      }
+    },
+    "tip.quote_lao": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"A journey of a thousand miles begins with one step.\" — Lao Tzu. Encode that first step with If-Then."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「千里の道も一歩から」 — 老子。If-Then で小さな最初の一歩を仕込みましょう。"
+          }
+        }
+      }
+    },
+    "tip.quote_seneca": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If a man knows not which port he sails for, no wind is favorable.\" — Seneca."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「目的のない船にとって、どんな風も追い風にはならない」 — セネカ。"
+          }
+        }
+      }
+    },
+    "tip.quote_kojiki": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kojiki teaches words carry spirit — writing and speaking matter."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "『言葉に魂が宿る』 — 古事記の言霊観。書くこと、声に出すことに意味があります。"
+          }
+        }
+      }
+    },
+    "tip.quote_basho": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Learn of the pine from a pine.\" — Bashō. Specific observation begins the wish."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「松のことは松に習え、竹のことは竹に習え」 — 芭蕉。願う対象を具体に観察することから始まります。"
+          }
+        }
+      }
+    },
+    "tip.quote_buddha": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"All that we are is the result of what we have thought.\" — Buddha (Dhammapada)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「心がすべて。あなたが思考したものに、あなたはなる」 — 仏陀の言葉。"
+          }
+        }
+      }
+    },
+    "tip.quote_aristotle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"We are what we repeatedly do. Excellence is a habit.\" — Aristotle."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「私たちは繰り返し行うことの結果である。卓越とは、行為ではなく習慣である」 — アリストテレス。"
+          }
+        }
+      }
+    },
+    "tip.quote_yoshida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Without dreams, no success.\" — Yoshida Shōin. Writing & rereading is the first step."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「夢なき者に成功なし」 — 吉田松陰。書いて毎日見返すことが第一歩。"
+          }
+        }
+      }
+    },
+    "tip.quote_franklin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"By failing to prepare, you are preparing to fail.\" — Franklin. If-Then plans get ahead."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「準備に失敗すれば、失敗の準備をしている」 — フランクリン。If-Thenプランで先回りしましょう。"
+          }
+        }
+      }
+    },
+    "tip.science_steele": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation Theory (Steele 1988): reaffirming core values measurably reduces stress response."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation Theory (Steele 1988): 自分の価値観を再確認するだけで、ストレス反応が和らぐと実証されています。"
+          }
+        }
+      }
+    },
+    "tip.science_wood": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood et al. 2009: \"I am [X]\" can backfire for low self-esteem. \"I want X\" or \"I value X\" is safer."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood et al. 2009: 自己肯定感が低い人は『私は◯◯だ』が逆効果。『◯◯したい』『◯◯を大切に』が安全です。"
+          }
+        }
+      }
+    },
+    "tip.science_gollwitzer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gollwitzer's meta-analysis (d=.65): If-Then plans are the strongest goal achievement technique."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Implementation Intentions メタ分析 (Gollwitzer 1999, d=.65): If-Then プランは目標達成の最強手法とされています。"
+          }
+        }
+      }
+    },
+    "tip.science_macleod": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Production Effect (MacLeod & Forrin 2017): reading aloud yourself improves memory >20% vs silent reading."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Production Effect (MacLeod & Forrin 2017): 自分で声に出して読むと、黙読より20%以上記憶定着が向上します。"
+          }
+        }
+      }
+    },
+    "tip.science_dweck": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Growth Mindset (Dweck): process-language (\"growing\", \"becoming\") drives outcomes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Growth Mindset (Dweck): 『なっていく』『成長している』という process 系の自己語りが結果に直結します。"
+          }
+        }
+      }
+    },
+    "tip.science_lally": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lally et al. 2010: habit automaticity averages 66 days (range 18-254). The first 2-3 weeks are the climb."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lally et al. 2010: 新習慣の自動化には平均66日 (個人差18-254日)。最初の2-3週がヤマです。"
+          }
+        }
+      }
+    },
+    "tip.science_baumeister": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willpower depletion (Baumeister): morning words preserve daily willpower. Lock-in actions before decision fatigue."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意志力枯渇 (Baumeister): 朝の言葉が一日の意志力を温存します。決定疲れの前に固定行動を仕込む。"
+          }
+        }
+      }
+    },
+    "tip.science_loehr": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loehr & Schwartz: 90-min focus-rest cycles align well with revisiting wishes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "『The Power of Full Engagement』(Loehr & Schwartz): 90分サイクルの集中→休息のリズムで願いを再確認するのが効率的。"
+          }
+        }
+      }
+    },
+    "tip.science_neff": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Compassion (Neff): kind self-talk creates more sustained motivation than self-criticism."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Compassion (Kristin Neff): 自分への優しい言葉は、自己批判より持続的なモチベーションを生みます。"
+          }
+        }
+      }
+    },
+    "tip.science_creswell": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation neuroscience (Creswell et al. 2013): VMPFC activates, reaffirmation buffers threat."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation 神経科学 (Creswell et al. 2013): VMPFCが活性化、価値再確認は脅威を緩和します。"
+          }
+        }
+      }
     }
   }
 }

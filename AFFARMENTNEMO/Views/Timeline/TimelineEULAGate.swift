@@ -90,6 +90,20 @@ struct TimelineEULAGate: View {
                             .appFont(.caption)
                             .foregroundStyle(Color.textSecondary)
                     }
+
+                    // ユーザー要望: 同意ボタンを右上だけでなくトグル直下にも出す
+                    Button {
+                        if checkedAgreement { onAgreed() }
+                    } label: {
+                        Text("同意して進む")
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.bgPrimary)
+                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .background(checkedAgreement ? Color.brandPrimary : Color.textDisabled)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
+                    }
+                    .disabled(!checkedAgreement)
+                    .padding(.top, AppSpacing.sm)
                 }
                 .padding(AppSpacing.lg)
             }
