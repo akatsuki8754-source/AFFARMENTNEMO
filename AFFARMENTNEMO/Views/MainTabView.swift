@@ -9,7 +9,10 @@ struct MainTabView: View {
     @AppStorage("kotodama.timeline.showTab") private var showTimelineTab: Bool = true
     /// デバッグ/スクショ用: 起動時の初期タブ (0=Home, 1=Library, 2=Timeline, 3=Settings)
     @AppStorage("kotodama.debug.startTab") private var startTab: Int = 0
-    @State private var selection: Int = 0
+    /// デバッグ用: 起動時に AI Wizard を自動的に開く
+    @AppStorage("kotodama.debug.openAIWizard") private var debugOpenAIWizard: Bool = false
+    @State private var selection: Int = UserDefaults.standard.integer(forKey: "kotodama.debug.startTab")
+    @State private var showDebugAIWizard: Bool = false
 
     var body: some View {
         TabView(selection: $selection) {
@@ -34,6 +37,15 @@ struct MainTabView: View {
         .tint(Color.brandPrimary)
         .onAppear {
             selection = startTab
+            if debugOpenAIWizard {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(1))
+                    showDebugAIWizard = true
+                }
+            }
+        }
+        .sheet(isPresented: $showDebugAIWizard) {
+            AIWishWizardView()
         }
     }
 }

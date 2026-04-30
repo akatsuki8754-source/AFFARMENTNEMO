@@ -34,7 +34,8 @@ struct TimelineView: View {
     @AppStorage("kotodama.timeline.firstSeen") private var firstSeen: Bool = false
     @AppStorage("kotodama.timeline.canPost") private var canPost: Bool = false
     @AppStorage("kotodama.eula.accepted") private var eulaAccepted: Bool = false
-    @State private var room: String = TimelineService.defaultLanguageRoom()
+    @State private var room: String = UserDefaults.standard.string(forKey: "kotodama.debug.timelineRoom")
+        ?? TimelineService.defaultLanguageRoom()
     @State private var posts: [TimelinePost] = []
     @State private var showCompose = false
     @State private var showOptInForPost = false
@@ -104,7 +105,10 @@ struct TimelineView: View {
             }
             .sheet(isPresented: $showContact) { ContactView() }
         }
-        .onAppear { subscribe() }
+        .onAppear {
+            subscribe()
+            runTimelineSmokePostIfNeeded()
+        }
         .onDisappear { unsubscribe() }
     }
 
@@ -169,16 +173,16 @@ struct TimelineView: View {
             HStack {
                 Image(systemName: "globe").foregroundStyle(Color.semanticInfo)
                 Menu {
-                    ForEach(supportedRooms, id: \.code) { entry in
+                    ForEach(supportedRooms, id: \.timelineRoom) { entry in
                         Button {
-                            if room != entry.code {
-                                room = entry.code
+                            if room != entry.timelineRoom {
+                                room = entry.timelineRoom
                                 resubscribe()
                             }
                         } label: {
                             HStack {
                                 Text("\(entry.flag)  \(entry.label)")
-                                if room == entry.code { Image(systemName: "checkmark") }
+                                if room == entry.timelineRoom { Image(systemName: "checkmark") }
                             }
                         }
                     }
@@ -415,20 +419,13 @@ struct TimelineView: View {
         "kotodama.timeline.sampleReaction.\(postId)"
     }
 
-    private struct RoomEntry { let code: String; let label: String; let flag: String }
-    private let supportedRooms: [RoomEntry] = [
-        RoomEntry(code: "ja_JP", label: "日本語", flag: "🇯🇵"),
-        RoomEntry(code: "en",    label: "English", flag: "🇺🇸"),
-        RoomEntry(code: "zh_CN", label: "中文(简)", flag: "🇨🇳"),
-        RoomEntry(code: "zh_TW", label: "中文(繁)", flag: "🇹🇼"),
-        RoomEntry(code: "ko_KR", label: "한국어", flag: "🇰🇷"),
-    ]
+    private var supportedRooms: [LanguageOption] { LanguageCatalog.timelineRooms }
 
     private var roomLabel: String {
-        supportedRooms.first { $0.code == room }?.label ?? room
+        LanguageCatalog.timelineRoomLabel(for: room)
     }
     private var currentRoomFlag: String {
-        supportedRooms.first { $0.code == room }?.flag ?? "🌐"
+        LanguageCatalog.timelineRoomFlag(for: room)
     }
 
     private func resubscribe() {
@@ -477,6 +474,26 @@ struct TimelineView: View {
         #if canImport(FirebaseFirestore)
         listener?.remove()
         listener = nil
+        #endif
+    }
+
+    private func runTimelineSmokePostIfNeeded() {
+        #if DEBUG
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "kotodama.debug.timelinePostSubmitted") == false else { return }
+        let text = (defaults.string(forKey: "kotodama.debug.timelinePost") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        defaults.set(true, forKey: "kotodama.debug.timelinePostSubmitted")
+        Task { @MainActor in
+            do {
+                try await TimelineService.shared.post(text: text, room: room)
+                print("[TimelineSmoke] posted room=\(room) text=\(text)")
+                await refreshTimeline()
+            } catch {
+                print("[TimelineSmoke] post failed room=\(room) error=\(error)")
+            }
+        }
         #endif
     }
 

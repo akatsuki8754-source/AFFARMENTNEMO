@@ -35,16 +35,7 @@ final class TimelineService {
 
     /// デバイスロケールから言語ルーム判定 (MASTER §14.8)
     static func defaultLanguageRoom(_ locale: Locale = .current) -> String {
-        switch locale.language.languageCode?.identifier {
-        case "ja": return "ja_JP"
-        case "en": return "en"
-        case "zh":
-            let region = locale.language.region?.identifier ?? ""
-            if region == "TW" || region == "HK" { return "zh_TW" }
-            return "zh_CN"
-        case "ko": return "ko_KR"
-        default: return "en"
-        }
+        LanguageCatalog.defaultTimelineRoom(for: locale)
     }
 
     private var db: Firestore { Firestore.firestore() }

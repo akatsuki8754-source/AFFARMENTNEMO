@@ -153,7 +153,7 @@ missing = expected - found
 if missing:
     print(f"  {FAIL} 不足 functions: {missing}")
 else:
-    print(f"  {PASS} 期待される 4 functions すべて稼働中")
+    print(f"  {PASS} 期待される {len(expected)} functions すべて稼働中")
 
 
 # ─── 6. Firestore rules ───
@@ -184,7 +184,7 @@ else:
 
 # ─── 7. Pub/Sub IAM ───
 print("\n[7] Pub/Sub Topic IAM ━━━━━━━━━━━━━━━━━━━━━━━━")
-s, d = req("POST", f"https://pubsub.googleapis.com/v1/projects/{PROJECT}/topics/kotodama-budget-alerts:getIamPolicy")
+s, d = req("GET", f"https://pubsub.googleapis.com/v1/projects/{PROJECT}/topics/kotodama-budget-alerts:getIamPolicy")
 billing_publisher = False
 for binding in d.get("bindings", []):
     if binding["role"] == "roles/pubsub.publisher":

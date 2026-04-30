@@ -45,10 +45,23 @@ enum KnowledgeMap {
         prompt: "achievement",
         children: [
             WishMapNode(id: "ach.exam", title: "資格・試験に合格したい", prompt: "exam_passing", children: [
-                WishMapNode(id: "ach.exam.1m", title: "1ヶ月以内", prompt: "deadline_1m", children: []),
-                WishMapNode(id: "ach.exam.3m", title: "3ヶ月以内", prompt: "deadline_3m", children: []),
+                WishMapNode(id: "ach.exam.1m", title: "1ヶ月以内", prompt: "deadline_1m", children: [
+                    WishMapNode(id: "ach.exam.1m.focus", title: "集中力が課題", prompt: "exam_obstacle_focus", children: []),
+                    WishMapNode(id: "ach.exam.1m.time", title: "勉強時間が足りない", prompt: "exam_obstacle_time", children: []),
+                    WishMapNode(id: "ach.exam.1m.range", title: "出題範囲が広い", prompt: "exam_obstacle_range", children: []),
+                    WishMapNode(id: "ach.exam.1m.weakpoint", title: "苦手分野を克服したい", prompt: "exam_obstacle_weak", children: []),
+                ]),
+                WishMapNode(id: "ach.exam.3m", title: "3ヶ月以内", prompt: "deadline_3m", children: [
+                    WishMapNode(id: "ach.exam.3m.plan", title: "計画的に進めたい", prompt: "exam_obstacle_plan", children: []),
+                    WishMapNode(id: "ach.exam.3m.motivation", title: "モチベ維持が課題", prompt: "exam_obstacle_motivation", children: []),
+                    WishMapNode(id: "ach.exam.3m.environment", title: "勉強環境を整えたい", prompt: "exam_obstacle_env", children: []),
+                ]),
                 WishMapNode(id: "ach.exam.1y", title: "今年中", prompt: "deadline_1y", children: []),
-                WishMapNode(id: "ach.exam.langtoeic", title: "TOEIC・語学試験", prompt: "exam_lang", children: []),
+                WishMapNode(id: "ach.exam.langtoeic", title: "TOEIC・語学試験", prompt: "exam_lang", children: [
+                    WishMapNode(id: "ach.exam.lang.600", title: "600点を目指す", prompt: "exam_lang_600", children: []),
+                    WishMapNode(id: "ach.exam.lang.700", title: "700点を目指す", prompt: "exam_lang_700", children: []),
+                    WishMapNode(id: "ach.exam.lang.800", title: "800点以上を目指す", prompt: "exam_lang_800", children: []),
+                ]),
                 WishMapNode(id: "ach.exam.licence", title: "国家資格", prompt: "exam_license", children: []),
                 WishMapNode(id: "ach.exam.entrance", title: "受験 (高校/大学/院)", prompt: "exam_entrance", children: []),
             ]),
@@ -95,17 +108,40 @@ enum KnowledgeMap {
         prompt: "improvement",
         children: [
             WishMapNode(id: "imp.health", title: "健康・体力を整えたい", prompt: "health", children: [
-                WishMapNode(id: "imp.health.weight", title: "ダイエット", prompt: "health_diet", children: []),
-                WishMapNode(id: "imp.health.exercise", title: "運動習慣", prompt: "health_exercise", children: []),
-                WishMapNode(id: "imp.health.sleep", title: "睡眠改善", prompt: "health_sleep", children: []),
+                WishMapNode(id: "imp.health.weight", title: "ダイエット", prompt: "health_diet", children: [
+                    WishMapNode(id: "imp.health.weight.carb", title: "糖質を減らす", prompt: "health_diet_carb", children: []),
+                    WishMapNode(id: "imp.health.weight.cal", title: "カロリーを管理", prompt: "health_diet_cal", children: []),
+                    WishMapNode(id: "imp.health.weight.amount", title: "食事量を減らす", prompt: "health_diet_amount", children: []),
+                    WishMapNode(id: "imp.health.weight.timing", title: "食事タイミングを整える", prompt: "health_diet_timing", children: []),
+                ]),
+                WishMapNode(id: "imp.health.exercise", title: "運動習慣", prompt: "health_exercise", children: [
+                    WishMapNode(id: "imp.health.ex.gym", title: "ジムに通う", prompt: "health_exercise_gym", children: []),
+                    WishMapNode(id: "imp.health.ex.home", title: "自宅トレーニング", prompt: "health_exercise_home", children: []),
+                    WishMapNode(id: "imp.health.ex.run", title: "ランニング・ウォーキング", prompt: "health_exercise_run", children: []),
+                    WishMapNode(id: "imp.health.ex.yoga", title: "ヨガ・ストレッチ", prompt: "health_exercise_yoga", children: []),
+                ]),
+                WishMapNode(id: "imp.health.sleep", title: "睡眠改善", prompt: "health_sleep", children: [
+                    WishMapNode(id: "imp.health.sleep.early", title: "早寝早起きしたい", prompt: "health_sleep_early", children: []),
+                    WishMapNode(id: "imp.health.sleep.quality", title: "睡眠の質を上げたい", prompt: "health_sleep_quality", children: []),
+                    WishMapNode(id: "imp.health.sleep.routine", title: "夜のルーティンを整えたい", prompt: "health_sleep_routine", children: []),
+                ]),
                 WishMapNode(id: "imp.health.muscle", title: "筋トレ・体力UP", prompt: "health_muscle", children: []),
                 WishMapNode(id: "imp.health.diet", title: "食生活を整える", prompt: "health_food", children: []),
                 WishMapNode(id: "imp.health.recovery", title: "病気を治す・回復", prompt: "health_recovery", children: []),
             ]),
             WishMapNode(id: "imp.habit", title: "習慣を変えたい", prompt: "habit", children: [
-                WishMapNode(id: "imp.habit.quit", title: "やめたい習慣", prompt: "habit_quit", children: []),
+                WishMapNode(id: "imp.habit.quit", title: "やめたい習慣", prompt: "habit_quit", children: [
+                    WishMapNode(id: "imp.habit.quit.smoke", title: "禁煙したい", prompt: "habit_quit_smoke", children: []),
+                    WishMapNode(id: "imp.habit.quit.drink", title: "減酒・断酒したい", prompt: "habit_quit_drink", children: []),
+                    WishMapNode(id: "imp.habit.quit.sweet", title: "間食・甘いものを減らす", prompt: "habit_quit_sweet", children: []),
+                    WishMapNode(id: "imp.habit.quit.scroll", title: "ダラダラ SNS をやめる", prompt: "habit_quit_scroll", children: []),
+                ]),
                 WishMapNode(id: "imp.habit.start", title: "始めたい習慣", prompt: "habit_start", children: []),
-                WishMapNode(id: "imp.habit.morning", title: "朝活・モーニング", prompt: "habit_morning", children: []),
+                WishMapNode(id: "imp.habit.morning", title: "朝活・モーニング", prompt: "habit_morning", children: [
+                    WishMapNode(id: "imp.habit.morning.5", title: "5時起きしたい", prompt: "habit_morning_5", children: []),
+                    WishMapNode(id: "imp.habit.morning.6", title: "6時起きしたい", prompt: "habit_morning_6", children: []),
+                    WishMapNode(id: "imp.habit.morning.routine", title: "朝のルーティンを作りたい", prompt: "habit_morning_routine", children: []),
+                ]),
                 WishMapNode(id: "imp.habit.read", title: "読書習慣", prompt: "habit_read", children: []),
                 WishMapNode(id: "imp.habit.write", title: "日記・ジャーナリング", prompt: "habit_write", children: []),
                 WishMapNode(id: "imp.habit.smart", title: "スマホ依存を減らす", prompt: "habit_smart", children: []),

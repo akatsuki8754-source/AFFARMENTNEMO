@@ -89,13 +89,70 @@ final class TTSPreferences: ObservableObject {
                 return lhs.name < rhs.name
             }
         let targetGender: AVSpeechSynthesisVoiceGender = selectedVoiceGender == "male" ? .male : .female
-        if let genderMatch = voices.first(where: { $0.gender == targetGender }) {
-            return genderMatch
+
+        // ── 1. AVSpeechSynthesisVoice.gender で完全一致 ──
+        if let exactMatch = voices.first(where: { $0.gender == targetGender }) {
+            NSLog("[TTS] resolved (gender exact): %@ (%@)", exactMatch.name, exactMatch.language)
+            return exactMatch
         }
+
+        // ── 2. .unspecified の場合は voice 名で推論 ──
+        // Apple の多くの voice は .unspecified を返すので名前パターンマッチが必要
+        let scored = voices.map { voice -> (AVSpeechSynthesisVoice, Int) in
+            let inferredScore = self.genderScore(for: voice, target: targetGender)
+            return (voice, inferredScore)
+        }.sorted { $0.1 > $1.1 }
+
+        if let best = scored.first, best.1 > 0 {
+            NSLog("[TTS] resolved (name-inferred): %@ (%@), score=%d, target=%@",
+                  best.0.name, best.0.language, best.1,
+                  selectedVoiceGender)
+            return best.0
+        }
+
+        // ── 3. フォールバック: 性別不問で best quality voice ──
         if let first = voices.first {
+            NSLog("[TTS] resolved (fallback): %@ (%@) — gender=%@ NOT FOUND",
+                  first.name, first.language, selectedVoiceGender)
             return first
         }
         return AVSpeechSynthesisVoice(language: normalized)
+    }
+
+    /// voice 名から性別を推論してスコア化 (target に合致するほど高スコア)
+    /// Apple の voice カタログから手動キュレーション (ja/en/zh/ko 主要言語のみ)
+    private func genderScore(for voice: AVSpeechSynthesisVoice, target: AVSpeechSynthesisVoiceGender) -> Int {
+        let name = voice.name.lowercased()
+        // 男性 voice 名 (Apple iOS 17+ ベース)
+        let maleNames: Set<String> = [
+            "otoya", "hattori",                  // ja
+            "alex", "daniel", "tom", "fred",     // en (Daniel/Fred は男性)
+            "li-mu", "yu-shu",                    // zh
+            "tian-tian"                            // zh-CN
+        ]
+        // 女性 voice 名
+        let femaleNames: Set<String> = [
+            "kyoko", "siri", "o-ren",            // ja (Siri is gender-fluid だが Apple 分類は female)
+            "samantha", "allison", "ava", "susan", "victoria", "karen", "moira",
+            "tessa", "fiona",                    // en
+            "ting-ting", "sin-ji", "mei-jia",   // zh
+            "yuna"                                // ko
+        ]
+
+        let isMaleName = maleNames.contains(where: { name.contains($0) })
+        let isFemaleName = femaleNames.contains(where: { name.contains($0) })
+
+        var score = 0
+        if target == .male {
+            if isMaleName { score += 100 }
+            if isFemaleName { score -= 100 }
+        } else {
+            if isFemaleName { score += 100 }
+            if isMaleName { score -= 100 }
+        }
+        // quality boost (Enhanced/Premium voices > Default)
+        score += voice.quality.rawValue * 5
+        return score
     }
 
     private func normalizeLanguage(_ raw: String) -> String {

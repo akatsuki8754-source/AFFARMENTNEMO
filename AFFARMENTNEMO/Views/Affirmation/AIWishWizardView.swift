@@ -113,6 +113,21 @@ struct AIWishWizardView: View {
                     let live = await AIWishGenerationService.shared.liveGenerationEnabled()
                     await MainActor.run { liveEnabledHint = live }
                 }
+                // DEBUG: kotodama.debug.autoGenerateAI=true で path 自動選択 + 生成
+                #if DEBUG
+                if UserDefaults.standard.bool(forKey: "kotodama.debug.autoGenerateAI") && path.isEmpty {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    await MainActor.run {
+                        // 「達成したい > 資格・試験 > 1ヶ月以内」を自動選択
+                        if let achievement = KnowledgeMap.root.children.first,
+                           let exam = achievement.children.first,
+                           let oneMonth = exam.children.first {
+                            path = [achievement, exam, oneMonth]
+                            generate()
+                        }
+                    }
+                }
+                #endif
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -548,11 +563,25 @@ struct AIWishWizardView: View {
             }
 
             // ── 2. リワード広告ゲート (1日1回無料、それ以降は動画視聴) ──
-            let granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-                AdRewardGate.shared.presentBeforeAIGeneration { granted in
-                    cont.resume(returning: granted)
+            // DEBUG ビルド & autoGenerateAI フラグ ON 時はゲートをスキップ
+            let granted: Bool
+            #if DEBUG
+            if UserDefaults.standard.bool(forKey: "kotodama.debug.autoGenerateAI") {
+                granted = true  // テスト用に広告スキップ
+            } else {
+                granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+                    AdRewardGate.shared.presentBeforeAIGeneration { g in
+                        cont.resume(returning: g)
+                    }
                 }
             }
+            #else
+            granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+                AdRewardGate.shared.presentBeforeAIGeneration { g in
+                    cont.resume(returning: g)
+                }
+            }
+            #endif
             if !granted {
                 // ユーザーが広告スキップ → 生成中断、選択画面に戻る
                 step = .selectingPath

@@ -24,11 +24,13 @@ private class AnyLanguageBundle: Bundle, @unchecked Sendable {
         if pref == "system" {
             return super.localizedString(forKey: key, value: value, table: tableName)
         }
-        // 該当言語の lproj が見つかれば差し替え
-        guard
-            let path = Bundle.main.path(forResource: pref, ofType: "lproj"),
-            let langBundle = Bundle(path: path)
-        else {
+        let base = pref.split(separator: "-").first.map(String.init) ?? pref
+        let candidates = [pref, base, "en"].reduce(into: [String]()) { result, code in
+            if !result.contains(code) { result.append(code) }
+        }
+        guard let langBundle = candidates.compactMap({
+            Bundle.main.path(forResource: $0, ofType: "lproj").flatMap(Bundle.init(path:))
+        }).first else {
             return super.localizedString(forKey: key, value: value, table: tableName)
         }
         return langBundle.localizedString(forKey: key, value: value, table: tableName)

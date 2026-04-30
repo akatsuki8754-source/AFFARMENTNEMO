@@ -41,7 +41,23 @@ const maxPostGlobalDaily = defineInt('POST_MAX_GLOBAL_DAILY', { default: 1000 })
 const maxReactionUserDaily = defineInt('REACTION_MAX_USER_DAILY', { default: 200 });
 const maxReportUserDaily = defineInt('REPORT_MAX_USER_DAILY', { default: 30 });
 
-const ALLOWED_ROOMS = ['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'];
+const LANGUAGE_OPTIONS = [
+  { locale: 'ja', room: 'ja_JP', instruction: '日本語' },
+  { locale: 'en', room: 'en', instruction: 'English' },
+  { locale: 'zh_CN', room: 'zh_CN', instruction: '简体中文' },
+  { locale: 'zh_TW', room: 'zh_TW', instruction: '繁體中文' },
+  { locale: 'ko', room: 'ko_KR', instruction: '한국어' },
+  { locale: 'es', room: 'es', instruction: 'Español' },
+  { locale: 'fr', room: 'fr', instruction: 'Français' },
+  { locale: 'de', room: 'de', instruction: 'Deutsch' },
+  { locale: 'pt_BR', room: 'pt_BR', instruction: 'Português do Brasil' },
+  { locale: 'id', room: 'id', instruction: 'Bahasa Indonesia' },
+  { locale: 'vi', room: 'vi', instruction: 'Tiếng Việt' },
+  { locale: 'th', room: 'th', instruction: 'ไทย' },
+  { locale: 'hi', room: 'hi', instruction: 'हिन्दी' },
+  { locale: 'ar', room: 'ar', instruction: 'العربية' },
+];
+const ALLOWED_ROOMS = LANGUAGE_OPTIONS.map(option => option.room);
 
 // ─────────────────────────────────────────────
 // AI 短冊生成 (Gemini Flash-Lite)
@@ -96,12 +112,28 @@ exports.aiGenerateWish = onCall(
         model: aiModelName.value(),
         generationConfig: {
           responseMimeType: 'application/json',
-          temperature: 0.8,
-          maxOutputTokens: 512,
+          temperature: 0.95,           // 多様性向上 (0.8 → 0.95)
+          maxOutputTokens: 768,        // 100字×3+JSON余裕
+          topP: 0.95,
         },
       });
+      // ★ DEBUG: prompt と response を構造化ログに残す (Cloud Logging で参照可能)
+      console.info('[GeminiPrompt]', JSON.stringify({
+        uid,
+        locale,
+        pathTitles: path.map(p => p.title),
+        promptChars: prompt.length,
+        promptPreview: prompt.slice(0, 500),
+        model: aiModelName.value(),
+        temperature: 0.95,
+      }));
       const result = await model.generateContent(prompt);
       const text = result.response.text();
+      console.info('[GeminiResponse]', JSON.stringify({
+        uid,
+        responseChars: text.length,
+        responsePreview: text.slice(0, 500),
+      }));
       const isFamousQuoteMode = /famous_quotes|quote_business|quote_life|quote_sport/.test(
         path.map(p => p.prompt || '').join(' ')
       );
@@ -112,6 +144,8 @@ exports.aiGenerateWish = onCall(
         mode: isFamousQuoteMode ? 'famous_quote' : 'affirmation',
         quotaRemaining: reservation.userRemaining,
         fallback: false,
+        // DEBUG: クライアント側で実際の prompt を確認できるように (本番でも安全)
+        debugPromptPreview: prompt.slice(0, 200),
       };
     } catch (err) {
       console.error('Gemini error:', err);
@@ -409,27 +443,33 @@ exports.submitTimelinePost = onCall(
 );
 
 function buildPrompt(path, locale = 'ja') {
-  const titles = path.map(p => p.title).join(' > ');
+  // path 全選択肢を構造化して見せる (Gemini が context をしっかり把握できるように)
+  const titlesArrow = path.map(p => p.title).join(' > ');
+  const titleList = path.map((p, i) => `  ${i + 1}. ${p.title}${p.prompt ? ` (内部キー: ${p.prompt})` : ''}`).join('\n');
   const prompts = path.map(p => p.prompt || '').join(' ');
+  const lastTitle = path[path.length - 1]?.title || '';
   const language = languageInstruction(locale);
   // 名言モード判定 (path に famous_quotes / quote_xxx が入っている)
   const isFamousQuoteMode =
     /famous_quotes|quote_business|quote_life|quote_sport/.test(prompts) ||
-    /有名人|名言|偉人|哲学者/.test(titles);
+    /有名人|名言|偉人|哲学者/.test(titlesArrow);
 
   if (isFamousQuoteMode) {
     return `あなたは世界の偉人・哲学者・歴史的人物の名言を案内するアシスタントです。
-ユーザーの状況: ${titles}
+
+ユーザーが選んだ階層 (${path.length} 段):
+${titleList}
+
 出力言語: ${language}
 
-以下のテーマに合う、3つの実在する名言を選んでください。
-- 著作権切れ (1923年以前公開) または広く流通する古典的引用に限る
+上記の最終テーマ「${lastTitle}」に最も合う、3つの実在する名言を選んでください。
+- 著作権切れ または広く流通する古典的引用に限る
 - 出典 (発言者名) を必ず付けること
 - 翻訳が複数あるものは最も一般的な日本語訳
 - 偉人(哲学者・科学者・作家・歴史的指導者・スポーツ選手など)を中心に
-- 現存している有名人の最近の発言は避ける (引用範囲が不明確なため)
+- 現存している有名人の最近の発言は避ける
 
-出力形式: JSONのみ。コードブロックや説明文は不要。各 text は「『名言の本文』 — 発言者名」形式。
+出力形式: JSONのみ。コードブロックや説明文は不要。
 {
   "candidates": [
     {"type": "classic", "text": "『言葉の本文』 — 発言者名"},
@@ -440,22 +480,30 @@ function buildPrompt(path, locale = 'ja') {
   }
 
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
-ユーザーの状況: ${titles}
+
+ユーザーが選んだ階層 (${path.length} 段、上から大カテゴリ → 詳細の順):
+${titleList}
+
 出力言語: ${language}
 
-以下の3つの異なるアプローチで、それぞれ80文字以内の言葉を1つずつ作ってください。
-すべて、その言語で自然な「I want to / I wish to / 〜したい」に相当する願い形で統一してください。
-1. 自己肯定型 (Self-Affirmation Theory): 価値観を肯定する文
-2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯したい」の形
+【重要な指示】
+- 上記階層を全て踏まえて、最終テーマ「${lastTitle}」に最も適した文を作る
+- 単なる一般論ではなく、上記の文脈 (例: 「達成したい > 資格・試験 > 1ヶ月以内」) に具体的に対応した内容
+- 計画系 (期限・目標) なら「いつまでに」「何を」「どう動くか」を明示
+- 価値観系なら「○○です」「○○である」と断定する形
+
+3つの異なるアプローチで、それぞれ100文字以内の言葉を1つずつ作ってください。
+すべて、その言語で自然な「I want to / I wish to / 〜したい」に相当する願い形で統一。
+1. 自己肯定型 (Self-Affirmation): 価値観を肯定する文
+2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯する」の具体行動
 3. 価値観型 (Mental Contrasting): 障害を予期しつつ前向きに進む文
 
-出力形式:
-JSONのみ。コードブロックや説明文は不要。
+出力形式: JSONのみ。コードブロックや説明文は不要。
 {
   "candidates": [
-    {"type": "self_affirmation", "text": "<80文字以内>"},
-    {"type": "if_then", "text": "<80文字以内>"},
-    {"type": "values", "text": "<80文字以内>"}
+    {"type": "self_affirmation", "text": "<100文字以内>"},
+    {"type": "if_then", "text": "<100文字以内>"},
+    {"type": "values", "text": "<100文字以内>"}
   ]
 }`;
 }
@@ -476,11 +524,30 @@ function parseCandidates(text, isFamousQuoteMode = false, locale = 'ja') {
       .map(item => norm(String(item.text ?? item)))
       .filter(Boolean)
       .slice(0, 3);
-    if (candidates.length === 3) return candidates;
+    if (candidates.length >= 1) {
+      // 1〜3 件揃っていれば返す (3 未満は重複させない)
+      return candidates.length === 3 ? candidates : padCandidates(candidates);
+    }
   } catch (_) {
     // below: tolerate numbered-list model drift
   }
+  // 番号箇条書き or 中黒/ダッシュ箇条書きを救出
   const lines = cleaned.split('\n').map(line => line.trim()).filter(Boolean);
+  const fromBullets = lines
+    .map(line => {
+      // "1. ...", "1) ...", "・...", "- ...", "* ..."
+      const m = line.match(/^(?:\d+[.)]\s+|[・\-*]\s+)(.+)$/);
+      return m ? m[1] : null;
+    })
+    .filter(Boolean)
+    .map(s => s.replace(/^[「『]|[」』]$/g, '').trim())
+    .map(norm)
+    .slice(0, 3);
+  if (fromBullets.length >= 1) {
+    return fromBullets.length === 3 ? fromBullets : padCandidates(fromBullets);
+  }
+
+  // 旧 fallback (互換)
   const candidates = lines
     .map(line => line.match(/^\d+[.)]\s*(.+)$/)?.[1])
     .filter(Boolean)
@@ -526,6 +593,12 @@ function fallbackCandidates(path, locale = 'ja') {
   ];
 }
 
+/// 1〜2件しか取れなかった場合、空文字で水増ししない (UI 側で自動非表示)
+/// 1件は1件として返し、UI 側でその1件だけ表示する
+function padCandidates(arr) {
+  return arr.filter(s => typeof s === 'string' && s.length > 0);
+}
+
 function normalizeCandidate(raw, locale = 'ja') {
   const trimmed = raw.trim().replace(/^["'「『]|["'」』]$/g, '').slice(0, 100);
   if (!trimmed) return '';
@@ -559,6 +632,15 @@ function validateLocale(raw) {
   if (/^zh(_Hans|_CN)?/i.test(normalized)) return 'zh_CN';
   if (/^zh(_Hant|_TW|_HK|_MO)/i.test(normalized)) return 'zh_TW';
   if (/^en/i.test(normalized)) return 'en';
+  if (/^es/i.test(normalized)) return 'es';
+  if (/^fr/i.test(normalized)) return 'fr';
+  if (/^de/i.test(normalized)) return 'de';
+  if (/^pt/i.test(normalized)) return 'pt_BR';
+  if (/^id/i.test(normalized)) return 'id';
+  if (/^vi/i.test(normalized)) return 'vi';
+  if (/^th/i.test(normalized)) return 'th';
+  if (/^hi/i.test(normalized)) return 'hi';
+  if (/^ar/i.test(normalized)) return 'ar';
   return 'en';
 }
 
@@ -567,13 +649,8 @@ function isJapaneseLocale(locale) {
 }
 
 function languageInstruction(locale) {
-  switch (validateLocale(locale)) {
-    case 'ja': return '日本語';
-    case 'ko': return '한국어';
-    case 'zh_CN': return '简体中文';
-    case 'zh_TW': return '繁體中文';
-    default: return 'English';
-  }
+  const normalized = validateLocale(locale);
+  return LANGUAGE_OPTIONS.find(option => option.locale === normalized)?.instruction || 'English';
 }
 
 function localizedFallbackCandidates(path, locale = 'en') {
@@ -626,6 +703,60 @@ function localizedFallbackCandidates(path, locale = 'en') {
         `我想為了${selected}，今天也邁出小小一步。`,
         `如果猶豫了，我想先深呼吸，再回到${selected}。`,
         `即使不完美，我也想按自己的節奏靠近${selected}。`,
+      ];
+    case 'es':
+      return [
+        `Quiero dar hoy un pequeño paso hacia ${selected}.`,
+        `Si dudo, quiero respirar primero y volver a ${selected}.`,
+        `Quiero acercarme a ${selected} a mi propio ritmo.`,
+      ];
+    case 'fr':
+      return [
+        `Je veux faire aujourd'hui un petit pas vers ${selected}.`,
+        `Si j'hesite, je veux respirer puis revenir a ${selected}.`,
+        `Je veux avancer vers ${selected} a mon rythme.`,
+      ];
+    case 'de':
+      return [
+        `Ich moechte heute einen kleinen Schritt in Richtung ${selected} gehen.`,
+        `Wenn ich zoegere, moechte ich erst atmen und zu ${selected} zurueckkehren.`,
+        `Ich moechte mich ${selected} in meinem eigenen Tempo naehern.`,
+      ];
+    case 'pt_BR':
+      return [
+        `Quero dar hoje um pequeno passo em direcao a ${selected}.`,
+        `Se eu hesitar, quero respirar primeiro e voltar para ${selected}.`,
+        `Quero seguir em direcao a ${selected} no meu ritmo.`,
+      ];
+    case 'id':
+      return [
+        `Saya ingin mengambil satu langkah kecil menuju ${selected} hari ini.`,
+        `Jika ragu, saya ingin bernapas dulu lalu kembali ke ${selected}.`,
+        `Saya ingin bergerak menuju ${selected} dengan ritme saya sendiri.`,
+      ];
+    case 'vi':
+      return [
+        `Hom nay toi muon tien mot buoc nho den gan ${selected}.`,
+        `Neu do du, toi muon hit tho truoc roi quay lai voi ${selected}.`,
+        `Toi muon tien den ${selected} theo nhip do cua rieng minh.`,
+      ];
+    case 'th':
+      return [
+        `วันนี้ฉันอยากก้าวเล็กๆ ไปหา ${selected}.`,
+        `ถ้าลังเล ฉันอยากหายใจก่อนแล้วกลับมาหา ${selected}.`,
+        `ฉันอยากเข้าใกล้ ${selected} ด้วยจังหวะของตัวเอง.`,
+      ];
+    case 'hi':
+      return [
+        `Aaj main ${selected} ki taraf ek chhota kadam badhana chahta/chahti hoon.`,
+        `Agar main hichkichau, to pehle saans lekar ${selected} par lautna chahta/chahti hoon.`,
+        `Main apni raftaar se ${selected} ke kareeb badhna chahta/chahti hoon.`,
+      ];
+    case 'ar':
+      return [
+        `اريد ان اخطو اليوم خطوة صغيرة نحو ${selected}.`,
+        `اذا ترددت، اريد ان اتنفس اولا ثم اعود الى ${selected}.`,
+        `اريد ان اقترب من ${selected} بوتيرتي الخاصة.`,
       ];
     default:
       return [
@@ -751,10 +882,9 @@ exports.cleanupExpiredPosts = onSchedule(
   },
   async () => {
     const now = admin.firestore.Timestamp.now();
-    const rooms = ['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'];
     let totalDeleted = 0;
 
-    for (const room of rooms) {
+    for (const room of ALLOWED_ROOMS) {
       const expired = await db
         .collection('timelineRooms').doc(room).collection('posts')
         .where('expireAt', '<', now)

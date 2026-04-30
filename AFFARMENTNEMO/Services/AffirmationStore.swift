@@ -205,6 +205,72 @@ final class AffirmationStore {
         try? context.delete(model: UserStats.self)
         try? context.save()
     }
+
+    // MARK: - Default Seed (20 affirmations × 5 categories)
+    //   オンボーディング完了直後に呼ばれる。一度シードされると flag で再実行されない。
+
+    /// デフォルト affirmation の 5 カテゴリ × 4 文 = 20 文
+    /// (出典: アファメーション基本セット — 自信 / 富 / 生産性 / 関係 / 健康)
+    static let defaultSeedAffirmations: [(category: AffirmationCategoryKind, customName: String, text: String, includeInRoutine: Bool)] = [
+        // 1) 自信をつけたい
+        (.selfAffirm, "自信", "私は自分の人生を自分でデザインしている", true),
+        (.selfAffirm, "自信", "私は幸せを選んでいる", true),
+        (.selfAffirm, "自信", "私には夢を叶える力がある", true),
+        (.selfAffirm, "自信", "私は自分のベストバージョンに近づいている", true),
+        // 2) お金に恵まれたい
+        (.goal, "豊かさ", "私はお金を簡単に、素早く引き寄せている", false),
+        (.goal, "豊かさ", "私は富を引き寄せる磁石だ", false),
+        (.goal, "豊かさ", "私は豊かさの中で生きている", false),
+        (.goal, "豊かさ", "私はより豊かになるチャンスに恵まれている", false),
+        // 3) 生産性
+        (.habit, "生産性", "今日の私は、エネルギーに満ちあふれていて何でもできる", true),
+        (.habit, "生産性", "私は生産的に仕事をしている", false),
+        (.habit, "生産性", "私は計画を実行できている", false),
+        (.habit, "生産性", "私の頭の中も周りの環境もよく整理されていて、物事を着実に進めることができている", false),
+        // 4) 人間関係
+        (.values, "人間関係", "私は人の愛を受け入れて、人に愛を与えている", true),
+        (.values, "人間関係", "私は家族や友人といった素晴らしい人間関係に恵まれている", false),
+        (.values, "人間関係", "私は人を大切にするし、周りの人も私を大切にしてくれる", false),
+        (.values, "人間関係", "私は愛を受け入れる準備があるし、愛に値する人間だ", false),
+        // 5) 健康
+        (.values, "健康", "私は自分の体にいいものだけを、必要なときにだけ食べる", false),
+        (.values, "健康", "私は健康な体を持っている", true),
+        (.values, "健康", "私は理想通りの、健康で、強い体を持つ自分に近づいている", false),
+        (.values, "健康", "私は自分の体を愛し、尊敬している", false),
+    ]
+
+    /// デフォルト affirmation を一括 seed (オンボーディング完了直後に呼ぶ)
+    /// 既に seed 済 (UserDefaults: kotodama.defaultsSeeded.v1=true) ならスキップ
+    func seedDefaultAffirmationsIfNeeded() {
+        let key = "kotodama.defaultsSeeded.v1"
+        if UserDefaults.standard.bool(forKey: key) { return }
+
+        // 既に何か登録されている場合はスキップ (ユーザー追加と衝突しないため)
+        if !allAffirmations(activeOnly: false).isEmpty {
+            UserDefaults.standard.set(true, forKey: key)
+            return
+        }
+
+        for (i, item) in Self.defaultSeedAffirmations.enumerated() {
+            let aff = Affirmation(
+                text: item.text,
+                internalMode: "affirmation",
+                templateUsed: nil,
+                category: item.category.rawValue,
+                customCategoryName: item.customName,
+                ifTrigger: nil,
+                thenAction: nil,
+                morningEnabled: item.includeInRoutine,
+                eveningEnabled: false,
+                orderIndex: i
+            )
+            aff.includeInRoutine = item.includeInRoutine
+            context.insert(aff)
+        }
+        try? context.save()
+        UserDefaults.standard.set(true, forKey: key)
+        NSLog("[AffirmationStore] seeded %d default affirmations", Self.defaultSeedAffirmations.count)
+    }
 }
 
 struct ReadCompletionResult: Equatable {

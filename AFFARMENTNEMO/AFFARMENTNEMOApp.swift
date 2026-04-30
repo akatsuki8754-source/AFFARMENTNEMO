@@ -46,6 +46,30 @@ struct AFFARMENTNEMOApp: App {
             UserDefaults.standard.set("", forKey: "kotodama.draft.text")
             UserDefaults.standard.set("", forKey: "kotodama.autoplay.lastDay")
         }
+        if arguments.contains("-ui-testing-timeline") {
+            UserDefaults.standard.set(true, forKey: "kotodama.onboarding.completed")
+            UserDefaults.standard.set(true, forKey: "kotodama.timeline.firstSeen")
+            UserDefaults.standard.set(true, forKey: "kotodama.timeline.canPost")
+            UserDefaults.standard.set(true, forKey: "kotodama.eula.accepted")
+            UserDefaults.standard.set(false, forKey: "kotodama.autoplay.enabled")
+            UserDefaults.standard.set(true, forKey: "kotodama.screenshot.mode")
+            UserDefaults.standard.set(2, forKey: "kotodama.debug.startTab")
+            UserDefaults.standard.set(false, forKey: "kotodama.debug.openAIWizard")
+            UserDefaults.standard.set(false, forKey: "kotodama.debug.autoGenerateAI")
+            UserDefaults.standard.set(false, forKey: "kotodama.debug.timelinePostSubmitted")
+            if let roomIndex = arguments.firstIndex(of: "-ui-testing-timeline-room"),
+               arguments.indices.contains(arguments.index(after: roomIndex)) {
+                UserDefaults.standard.set(arguments[arguments.index(after: roomIndex)],
+                                          forKey: "kotodama.debug.timelineRoom")
+            }
+            if let postIndex = arguments.firstIndex(of: "-ui-testing-timeline-post"),
+               arguments.indices.contains(arguments.index(after: postIndex)) {
+                UserDefaults.standard.set(arguments[arguments.index(after: postIndex)],
+                                          forKey: "kotodama.debug.timelinePost")
+            } else {
+                UserDefaults.standard.set("", forKey: "kotodama.debug.timelinePost")
+            }
+        }
         #endif
 
         // 言語オーバーライド (アプリ内言語切替)
@@ -93,9 +117,12 @@ struct AFFARMENTNEMOApp: App {
 
     var body: some Scene {
         WindowGroup {
+            let affirmationStore = AffirmationStore(context: modelContainer.mainContext)
             ContentView()
-                .environment(AffirmationStore(context: modelContainer.mainContext))
+                .environment(affirmationStore)
                 .onAppear {
+                    // デフォルト 20 affirmation を seed (1度だけ)
+                    affirmationStore.seedDefaultAffirmationsIfNeeded()
                     // オンボ未完了 → ATT は出さず AdMob だけ起動 (バナーは出るが個別化なし)
                     // オンボ完了 → ATT 要求して AdMob 起動 (個別化広告で収益最適化)
                     if onboardingCompleted {

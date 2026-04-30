@@ -8,6 +8,7 @@
   - 確認: Firestore上は `timelineRooms/{room}/posts` を購読する設計。
   - 問題: iOS側が直接Firestoreへ `addDocument` していたため、Cloud Functions側のレート制限・予算停止を通っていなかった。
   - 修正: iOS投稿を `submitTimelinePost` callable 経由へ変更。
+  - 実機相当確認: iPhone 17 Pro Maxシミュレーターから投稿し、iPhone 17 Proシミュレーターの先頭に同一投稿が表示されることを確認。
 - [x] いいね/ハート/ピースが他デバイスに反映されるか
   - 問題: iOS側が直接Firestore transactionで `reactedBy` とcountを更新していた。ルールだけでは回数制限ができず、不正利用の抜け道になっていた。
   - 修正: `reactToPost` callable 経由へ変更。1分/1日上限、投稿の非表示/期限切れチェックを追加。
@@ -28,11 +29,13 @@
   - 修正: deploy後に有効化する `firebase/deploy_after_blaze.sh` を更新。iOSはlocale付きで `aiGenerateWish` を呼ぶ。
 - [x] App Check
   - 問題: iOSはAppCheck providerを設定していたが、App Attest entitlementsがなかった。Functions側も `enforceAppCheck=false` だった。
-  - 修正: App Attest production entitlementを追加し、user-facing callable functionsに `enforceAppCheck: true` を追加。
-  - 残確認: Firebase Console側でiOS App Attest設定が有効か、Cloud FunctionsのApp Checkメトリクスで正規リクエストが通っているか。
+  - 修正: App Attest production entitlementを追加し、user-facing callable functionsでApp Check必須チェックを追加。
+  - 確認: App Attest設定、debug token登録、App Checkなしの直叩き拒否、debug token登録後のシミュレーター投稿成功を確認。
 - [x] 費用増・古いデータ残り
   - 修正: 期限切れposts削除に加え、rate limit / quota / usage logの古い運用doc削除を追加。
+  - 修正: 言語ルーム追加後も削除漏れが出ないよう、期限切れposts削除の対象roomを共通許可リストから生成。
   - 残確認: Firestore TTL policyを本番Console側でも `expireAt` に設定できるなら追加。
+  - 残課題: Cloud Functions Node.js 20 runtimeが2026-10-30に廃止予定。Node.js 22への移行が必要。
 
 ## P1: AIウィザード
 
@@ -43,7 +46,7 @@
 - [x] 条件不足
   - 修正: 燃え尽き、自己責め、過去、喪失、境界線、休息、自己受容、見た目/体型、発信、居場所、挑戦を追加。
 - [x] Gemini出力のlocale
-  - 修正: iOSから `Locale.current.identifier` を送信し、Functions prompt側で出力言語を指定。
+  - 修正: iOSからアプリ内言語設定を優先したlocaleを送信し、Functions prompt側で出力言語を指定。
 - [x] 日本語以外で候補末尾に「したい」が付く
   - 修正: iOS/Functions双方のnormalizeで日本語以外は日本語語尾を付けない。
 - [ ] 名言候補の権利・正確性
@@ -51,6 +54,9 @@
 
 ## P1: ローカライズ
 
+- [x] 設定/タイムライン言語ルームが英日中心に見える
+  - 修正: 言語選択を共通カタログ化し、日本語/英語/簡体字/繁体字/韓国語/スペイン語/フランス語/ドイツ語/ポルトガル語/インドネシア語/ベトナム語/タイ語/ヒンディー語/アラビア語を同じ選択肢として表示。
+  - 修正: Functionsの投稿room許可とGemini出力言語も同じ言語セットへ拡張。
 - [x] 設定に中国語/韓国語があるのにString Catalogが英日だけ
   - 修正: `zh-Hans` / `zh-Hant` / `ko` を `CFBundleLocalizations` とString Catalog全キーへ追加。
 - [ ] 翻訳品質

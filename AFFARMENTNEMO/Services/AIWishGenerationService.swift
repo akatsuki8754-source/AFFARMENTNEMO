@@ -41,7 +41,7 @@ final class AIWishGenerationService {
         // 必ず認証完了を待つ — 未認証で Firestore 読むと permission denied
         await AuthService.shared.signInAnonymouslyIfNeeded()
         guard Auth.auth().currentUser != nil else {
-            print("[AIWishGen] liveGenerationEnabled: not signed in")
+            NSLog("[AIWishGen] liveGenerationEnabled: not signed in")
             return false
         }
         #endif
@@ -53,10 +53,10 @@ final class AIWishGenerationService {
                 .document("aiRuntime")
                 .getDocument()
             let enabled = snapshot.data()?["clientEnabled"] as? Bool == true
-            print("[AIWishGen] liveGenerationEnabled: \(enabled)")
+            NSLog("[AIWishGen] liveGenerationEnabled: \(enabled)")
             return enabled
         } catch {
-            print("[AIWishGen] liveGenerationEnabled error: \(error)")
+            NSLog("[AIWishGen] liveGenerationEnabled error: \(error)")
             return false
         }
         #else
@@ -79,14 +79,19 @@ final class AIWishGenerationService {
         #if canImport(FirebaseFunctions)
         let functions = Functions.functions(region: "asia-northeast1")
         let callable = functions.httpsCallable("aiGenerateWish")
+        let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
+        let localeIdentifier = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
         let payload: [String: Any] = [
             "path": path.map { ["title": $0.title, "prompt": $0.prompt] },
-            "locale": Locale.current.identifier
+            "locale": localeIdentifier
         ]
         let result: HTTPSCallableResult
         do {
+            NSLog("[AIWishGen] calling aiGenerateWish with path: \(payload)")
             result = try await callable.call(payload)
+            NSLog("[AIWishGen] aiGenerateWish success: \(result.data)")
         } catch let error as NSError {
+            NSLog("[AIWishGen] aiGenerateWish FAILED: domain=\(error.domain) code=\(error.code) localizedDescription=\(error.localizedDescription) userInfo=\(error.userInfo)")
             // Firebase Functions エラーコード判定
             let code = FunctionsErrorCode(rawValue: error.code)
             if code == .resourceExhausted {
@@ -115,7 +120,9 @@ final class AIWishGenerationService {
     private static func normalizeCandidate(_ raw: String) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return trimmed }
-        if Locale.current.language.languageCode?.identifier != "ja" {
+        let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
+        let localeIdentifier = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
+        if !localeIdentifier.hasPrefix("ja") {
             let punctuation = CharacterSet(charactersIn: ".!?。！？")
             if trimmed.unicodeScalars.last.map({ punctuation.contains($0) }) == true {
                 return trimmed
