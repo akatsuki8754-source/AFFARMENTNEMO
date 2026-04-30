@@ -115,6 +115,211 @@ exports.aiGenerateWish = onCall(
   }
 );
 
+// ─────────────────────────────────────────────
+// 共通: per-uid rate limit transactional checker
+//   60秒に max件、1日に day件
+// ─────────────────────────────────────────────
+async function rateLimit(uid, kind, perMinMax, perDayMax) {
+  const today = jstDateKey();
+  const minRef = db.collection('rateLimits').doc(`${uid}_${kind}`);
+  const dayRef = db.collection('rateLimits').doc(`${uid}_${kind}_${today}`);
+  return db.runTransaction(async tx => {
+    const [minSnap, daySnap] = await Promise.all([tx.get(minRef), tx.get(dayRef)]);
+    const now = Date.now();
+    const ts = (minSnap.exists ? minSnap.data().ts : []) || [];
+    const recent = ts.filter(t => now - t < 60_000);
+    if (recent.length >= perMinMax) {
+      throw new HttpsError('resource-exhausted', `Rate limit (${kind}/min)`);
+    }
+    const dailyUsed = daySnap.exists ? (daySnap.data().count || 0) : 0;
+    if (dailyUsed >= perDayMax) {
+      throw new HttpsError('resource-exhausted', `Rate limit (${kind}/day)`);
+    }
+    recent.push(now);
+    tx.set(minRef, { ts: recent }, { merge: true });
+    tx.set(dayRef, { count: dailyUsed + 1, day: today }, { merge: true });
+  });
+}
+
+async function checkBudgetAndAuth(request) {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+  const budgetSnap = await db.doc('system/aiBudgetAlert').get();
+  if (budgetSnap.data()?.monthlyEmergencyStop === true) {
+    throw new HttpsError('resource-exhausted', 'Service temporarily unavailable (budget protection)');
+  }
+  return uid;
+}
+
+// ─────────────────────────────────────────────
+// Post 反応 via Cloud Function (1 ユーザー 1 投稿に 1 reaction、1分20件、1日200件)
+// ─────────────────────────────────────────────
+exports.reactToPost = onCall(
+  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 5, concurrency: 20 },
+  async (request) => {
+    const uid = await checkBudgetAndAuth(request);
+    const room = String(request.data?.room || '');
+    const postId = String(request.data?.postId || '');
+    const reaction = String(request.data?.reaction || '');
+    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+      throw new HttpsError('invalid-argument', 'invalid room');
+    }
+    if (!['like', 'heart', 'peace', 'none'].includes(reaction)) {
+      throw new HttpsError('invalid-argument', 'invalid reaction');
+    }
+    if (!postId || postId.length > 64) {
+      throw new HttpsError('invalid-argument', 'invalid postId');
+    }
+    await rateLimit(uid, 'react', 20, 200);
+
+    const ref = db.collection('timelineRooms').doc(room).collection('posts').doc(postId);
+    return db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) throw new HttpsError('not-found', 'post not found');
+      const data = snap.data();
+      const reactedBy = data.reactedBy || {};
+      const prev = reactedBy[uid] || null;
+      const counts = {
+        like: data.reactionLike || 0,
+        heart: data.reactionHeart || 0,
+        peace: data.reactionPeace || 0,
+      };
+      // 旧 reaction を取消
+      if (prev && counts[prev] !== undefined) counts[prev] = Math.max(0, counts[prev] - 1);
+      // 新 reaction 適用
+      let newReactedBy = { ...reactedBy };
+      if (reaction === 'none') {
+        delete newReactedBy[uid];
+      } else {
+        newReactedBy[uid] = reaction;
+        counts[reaction] = (counts[reaction] || 0) + 1;
+      }
+      tx.update(ref, {
+        reactedBy: newReactedBy,
+        reactionLike: counts.like,
+        reactionHeart: counts.heart,
+        reactionPeace: counts.peace,
+      });
+      return { ok: true };
+    });
+  }
+);
+
+// ─────────────────────────────────────────────
+// Post 通報 via Cloud Function (1ユーザー 1分5件、1日30件)
+// ─────────────────────────────────────────────
+exports.reportPost = onCall(
+  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 3, concurrency: 10 },
+  async (request) => {
+    const uid = await checkBudgetAndAuth(request);
+    const room = String(request.data?.room || '');
+    const postId = String(request.data?.postId || '');
+    const reason = String(request.data?.reason || '').slice(0, 200);
+    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+      throw new HttpsError('invalid-argument', 'invalid room');
+    }
+    if (!postId || postId.length > 64 || !reason) {
+      throw new HttpsError('invalid-argument', 'invalid params');
+    }
+    await rateLimit(uid, 'report', 5, 30);
+
+    const postRef = db.collection('timelineRooms').doc(room).collection('posts').doc(postId);
+    await db.collection('reports').add({
+      reporterUid: uid,
+      targetType: 'post',
+      targetId: postId,
+      targetRoom: room,
+      reason,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    await postRef.update({
+      reportedBy: admin.firestore.FieldValue.arrayUnion(uid),
+      reportCount: admin.firestore.FieldValue.increment(1),
+    });
+    return { ok: true };
+  }
+);
+
+// ─────────────────────────────────────────────
+// Timeline 投稿 via Cloud Function (rate limit 入り)
+//   - 直接 Firestore 書き込みより安全
+//   - 1ユーザー 60秒に最大 5 件
+//   - 1ユーザー 1日に最大 30 件
+//   - 緊急停止フラグ尊重
+// ─────────────────────────────────────────────
+exports.submitTimelinePost = onCall(
+  {
+    region: 'asia-northeast1',
+    timeoutSeconds: 15,
+    memory: '256MiB',
+    maxInstances: 5,
+    concurrency: 20,
+  },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+
+    // Emergency stop チェック
+    const budgetSnap = await db.doc('system/aiBudgetAlert').get();
+    if (budgetSnap.data()?.monthlyEmergencyStop === true) {
+      throw new HttpsError('resource-exhausted', 'Service temporarily unavailable (budget protection)');
+    }
+
+    // Input validation
+    const text = String(request.data?.text || '').trim();
+    const room = String(request.data?.room || '');
+    if (text.length < 1 || text.length > 100) {
+      throw new HttpsError('invalid-argument', 'text must be 1-100 chars');
+    }
+    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+      throw new HttpsError('invalid-argument', 'invalid room');
+    }
+
+    // Rate limit transaction: 60秒に5件、1日30件
+    const today = jstDateKey();
+    const rateRef = db.collection('postRateLimits').doc(uid);
+    const dailyRef = db.collection('postRateLimits').doc(`${uid}_${today}`);
+
+    const allowed = await db.runTransaction(async tx => {
+      const [rateSnap, dailySnap] = await Promise.all([tx.get(rateRef), tx.get(dailyRef)]);
+      const now = Date.now();
+      const rateBucket = rateSnap.exists ? rateSnap.data() : { ts: [] };
+      // 60秒以内の投稿だけ残す
+      const recent = (rateBucket.ts || []).filter(t => now - t < 60_000);
+      if (recent.length >= 5) {
+        return { ok: false, reason: 'rate_60s' };
+      }
+      const dailyUsed = dailySnap.exists ? (dailySnap.data().count || 0) : 0;
+      if (dailyUsed >= 30) {
+        return { ok: false, reason: 'rate_day' };
+      }
+      recent.push(now);
+      tx.set(rateRef, { ts: recent }, { merge: true });
+      tx.set(dailyRef, { count: dailyUsed + 1, day: today }, { merge: true });
+      return { ok: true };
+    });
+
+    if (!allowed.ok) {
+      throw new HttpsError('resource-exhausted', `Rate limit: ${allowed.reason}`, allowed);
+    }
+
+    // 投稿作成
+    const now = admin.firestore.Timestamp.now();
+    const expireAt = admin.firestore.Timestamp.fromMillis(now.toMillis() + 24 * 3600 * 1000);
+    const post = {
+      authorUid: uid,
+      text,
+      languageRoom: room,
+      createdAt: now,
+      expireAt,
+      reportCount: 0,
+      isHidden: false,
+    };
+    const ref = await db.collection('timelineRooms').doc(room).collection('posts').add(post);
+    return { id: ref.id, postedAt: now.toMillis() };
+  }
+);
+
 function buildPrompt(path) {
   const titles = path.map(p => p.title).join(' > ');
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
