@@ -133,7 +133,15 @@ struct AddAffirmationView: View {
                 hint = SmartHintEngine.evaluate(text)
             }
             .onAppear { focused = true }
-            .sheet(isPresented: $showAIWizard) { AIWishWizardView() }
+            .sheet(isPresented: $showAIWizard, onDismiss: {
+                // AI ウィザードで選択した文を draft から読み戻す (B4)
+                let updated = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
+                if !updated.isEmpty && updated != text {
+                    text = String(updated.prefix(maxLen))
+                    initialText = text
+                    // 採用後は draft 自体は残しておく (キャンセルで再復元できるように)
+                }
+            }) { AIWishWizardView() }
             .confirmationDialog("変更があります", isPresented: $showCancelConfirm, titleVisibility: .visible) {
                 Button("下書きを保存して閉じる") {
                     draftText = text

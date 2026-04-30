@@ -22,10 +22,13 @@ final class AdMobService: NSObject {
     static let shared = AdMobService()
     private var interstitial: InterstitialAd?
     private var isLoadingInterstitial = false
+    private var rewarded: RewardedAd?
+    private var isLoadingRewarded = false
 
     func start() {
         MobileAds.shared.start(completionHandler: nil)
         Task { await preloadInterstitial() }
+        Task { await preloadRewarded() }
     }
 
     // MARK: - Interstitial
@@ -54,6 +57,38 @@ final class AdMobService: NSObject {
         InterstitialPolicy.shared.recordShown()
         interstitial = nil
         Task { await preloadInterstitial() }  // 次回のためにプリロード
+    }
+
+    // MARK: - Rewarded (B8: AI生成のゲートに使用)
+    func preloadRewarded() async {
+        guard !isLoadingRewarded, rewarded == nil else { return }
+        isLoadingRewarded = true
+        defer { isLoadingRewarded = false }
+        do {
+            rewarded = try await RewardedAd.load(
+                with: AdMobConfig.rewardedUnitID,
+                request: Request()
+            )
+        } catch {
+            rewarded = nil
+        }
+    }
+
+    /// リワード広告を提示し、ユーザーがリワード獲得したら true を返す
+    /// 失敗・未ロード時はゲートをパス (true) して UX を阻害しない
+    func presentRewarded(from viewController: UIViewController,
+                        completion: @escaping (Bool) -> Void) {
+        guard let ad = rewarded else {
+            Task { await preloadRewarded() }
+            completion(true)  // 広告未ロードは無料パス
+            return
+        }
+        ad.present(from: viewController) {
+            // ユーザーがリワード獲得 (動画を最後まで見た)
+            completion(true)
+        }
+        rewarded = nil
+        Task { await preloadRewarded() }
     }
 }
 
@@ -103,6 +138,11 @@ final class AdMobService: NSObject {
     func start() { /* SDK未統合 */ }
     func preloadInterstitial() async { /* SDK未統合 */ }
     func showInterstitialIfReady(from viewController: AnyObject, stats: UserStats) { /* SDK未統合 */ }
+    func preloadRewarded() async { /* SDK未統合 */ }
+    func presentRewarded(from viewController: AnyObject, completion: @escaping (Bool) -> Void) {
+        // SDK未統合時は無料パス
+        completion(true)
+    }
 }
 
 import UIKit
