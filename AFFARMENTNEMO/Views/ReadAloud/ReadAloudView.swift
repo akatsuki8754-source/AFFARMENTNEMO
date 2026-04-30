@@ -149,12 +149,19 @@ struct ReadAloudView: View {
             Spacer()
 
             if items.indices.contains(index) {
-                Text(items[index].text)
-                    .font(.system(size: 28, weight: .semibold, design: .default))
-                    .foregroundStyle(Color.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, AppSpacing.screenEdge)
-                    .accessibilityAddTraits(.isHeader)
+                // 長文時に画面切れしないようスクロール可能領域に
+                ScrollView(.vertical, showsIndicators: true) {
+                    Text(items[index].text)
+                        .font(.system(size: 28, weight: .semibold, design: .default))
+                        .foregroundStyle(Color.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, AppSpacing.screenEdge)
+                        .padding(.vertical, AppSpacing.md)
+                        .accessibilityAddTraits(.isHeader)
+                        .frame(maxWidth: .infinity)
+                }
+                .scrollIndicators(.visible)
+                .frame(maxHeight: 360)
             }
 
             VStack(spacing: AppSpacing.xs) {

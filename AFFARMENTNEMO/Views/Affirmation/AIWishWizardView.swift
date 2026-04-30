@@ -29,6 +29,30 @@ struct AIWishWizardView: View {
     @State private var rotationOffsetByLevel: [Int: Int] = [:]
     /// 候補再生成カウント (静的サンプルでも順序を変えるため)
     @State private var regenerateNonce: Int = 0
+    /// 候補の生成元 ("gemini" / "local" / "fallback")
+    @State private var candidateSource: CandidateSource = .local
+
+    enum CandidateSource {
+        case gemini   // Gemini API から本物
+        case local    // 静的サンプル (Phase 1.5)
+        case fallback // Gemini 失敗 → 静的フォールバック
+
+        var label: String {
+            switch self {
+            case .gemini:   return "✨ AI 生成 (Gemini)"
+            case .local:    return "📚 ローカル候補"
+            case .fallback: return "📚 ローカル候補 (AIフォールバック)"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .gemini:   return .brandPrimary
+            case .local:    return .textSecondary
+            case .fallback: return .textSecondary
+            }
+        }
+    }
 
     enum WizardStep {
         case selectingPath  // 知識マップ進行中
@@ -203,16 +227,57 @@ struct AIWishWizardView: View {
         }
     }
 
-    // MARK: - Step 2: 生成中
+    // MARK: - Step 2: 生成中 (ライブ AI かローカルかで表示を変える)
+    @State private var generatingMode: GeneratingMode = .checking
+
+    enum GeneratingMode {
+        case checking   // aiRuntime.clientEnabled をチェック中
+        case askingAI   // Gemini に問合せ中
+        case localOnly  // 静的サンプルから準備中
+
+        var icon: String {
+            switch self {
+            case .checking, .localOnly: return "sparkles"
+            case .askingAI: return "brain.head.profile"
+            }
+        }
+        var title: String {
+            switch self {
+            case .checking:   return "準備中…"
+            case .askingAI:   return "🤖 AI が回答中…"
+            case .localOnly:  return "📚 候補を準備中…"
+            }
+        }
+        var subtitle: String {
+            switch self {
+            case .checking:   return "サービス状態を確認しています"
+            case .askingAI:   return "Gemini Flash-Lite が研究知見ベースで言葉を生成中です"
+            case .localOnly:  return "ローカルに用意されたテンプレートから候補を準備しています"
+            }
+        }
+        var color: Color {
+            switch self {
+            case .checking, .localOnly: return .textSecondary
+            case .askingAI: return .brandPrimary
+            }
+        }
+    }
+
     private var generatingView: some View {
         VStack(spacing: AppSpacing.lg) {
             Spacer()
-            ProgressView()
-                .scaleEffect(1.6)
-            Text("あなたに合う言葉を考えています…")
-                .appFont(.body)
-                .foregroundStyle(Color.textPrimary)
-            Text("研究で証明された手法 (Implementation Intentions / Self-Affirmation) に基づいて生成中")
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: generatingMode.icon)
+                    .font(.system(size: 32))
+                    .foregroundStyle(generatingMode.color)
+                ProgressView()
+                    .scaleEffect(1.4)
+            }
+            Text(generatingMode.title)
+                .appFont(.h3)
+                .foregroundStyle(generatingMode.color)
+                .multilineTextAlignment(.center)
+            Text(generatingMode.subtitle)
                 .appFont(.caption)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
@@ -226,6 +291,23 @@ struct AIWishWizardView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    // 生成元バッジ (Gemini か ローカルか 一目でわかる)
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: candidateSource == .gemini ? "sparkles" : "doc.text")
+                        Text(candidateSource.label)
+                            .appFont(.caption)
+                    }
+                    .foregroundStyle(candidateSource.color)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.vertical, AppSpacing.xs)
+                    .background(
+                        candidateSource == .gemini
+                            ? Color.brandAccent.opacity(0.15)
+                            : Color.bgSecondary
+                    )
+                    .clipShape(Capsule())
+                    .padding(.horizontal, AppSpacing.screenEdge)
+
                     Text("ピンとくるものをタップ (複数選択可)")
                         .appFont(.caption)
                         .foregroundStyle(Color.textSecondary)
@@ -395,7 +477,11 @@ struct AIWishWizardView: View {
     private func regenerate() {
         regenerateNonce += 1
         selectedTexts = []
-        // 静的サンプルでも順序を変える
+        // candidateSource が gemini なら再度 AI 呼出、それ以外はローカルで順序変え
+        if candidateSource == .gemini {
+            performGenerate()  // AI に再依頼 (リワード広告 + クォータ消費する)
+            return
+        }
         let base = KnowledgeMap.generateCandidates(for: path)
         if base.count > 1 {
             let rotateBy = regenerateNonce % base.count
@@ -403,6 +489,7 @@ struct AIWishWizardView: View {
         } else {
             candidates = base
         }
+        candidateSource = .local
     }
 
     private func generate() {
@@ -411,34 +498,52 @@ struct AIWishWizardView: View {
 
     private func performGenerate() {
         step = .generating
+        generatingMode = .checking
         generationTask?.cancel()
         // B7: Task を保持してキャンセル可能に
         generationTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(1.5))
-            if Task.isCancelled { return }
-            #if PHASE3_GEMINI_LIVE
+            // ── 1. Firestore aiRuntime.clientEnabled をチェック (runtime gate) ──
             let liveEnabled = await AIWishGenerationService.shared.liveGenerationEnabled()
-            if liveEnabled {
-                let granted = await withCheckedContinuation { continuation in
-                    AdRewardGate.shared.presentBeforeAIGeneration { granted in
-                        continuation.resume(returning: granted)
-                    }
-                }
-                guard granted else {
-                    step = .selectingPath
-                    return
-                }
-                do {
-                    candidates = try await AIWishGenerationService.shared.generate(path: path)
-                } catch {
-                    candidates = KnowledgeMap.generateCandidates(for: path)
-                }
-            } else {
+            if Task.isCancelled { return }
+
+            if !liveEnabled {
+                // Phase 1.5: 静的サンプルにフォールバック
+                generatingMode = .localOnly
+                try? await Task.sleep(for: .milliseconds(700))
+                if Task.isCancelled { return }
                 candidates = KnowledgeMap.generateCandidates(for: path)
+                candidateSource = .local
+                selectedTexts = []
+                step = .showCandidates
+                return
             }
-            #else
-            candidates = KnowledgeMap.generateCandidates(for: path)
-            #endif
+
+            // ── 2. リワード広告ゲート (1日1回無料、それ以降は動画視聴) ──
+            let granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+                AdRewardGate.shared.presentBeforeAIGeneration { granted in
+                    cont.resume(returning: granted)
+                }
+            }
+            if !granted {
+                // ユーザーが広告スキップ → 生成中断、選択画面に戻る
+                step = .selectingPath
+                return
+            }
+            if Task.isCancelled { return }
+
+            // ── 3. Gemini Cloud Function 呼出 ──
+            generatingMode = .askingAI
+            do {
+                let result = try await AIWishGenerationService.shared.generate(path: path)
+                if Task.isCancelled { return }
+                candidates = result
+                candidateSource = .gemini
+            } catch {
+                // Gemini 失敗時は静的サンプルにフォールバック (UX 阻害しない)
+                if Task.isCancelled { return }
+                candidates = KnowledgeMap.generateCandidates(for: path)
+                candidateSource = .fallback
+            }
             selectedTexts = []
             step = .showCandidates
         }

@@ -1,6 +1,9 @@
 //
 //  AIWishGenerationService.swift
-//  Phase 3 Gemini 本接続。Cloud Functions 側の明示フラグが ON の時だけ生成する。
+//  Phase 3: Gemini Flash-Lite 本接続。
+//   - Firestore `system/aiRuntime.clientEnabled` でランタイム ON/OFF
+//   - FirebaseFunctions SDK で onCall (asia-northeast1)
+//   - 失敗時は呼出元で静的フォールバック (UX 阻害しない)
 //
 
 import Foundation
@@ -13,9 +16,15 @@ import FirebaseAuth
 import FirebaseFirestore
 #endif
 
+#if canImport(FirebaseFunctions)
+import FirebaseFunctions
+#endif
+
 enum AIWishGenerationError: Error {
     case unavailable
     case invalidResponse
+    case quotaExceeded(canWatchAd: Bool)
+    case budgetEmergencyStop
 }
 
 @MainActor
@@ -23,8 +32,8 @@ final class AIWishGenerationService {
     static let shared = AIWishGenerationService()
     private init() {}
 
-    private let endpoint = URL(string: "https://asia-northeast1-kotodama-86a14.cloudfunctions.net/aiGenerateWish")!
-
+    /// Firestore aiRuntime.clientEnabled をチェック (Phase 3 の有効化フラグ)
+    /// オフライン or エラー時は false (静的フォールバック)
     func liveGenerationEnabled() async -> Bool {
         #if canImport(FirebaseFirestore)
         do {
@@ -41,51 +50,61 @@ final class AIWishGenerationService {
         #endif
     }
 
+    /// Cloud Function aiGenerateWish を呼び出して 3 候補を取得
+    /// - 認証: 匿名サインイン経由 (Functions 側で uid 必須)
+    /// - quota: ユーザー5/日、グローバル800/日 (Functions 側で enforce)
+    /// - エラー時は throw → 呼出元で静的フォールバックに切替
     func generate(path: [WishMapNode]) async throws -> [String] {
         #if canImport(FirebaseAuth)
         await AuthService.shared.signInAnonymouslyIfNeeded()
-        guard let user = Auth.auth().currentUser else { throw AIWishGenerationError.unavailable }
-        let token = try await user.getIDToken()
-        #else
-        let token = ""
+        guard Auth.auth().currentUser != nil else {
+            throw AIWishGenerationError.unavailable
+        }
         #endif
 
+        #if canImport(FirebaseFunctions)
+        let functions = Functions.functions(region: "asia-northeast1")
+        let callable = functions.httpsCallable("aiGenerateWish")
         let payload: [String: Any] = [
-            "data": [
-                "path": path.map { ["title": $0.title, "prompt": $0.prompt] }
-            ]
+            "path": path.map { ["title": $0.title, "prompt": $0.prompt] }
         ]
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.timeoutInterval = 20
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        if !token.isEmpty {
-            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse,
-              (200..<300).contains(http.statusCode) else {
+        let result: HTTPSCallableResult
+        do {
+            result = try await callable.call(payload)
+        } catch let error as NSError {
+            // Firebase Functions エラーコード判定
+            let code = FunctionsErrorCode(rawValue: error.code)
+            if code == .resourceExhausted {
+                let info = error.userInfo[FunctionsErrorDetailsKey] as? [String: Any]
+                let canWatchAd = (info?["canWatchAd"] as? Bool) ?? false
+                let reason = info?["reason"] as? String
+                if reason == "global_quota" {
+                    throw AIWishGenerationError.budgetEmergencyStop
+                }
+                throw AIWishGenerationError.quotaExceeded(canWatchAd: canWatchAd)
+            }
             throw AIWishGenerationError.unavailable
         }
 
-        let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        if let result = object?["result"] as? [String: Any],
-           let candidates = result["candidates"] as? [String],
-           !candidates.isEmpty {
-            return candidates.prefix(3).map(Self.normalizeCandidate)
+        guard let dict = result.data as? [String: Any],
+              let candidates = dict["candidates"] as? [String],
+              !candidates.isEmpty else {
+            throw AIWishGenerationError.invalidResponse
         }
-        throw AIWishGenerationError.invalidResponse
+        return candidates.prefix(3).map(Self.normalizeCandidate)
+        #else
+        throw AIWishGenerationError.unavailable
+        #endif
     }
 
     private static func normalizeCandidate(_ raw: String) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return trimmed }
+        // 〜したい / 〜でいたい / 〜になりたい で終わる文は補正不要
         if trimmed.hasSuffix("したい。") ||
-            trimmed.hasSuffix("いたい。") ||
-            trimmed.hasSuffix("なりたい。") ||
-            trimmed.hasSuffix("たい。") {
+           trimmed.hasSuffix("いたい。") ||
+           trimmed.hasSuffix("なりたい。") ||
+           trimmed.hasSuffix("たい。") {
             return trimmed
         }
         let dropped = trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "。.!！"))
