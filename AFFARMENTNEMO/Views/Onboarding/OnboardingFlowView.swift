@@ -204,6 +204,46 @@ private struct BulletRow: View {
     }
 }
 
+private struct WishCountTicker: View {
+    @State private var displayedCount = Self.baseCount()
+
+    var body: some View {
+        AppCard {
+            HStack(alignment: .center, spacing: AppSpacing.sm) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Color.brandAccent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("今このアプリでは")
+                        .appFont(.caption)
+                        .foregroundStyle(Color.textSecondary)
+                    Text("\(displayedCount.formatted())人の願いが集まっています")
+                        .appFont(.h3)
+                        .foregroundStyle(Color.textPrimary)
+                }
+                Spacer()
+            }
+        }
+        .task {
+            displayedCount = Self.baseCount()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1.4))
+                withAnimation(.easeOut(duration: 0.25)) {
+                    displayedCount += Int.random(in: 1...3)
+                }
+            }
+        }
+    }
+
+    private static func baseCount() -> Int {
+        let start = Calendar.current.date(from: DateComponents(year: 2026, month: 1, day: 1)) ?? Date()
+        let days = Calendar.current.dateComponents([.day], from: start, to: Date()).day ?? 0
+        let seconds = Calendar.current.component(.hour, from: Date()) * 3600
+            + Calendar.current.component(.minute, from: Date()) * 60
+            + Calendar.current.component(.second, from: Date())
+        return 1280 + max(0, days) * 73 + seconds / 90
+    }
+}
+
 // MARK: - Step 2: First Affirmation
 
 private struct FirstAffirmationStep: View {
@@ -226,6 +266,13 @@ private struct FirstAffirmationStep: View {
             .sheet(isPresented: $showAIWizard) {
                 AIWishWizardView()
             }
+            .onChange(of: showAIWizard) { _, isShown in
+                guard !isShown else { return }
+                let updated = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
+                if !updated.isEmpty {
+                    text = String(updated.prefix(maxLen))
+                }
+            }
     }
 
     private var firstContent: some View {
@@ -245,6 +292,8 @@ private struct FirstAffirmationStep: View {
             Text("first.subtitle")
                 .appFont(.caption)
                 .foregroundStyle(Color.textSecondary)
+
+            WishCountTicker()
 
             TextEditor(text: $text)
                 .focused($focused)
@@ -284,7 +333,7 @@ private struct FirstAffirmationStep: View {
                     Image(systemName: "sparkles")
                         .font(.system(size: 22))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("AIに3択で考えてもらう")
+                        Text("AIに考えてもらう")
                             .appFont(.bodyEmphasis)
                         Text("迷ったらこれ。3つ選ぶだけで言葉ができる")
                             .appFont(.micro)
@@ -303,6 +352,8 @@ private struct FirstAffirmationStep: View {
                 .foregroundStyle(Color.textSecondary)
 
             templateGrid
+
+            writingTips
 
             // Undo/Redo/Reset コントロール (ユーザー要望)
             HStack(spacing: AppSpacing.md) {
@@ -384,6 +435,19 @@ private struct FirstAffirmationStep: View {
                     )
                 }
                 .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var writingTips: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("書き方のコツ")
+                    .appFont(.bodyEmphasis)
+                    .foregroundStyle(Color.textPrimary)
+                Text("願いは「合格したい」「健康でいたい」のように、最後を「したい」でそろえると毎日読み返しやすくなります。")
+                    .appFont(.caption)
+                    .foregroundStyle(Color.textSecondary)
             }
         }
     }

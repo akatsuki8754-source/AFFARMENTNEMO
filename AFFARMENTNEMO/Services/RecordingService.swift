@@ -19,6 +19,7 @@ final class RecordingService: NSObject, ObservableObject {
 
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
+    private var playerDelegate: PlayerDelegateBridge?
     private var levelTimer: Timer?
 
     /// Documents/recordings/ ディレクトリ
@@ -115,13 +116,15 @@ final class RecordingService: NSObject, ObservableObject {
         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try? session.setActive(true, options: [])
 
-        player = try AVAudioPlayer(contentsOf: url)
-        player?.delegate = PlayerDelegateBridge(onFinish: { [weak self] success in
+        let bridge = PlayerDelegateBridge(onFinish: { [weak self] success in
             Task { @MainActor in
                 self?.stopPlayingInternal()
                 onFinish(success)
             }
         })
+        playerDelegate = bridge
+        player = try AVAudioPlayer(contentsOf: url)
+        player?.delegate = bridge
         player?.prepareToPlay()
         player?.play()
         isPlaying = true
@@ -144,6 +147,7 @@ final class RecordingService: NSObject, ObservableObject {
 
     private func stopPlayingInternal() {
         player = nil
+        playerDelegate = nil
         isPlaying = false
         levelTimer?.invalidate()
         levelTimer = nil

@@ -31,8 +31,23 @@ service cloud.firestore {
                     && request.resource.data.expireAt > request.time
                     && request.resource.data.expireAt < request.time + duration.value(25, 'h');
       allow update: if request.auth != null
-                    && request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['reportedBy','reportCount','isHidden']);
+                    && (
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['reportedBy','reportCount'])
+                      )
+                      ||
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['reactionLike','reactionHeart','reactionPeace','reactedBy'])
+                      )
+                      ||
+                      (
+                        request.auth.uid == resource.data.authorUid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isHidden'])
+                        && request.resource.data.isHidden == true
+                      )
+                    );
       allow delete: if false;
     }
 
@@ -42,6 +57,13 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.reporterUid == request.auth.uid;
       allow update, delete: if false;
+    }
+
+    // AIランタイム設定: クライアントは有効/無効だけ読む。変更は管理者/Functionsのみ。
+    match /system/{docId} {
+      allow read: if request.auth != null
+                  && docId in ['aiRuntime', 'aiBudgetAlert'];
+      allow write: if false;
     }
   }
 }

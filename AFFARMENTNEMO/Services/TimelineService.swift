@@ -15,6 +15,10 @@ struct TimelinePost: Identifiable, Hashable {
     let expireAt: Date
     var reportCount: Int
     var isHidden: Bool
+    var reactionLike: Int
+    var reactionHeart: Int
+    var reactionPeace: Int
+    var myReaction: String?
 }
 
 #if canImport(FirebaseFirestore) && canImport(FirebaseAuth)
@@ -111,6 +115,10 @@ final class TimelineService {
             "reportCount": 0,
             "isHidden": false,
             "reportedBy": [String](),
+            "reactionLike": 0,
+            "reactionHeart": 0,
+            "reactionPeace": 0,
+            "reactedBy": [String: String](),
         ]
         try await db.collection("timelineRooms").document(room).collection("posts")
             .addDocument(data: data)
@@ -148,6 +156,56 @@ final class TimelineService {
         ])
     }
 
+    func fetchPosts(room: String, limit: Int = 100) async throws -> [TimelinePost] {
+        let now = Date()
+        let snap = try await db.collection("timelineRooms").document(room).collection("posts")
+            .whereField("isHidden", isEqualTo: false)
+            .whereField("expireAt", isGreaterThan: Timestamp(date: now))
+            .order(by: "expireAt", descending: false)
+            .order(by: "createdAt", descending: true)
+            .limit(to: limit)
+            .getDocuments()
+        return snap.documents
+            .compactMap { Self.decode($0) }
+            .filter { $0.expireAt > now }
+    }
+
+    func toggleReaction(post: TimelinePost, reaction: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let ref = db.collection("timelineRooms").document(post.languageRoom).collection("posts").document(post.id)
+        try await db.runTransaction { transaction, errorPointer in
+            do {
+                let snapshot = try transaction.getDocument(ref)
+                guard let data = snapshot.data() else { return nil }
+                var reactedBy = data["reactedBy"] as? [String: String] ?? [:]
+                let current = reactedBy[uid]
+                var updates: [String: Any] = [:]
+                if let current {
+                    updates[Self.reactionField(current)] = FieldValue.increment(Int64(-1))
+                }
+                if current == reaction {
+                    reactedBy.removeValue(forKey: uid)
+                } else {
+                    reactedBy[uid] = reaction
+                    updates[Self.reactionField(reaction)] = FieldValue.increment(Int64(1))
+                }
+                updates["reactedBy"] = reactedBy
+                transaction.updateData(updates, forDocument: ref)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+            }
+            return nil
+        }
+    }
+
+    private static func reactionField(_ reaction: String) -> String {
+        switch reaction {
+        case "heart": return "reactionHeart"
+        case "peace": return "reactionPeace"
+        default: return "reactionLike"
+        }
+    }
+
     private static func decode(_ doc: QueryDocumentSnapshot) -> TimelinePost? {
         let data = doc.data()
         guard
@@ -157,6 +215,7 @@ final class TimelineService {
             let createdAt = (data["createdAt"] as? Timestamp)?.dateValue(),
             let expireAt = (data["expireAt"] as? Timestamp)?.dateValue()
         else { return nil }
+        let reactedBy = data["reactedBy"] as? [String: String] ?? [:]
         return TimelinePost(
             id: doc.documentID,
             authorUid: authorUid,
@@ -165,7 +224,11 @@ final class TimelineService {
             createdAt: createdAt,
             expireAt: expireAt,
             reportCount: (data["reportCount"] as? Int) ?? 0,
-            isHidden: (data["isHidden"] as? Bool) ?? false
+            isHidden: (data["isHidden"] as? Bool) ?? false,
+            reactionLike: (data["reactionLike"] as? Int) ?? 0,
+            reactionHeart: (data["reactionHeart"] as? Int) ?? 0,
+            reactionPeace: (data["reactionPeace"] as? Int) ?? 0,
+            myReaction: Auth.auth().currentUser.flatMap { reactedBy[$0.uid] }
         )
     }
 }
@@ -183,5 +246,7 @@ final class TimelineService {
     static func validatePost(_ text: String) -> ValidationResult { .ok }
     func post(text: String, room: String) async throws {}
     func report(postId: String, room: String, reason: String) async throws {}
+    func fetchPosts(room: String, limit: Int = 100) async throws -> [TimelinePost] { [] }
+    func toggleReaction(post: TimelinePost, reaction: String) async throws {}
 }
 #endif

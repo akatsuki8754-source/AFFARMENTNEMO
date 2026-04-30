@@ -43,9 +43,9 @@ enum ReadPlaybackMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .selfRead: "自分で読む"
-        case .ai: "AIで再生"
-        case .recorded: "録音で再生"
+        case .selfRead: "音読をする"
+        case .ai: "AIで読み上げる"
+        case .recorded: "録音した音声で流す"
         }
     }
     var icon: String {
@@ -53,6 +53,22 @@ enum ReadPlaybackMode: String, CaseIterable, Identifiable {
         case .selfRead: "person.fill"
         case .ai: "speaker.wave.2.fill"
         case .recorded: "waveform"
+        }
+    }
+
+    var storageValue: String {
+        switch self {
+        case .selfRead: "self"
+        case .ai: "ai"
+        case .recorded: "recorded"
+        }
+    }
+
+    static func fromStorage(_ value: String) -> ReadPlaybackMode {
+        switch value {
+        case "recorded": return .recorded
+        case "self", "selfRead": return .selfRead
+        default: return .ai
         }
     }
 }
@@ -63,6 +79,8 @@ struct ReadAloudView: View {
 
     let items: [Affirmation]
     let slot: String
+    var initialMode: ReadPlaybackMode? = nil
+    var autoStart: Bool = false
 
     @State private var index: Int = 0
     @State private var completed = false
@@ -72,8 +90,8 @@ struct ReadAloudView: View {
     @State private var playbackMode: ReadPlaybackMode = .selfRead
     @StateObject private var rec = RecordingService.shared
     @State private var autoPlayInProgress = false
-    @AppStorage("kotodama.autoplay.mode") private var autoplayMode: String = "self"
-    @AppStorage("kotodama.autoplay.enabled") private var autoplayEnabled: Bool = false
+    @AppStorage("kotodama.autoplay.mode") private var autoplayMode: String = "ai"
+    @AppStorage("kotodama.autoplay.enabled") private var autoplayEnabled: Bool = true
 
     var body: some View {
         ZStack {
@@ -92,13 +110,12 @@ struct ReadAloudView: View {
         }
         .onAppear {
             // 起動時自動再生モードがあれば適用
-            if slot == "autoplay" && autoplayEnabled {
-                switch autoplayMode {
-                case "ai": playbackMode = .ai
-                case "recorded": playbackMode = .recorded
-                default: playbackMode = .selfRead
-                }
-                // 自動的に最初の項目を再生
+            if let initialMode {
+                playbackMode = initialMode
+            } else if slot == "autoplay" && autoplayEnabled {
+                playbackMode = ReadPlaybackMode.fromStorage(autoplayMode)
+            }
+            if autoStart || (slot == "autoplay" && autoplayEnabled) {
                 Task { @MainActor in
                     try? await Task.sleep(for: .seconds(0.5))
                     if playbackMode == .ai { speakTTS() }
@@ -212,7 +229,15 @@ struct ReadAloudView: View {
     }
 
     private var headerTitle: String {
-        let prefix = NSLocalizedString(slot == "morning" ? "read.title.morning" : "read.title.evening", comment: "")
+        let prefix: String
+        switch slot {
+        case "morning":
+            prefix = NSLocalizedString("read.title.morning", comment: "")
+        case "evening":
+            prefix = NSLocalizedString("read.title.evening", comment: "")
+        default:
+            prefix = "今日の言葉"
+        }
         return "\(prefix) (\(index + 1)/\(items.count))"
     }
 
@@ -234,7 +259,7 @@ struct ReadAloudView: View {
     private var primaryButtonLabel: LocalizedStringKey {
         switch playbackMode {
         case .selfRead: "read.done"   // 「読みました」
-        case .ai: ttsSpeaking ? "停止" : "AIで再生"
+        case .ai: ttsSpeaking ? "停止" : "AIで読み上げる"
         case .recorded: rec.isPlaying ? "停止" : "録音を再生"
         }
     }
@@ -297,9 +322,16 @@ struct ReadAloudView: View {
     }
 
     private func playRecording() {
-        guard items.indices.contains(index),
-              let fn = items[index].recordingFileName,
-              rec.hasRecording(fileName: fn) else { return }
+        guard items.indices.contains(index) else { return }
+        guard let fn = items[index].recordingFileName,
+              rec.hasRecording(fileName: fn) else {
+            playbackMode = .selfRead
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.35))
+                advance()
+            }
+            return
+        }
         do {
             try rec.play(fileName: fn) { _ in
                 // 録音モードで再生完了 → 自動進行
@@ -366,13 +398,6 @@ struct ReadAloudView: View {
         ttsSpeaking = true
         synthesizer.speak(utterance)
         print("[TTS] speak() called text='\(items[index].text)' lang=\(preferred) volume=\(utterance.volume)")
-
-        // 文字数で簡易完了タイマー (1文字 ~150ms)
-        let estimatedDuration = max(2.0, Double(items[index].text.count) * 0.18)
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(estimatedDuration + 0.5))
-            ttsSpeaking = false
-        }
     }
 
     private func showInterstitialThenDismiss() {
@@ -399,6 +424,7 @@ struct ReadAloudView: View {
 struct ReadCompleteView: View {
     let result: ReadCompletionResult
     let onClose: () -> Void
+    @State private var secondsRemaining = 10
 
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
@@ -434,11 +460,23 @@ struct ReadCompleteView: View {
                 .foregroundStyle(Color.textSecondary)
                 .padding(.top, AppSpacing.md)
 
+            Text("\(secondsRemaining)秒後にホームへ戻ります")
+                .appFont(.caption)
+                .foregroundStyle(Color.textSecondary)
+
             Spacer()
 
             PrimaryButton(titleKey: "complete.home", action: onClose)
                 .padding(.horizontal, AppSpacing.screenEdge)
                 .padding(.bottom, AppSpacing.lg)
+        }
+        .task {
+            secondsRemaining = 10
+            while secondsRemaining > 0 {
+                try? await Task.sleep(for: .seconds(1))
+                secondsRemaining -= 1
+            }
+            onClose()
         }
     }
 

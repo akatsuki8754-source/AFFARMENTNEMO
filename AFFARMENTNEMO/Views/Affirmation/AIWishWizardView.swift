@@ -59,7 +59,6 @@ struct AIWishWizardView: View {
 
     /// 「その他」ボタンを表示するか (4件以上選択肢があり、ルートでない時)
     private var hasMoreOptions: Bool {
-        guard !path.isEmpty else { return false }
         return allChildrenAtCurrentLevel.count > 3
     }
 
@@ -138,7 +137,7 @@ struct AIWishWizardView: View {
                     .foregroundStyle(Color.textPrimary)
                     .padding(.horizontal, AppSpacing.screenEdge)
 
-                Text("3つから選んでみてね")
+                    Text("3つから選んでみてね")
                     .appFont(.caption)
                     .foregroundStyle(Color.textSecondary)
                     .padding(.horizontal, AppSpacing.screenEdge)
@@ -407,16 +406,7 @@ struct AIWishWizardView: View {
     }
 
     private func generate() {
-        // B8: Phase 3 で Gemini 本接続が有効な時のみリワード広告
-        // (現状は静的サンプルなので無料で出す)
-        #if PHASE3_GEMINI_LIVE
-        AdRewardGate.shared.presentBeforeAIGeneration { granted in
-            if granted { performGenerate() }
-            else { step = .selectingPath }
-        }
-        #else
         performGenerate()
-        #endif
     }
 
     private func performGenerate() {
@@ -426,7 +416,29 @@ struct AIWishWizardView: View {
         generationTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(1.5))
             if Task.isCancelled { return }
+            #if PHASE3_GEMINI_LIVE
+            let liveEnabled = await AIWishGenerationService.shared.liveGenerationEnabled()
+            if liveEnabled {
+                let granted = await withCheckedContinuation { continuation in
+                    AdRewardGate.shared.presentBeforeAIGeneration { granted in
+                        continuation.resume(returning: granted)
+                    }
+                }
+                guard granted else {
+                    step = .selectingPath
+                    return
+                }
+                do {
+                    candidates = try await AIWishGenerationService.shared.generate(path: path)
+                } catch {
+                    candidates = KnowledgeMap.generateCandidates(for: path)
+                }
+            } else {
+                candidates = KnowledgeMap.generateCandidates(for: path)
+            }
+            #else
             candidates = KnowledgeMap.generateCandidates(for: path)
+            #endif
             selectedTexts = []
             step = .showCandidates
         }

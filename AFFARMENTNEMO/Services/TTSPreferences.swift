@@ -1,7 +1,7 @@
 //
 //  TTSPreferences.swift
 //  AI音声 (TTS) の声選択 + 自動再生設定。
-//  ユーザー要望: 男性/女性/子供 など、運用無料の範囲で選べる声を全列挙 + 試聴ボタン
+//  ユーザー要望: 国別の細かい声ではなく、端末言語に合う男性/女性だけ選ぶ。
 //
 
 import Foundation
@@ -12,10 +12,9 @@ import Combine
 final class TTSPreferences: ObservableObject {
     static let shared = TTSPreferences()
 
-    /// 選択中の音声 ID (AVSpeechSynthesisVoiceIdentifier)
-    /// nil の場合は端末の preferred language デフォルト音声
-    @Published var selectedVoiceId: String? {
-        didSet { UserDefaults.standard.set(selectedVoiceId, forKey: "kotodama.tts.voiceId") }
+    /// "female" | "male"。端末の優先言語に合う声を自動解決する。
+    @Published var selectedVoiceGender: String {
+        didSet { UserDefaults.standard.set(selectedVoiceGender, forKey: "kotodama.tts.voiceGender") }
     }
 
     /// 起動時自動再生
@@ -27,63 +26,35 @@ final class TTSPreferences: ObservableObject {
         didSet { UserDefaults.standard.set(autoplayMode, forKey: "kotodama.autoplay.mode") }
     }
 
-    private init() {
-        self.selectedVoiceId = UserDefaults.standard.string(forKey: "kotodama.tts.voiceId")
-        self.autoplayOnLaunch = UserDefaults.standard.bool(forKey: "kotodama.autoplay.enabled")
-        self.autoplayMode = UserDefaults.standard.string(forKey: "kotodama.autoplay.mode") ?? "self"
-    }
-
-    // MARK: - Voice list
-    struct VoiceOption: Identifiable, Hashable {
-        let id: String       // identifier
-        let name: String
-        let language: String
-        let quality: String  // "標準" | "拡張" | "プレミアム"
-        let gender: String   // "女性" | "男性" | "不明"
-    }
-
-    /// 利用可能な音声を取得 (preferred language を最優先 + en-US/ja-JP も含める)
-    func availableVoices() -> [VoiceOption] {
-        let allowedPrefixes: Set<String> = ["ja", "en", "ko", "zh"]
-        let voices = AVSpeechSynthesisVoice.speechVoices()
-            .filter { v in
-                let lang = v.language.lowercased()
-                return allowedPrefixes.contains(where: { lang.hasPrefix($0) })
+    /// AI音声をバックグラウンドでも継続する。ONにしたら自動再生もAIに揃える。
+    @Published var backgroundAIPlaybackEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(backgroundAIPlaybackEnabled, forKey: "kotodama.tts.backgroundAIPlayback")
+            if backgroundAIPlaybackEnabled {
+                autoplayOnLaunch = true
+                autoplayMode = "ai"
             }
-        return voices.map { v in
-            VoiceOption(
-                id: v.identifier,
-                name: v.name,
-                language: v.language,
-                quality: qualityLabel(v.quality),
-                gender: genderLabel(v.gender)
-            )
-        }
-        .sorted { ($0.language, $0.name) < ($1.language, $1.name) }
-    }
-
-    private func qualityLabel(_ q: AVSpeechSynthesisVoiceQuality) -> String {
-        switch q {
-        case .default: return "標準"
-        case .enhanced: return "拡張"
-        case .premium: return "プレミアム"
-        @unknown default: return "標準"
         }
     }
 
-    private func genderLabel(_ g: AVSpeechSynthesisVoiceGender) -> String {
-        switch g {
-        case .female: return "女性"
-        case .male: return "男性"
-        case .unspecified: return "不明"
-        @unknown default: return "不明"
-        }
+    private init() {
+        let defaults: [String: Any] = [
+            "kotodama.tts.voiceGender": "female",
+            "kotodama.autoplay.enabled": true,
+            "kotodama.autoplay.mode": "ai",
+            "kotodama.tts.backgroundAIPlayback": false,
+        ]
+        UserDefaults.standard.register(defaults: defaults)
+        self.selectedVoiceGender = UserDefaults.standard.string(forKey: "kotodama.tts.voiceGender") ?? "female"
+        self.autoplayOnLaunch = UserDefaults.standard.bool(forKey: "kotodama.autoplay.enabled")
+        self.autoplayMode = UserDefaults.standard.string(forKey: "kotodama.autoplay.mode") ?? "ai"
+        self.backgroundAIPlaybackEnabled = UserDefaults.standard.bool(forKey: "kotodama.tts.backgroundAIPlayback")
     }
 
     /// 試聴用シンセサイザー (短いサンプル文を再生)
     private let previewSynthesizer = AVSpeechSynthesizer()
 
-    func preview(voiceId: String?) {
+    func preview() {
         previewSynthesizer.stopSpeaking(at: .immediate)
 
         // AudioSession 起動 (TTS が無音になるバグ対策)
@@ -97,15 +68,10 @@ final class TTSPreferences: ObservableObject {
 
         let sampleJa = "自分の言葉を、声に出して読みましょう。今日もよくやった。"
         let sampleEn = "Read your words out loud. Well done today."
-        let voice: AVSpeechSynthesisVoice?
+        let preferred = Locale.preferredLanguages.first ?? "ja-JP"
+        let voice = resolvedVoice(for: preferred)
         let text: String
-        if let id = voiceId, let v = AVSpeechSynthesisVoice(identifier: id) {
-            voice = v
-            text = v.language.lowercased().hasPrefix("ja") ? sampleJa : sampleEn
-        } else {
-            voice = AVSpeechSynthesisVoice(language: "ja-JP")
-            text = sampleJa
-        }
+        text = (voice?.language ?? preferred).lowercased().hasPrefix("ja") ? sampleJa : sampleEn
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = voice
         utterance.rate = 0.46
@@ -115,9 +81,30 @@ final class TTSPreferences: ObservableObject {
     }
 
     func resolvedVoice(for fallbackLanguage: String) -> AVSpeechSynthesisVoice? {
-        if let id = selectedVoiceId, let v = AVSpeechSynthesisVoice(identifier: id) {
-            return v
+        let normalized = normalizeLanguage(fallbackLanguage)
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+            .filter { normalizeLanguage($0.language) == normalized }
+            .sorted { lhs, rhs in
+                if lhs.quality != rhs.quality { return lhs.quality.rawValue > rhs.quality.rawValue }
+                return lhs.name < rhs.name
+            }
+        let targetGender: AVSpeechSynthesisVoiceGender = selectedVoiceGender == "male" ? .male : .female
+        if let genderMatch = voices.first(where: { $0.gender == targetGender }) {
+            return genderMatch
         }
-        return AVSpeechSynthesisVoice(language: fallbackLanguage)
+        if let first = voices.first {
+            return first
+        }
+        return AVSpeechSynthesisVoice(language: normalized)
+    }
+
+    private func normalizeLanguage(_ raw: String) -> String {
+        let lower = raw.replacingOccurrences(of: "_", with: "-").lowercased()
+        if lower.hasPrefix("ja") { return "ja-JP" }
+        if lower.hasPrefix("ko") { return "ko-KR" }
+        if lower.hasPrefix("zh-hant") || lower.contains("-tw") || lower.contains("-hk") { return "zh-TW" }
+        if lower.hasPrefix("zh") { return "zh-CN" }
+        if lower.hasPrefix("en") { return "en-US" }
+        return raw
     }
 }

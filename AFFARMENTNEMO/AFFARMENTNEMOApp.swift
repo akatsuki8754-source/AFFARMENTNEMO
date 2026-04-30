@@ -23,6 +23,23 @@ struct AFFARMENTNEMOApp: App {
     @State private var attInProgress = false
 
     init() {
+        UserDefaults.standard.register(defaults: [
+            "kotodama.autoplay.enabled": true,
+            "kotodama.autoplay.mode": "ai",
+            "kotodama.tts.voiceGender": "female",
+            "kotodama.tts.backgroundAIPlayback": false,
+        ])
+
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-ui-testing-aiwizard") {
+            UserDefaults.standard.set(false, forKey: "kotodama.onboarding.completed")
+            UserDefaults.standard.set(false, forKey: "kotodama.autoplay.enabled")
+            UserDefaults.standard.set("", forKey: "kotodama.draft.text")
+            UserDefaults.standard.set("", forKey: "kotodama.autoplay.lastDay")
+        }
+        #endif
+
         // 言語オーバーライド (アプリ内言語切替)
         LocalizationOverride.install()
 
@@ -30,6 +47,8 @@ struct AFFARMENTNEMOApp: App {
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
         #endif
+
+        _ = NotificationService.shared
 
         do {
             modelContainer = try ModelContainer(

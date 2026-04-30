@@ -155,11 +155,53 @@ final class ScreenshotTests: XCTestCase {
         }
     }
 
+    func testCaptureAIWizardScreens() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-aiwizard"]
+        app.launch()
+        sleep(2)
+
+        if app.buttons["はじめる"].waitForExistence(timeout: 2) {
+            app.buttons["はじめる"].tap()
+            sleep(1)
+        } else {
+            let addBtn = app.buttons.containing(NSPredicate(format: "label CONTAINS '言葉を追加'")).firstMatch
+            if addBtn.waitForExistence(timeout: 4) {
+                addBtn.tap()
+                sleep(1)
+            }
+        }
+
+        let aiButton = app.buttons.containing(NSPredicate(format: "label CONTAINS 'AIに考えてもらう'")).firstMatch
+        XCTAssertTrue(aiButton.waitForExistence(timeout: 6))
+        aiButton.tap()
+        sleep(1)
+        attachScreenshot(name: "12_ai_wizard_three_choices")
+
+        tapFirstExistingButton(app, labels: ["達成したい", "改善したい", "有名人の言葉を参考にしたい"])
+        sleep(1)
+        tapFirstExistingButton(app, labels: ["資格・試験に合格", "仕事で結果を出す", "夢を実現する"])
+        sleep(1)
+        tapFirstExistingButton(app, labels: ["1ヶ月以内", "営業成績", "起業・独立"])
+        sleep(3)
+        attachScreenshot(name: "13_ai_wizard_candidates")
+    }
+
     private func attachScreenshot(name: String) {
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func tapFirstExistingButton(_ app: XCUIApplication, labels: [String]) {
+        for label in labels {
+            let button = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+            if button.waitForExistence(timeout: 2) {
+                button.tap()
+                return
+            }
+        }
     }
 }

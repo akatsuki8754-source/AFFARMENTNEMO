@@ -217,19 +217,24 @@ enum SakuraTemplateProvider {
         let now = Date()
 
         var posts: [TimelinePost] = []
+        let dayKey = dailyKey()
         for (i, text) in picked.enumerated() {
             let minutesAgo = Int(generator.next() % (60 * 23) + 1)
             let createdAt = now.addingTimeInterval(-Double(minutesAgo * 60))
             let expireAt = createdAt.addingTimeInterval(24 * 3600)
             let post = TimelinePost(
-                id: "sample_\(room)_\(i)",
+                id: "sample_\(room)_\(dayKey)_\(i)",
                 authorUid: "sample_\(room)_\(i % 30)",
                 text: text,
                 languageRoom: room,
                 createdAt: createdAt,
                 expireAt: expireAt,
                 reportCount: 0,
-                isHidden: false
+                isHidden: false,
+                reactionLike: dynamicReactionCount(index: i, createdAt: createdAt, salt: 3),
+                reactionHeart: dynamicReactionCount(index: i, createdAt: createdAt, salt: 11),
+                reactionPeace: dynamicReactionCount(index: i, createdAt: createdAt, salt: 19),
+                myReaction: nil
             )
             posts.append(post)
         }
@@ -243,13 +248,23 @@ enum SakuraTemplateProvider {
     }
 
     private static func dailySeed() -> UInt64 {
+        UInt64(max(Int(dailyKey()) ?? 1, 1))
+    }
+
+    private static func dailyKey() -> String {
         let cal = Calendar.current
         let comps = cal.dateComponents([.year, .month, .day], from: Date())
         let year = comps.year ?? 0
         let month = comps.month ?? 0
         let day = comps.day ?? 0
-        let combined = year * 10000 + month * 100 + day
-        return UInt64(max(combined, 1))
+        return String(format: "%04d%02d%02d", year, month, day)
+    }
+
+    private static func dynamicReactionCount(index: Int, createdAt: Date, salt: Int) -> Int {
+        let ageMinutes = max(0, Int(Date().timeIntervalSince(createdAt) / 60))
+        let slowGrowth = ageMinutes / (8 + ((index + salt) % 11))
+        let base = (index * 7 + salt) % 13
+        return min(99, base + slowGrowth)
     }
 }
 

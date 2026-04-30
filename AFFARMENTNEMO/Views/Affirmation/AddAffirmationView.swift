@@ -6,6 +6,8 @@
 
 import SwiftUI
 
+private let addWeekdayLabels = ["日", "月", "火", "水", "木", "金", "土"]
+
 struct AddAffirmationView: View {
     @Environment(AffirmationStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -13,8 +15,13 @@ struct AddAffirmationView: View {
     @State private var text: String
     @State private var selectedTemplate: AffirmationTemplate?
     @State private var category: AffirmationCategoryKind
-    @State private var morningEnabled: Bool = true
-    @State private var eveningEnabled: Bool = false
+    @State private var customCategoryName: String = ""
+    @State private var includeInRoutine: Bool = true
+    @State private var hasStartDate: Bool = false
+    @State private var startDate: Date = Date()
+    @State private var hasEndDate: Bool = false
+    @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+    @State private var weekdayMask: Int = 127
     @State private var templateExpanded: Bool = false
     @State private var hint: SmartHint?
     @State private var hintDismissedThisSession: Bool = false
@@ -59,7 +66,7 @@ struct AddAffirmationView: View {
                     } label: {
                         HStack(spacing: AppSpacing.sm) {
                             Image(systemName: "sparkles").font(.system(size: 20))
-                            Text("AIに3択で考えてもらう")
+                            Text("AIに考えてもらう")
                                 .appFont(.bodyEmphasis)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -91,10 +98,14 @@ struct AddAffirmationView: View {
 
                     categorySection
 
-                    scheduleSection
+                    routineSection
+
+                    writingTipsSection
 
                     // 自分の声を録音 (ユーザー要望: 一覧編集や新規時に録音可能)
                     RecordingControl(fileName: $recordingFileName, affirmationId: pendingId)
+
+                    PrimaryButton(titleKey: "common.register", action: save, isEnabled: canSave)
 
                     HStack {
                         Spacer()
@@ -168,7 +179,7 @@ struct AddAffirmationView: View {
             .appFont(.body)
             .scrollContentBackground(.hidden)
             .padding(AppSpacing.sm)
-            .frame(minHeight: 120)
+            .frame(minHeight: 160)
             .background(Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
             .overlay(alignment: .topLeading) {
@@ -243,23 +254,84 @@ struct AddAffirmationView: View {
             }
             .pickerStyle(.menu)
             .tint(Color.brandSecondary)
+
+            if category == .custom {
+                TextField("カテゴリ名を入力", text: $customCategoryName)
+                    .textInputAutocapitalization(.never)
+                    .appFont(.body)
+                    .padding(AppSpacing.sm)
+                    .background(Color.bgSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+            }
         }
     }
 
-    private var scheduleSection: some View {
+    private var routineSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("add.schedule")
+            Text("読み上げ設定")
                 .appFont(.caption)
                 .foregroundStyle(Color.textSecondary)
-            HStack(spacing: AppSpacing.md) {
-                Toggle(isOn: $morningEnabled) {
-                    Text("notif.slot.morning").appFont(.body)
+            Toggle(isOn: $includeInRoutine) {
+                Text("ホームの読み上げセットに入れる").appFont(.body)
+            }
+            .tint(Color.brandSecondary)
+
+            Toggle("開始日を設定する", isOn: $hasStartDate)
+                .appFont(.body)
+            if hasStartDate {
+                DatePicker("開始日", selection: $startDate, displayedComponents: .date)
+            }
+
+            Toggle("終了日を設定する", isOn: $hasEndDate)
+                .appFont(.body)
+            if hasEndDate {
+                DatePicker("終了日", selection: $endDate, displayedComponents: .date)
+            }
+
+            Text("読み上げる曜日")
+                .appFont(.caption)
+                .foregroundStyle(Color.textSecondary)
+                .padding(.top, AppSpacing.xs)
+            weekdayPicker
+        }
+        .padding(AppSpacing.md)
+        .background(Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+    }
+
+    private var weekdayPicker: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<7, id: \.self) { i in
+                let bit = 1 << i
+                let on = (weekdayMask & bit) != 0
+                Button {
+                    if on {
+                        weekdayMask &= ~bit
+                    } else {
+                        weekdayMask |= bit
+                    }
+                } label: {
+                    Text(addWeekdayLabels[i])
+                        .appFont(.caption)
+                        .frame(width: 36, height: 36)
+                        .background(on ? Color.brandPrimary : Color.bgPrimary)
+                        .foregroundStyle(on ? Color.bgPrimary : Color.textSecondary)
+                        .clipShape(Circle())
                 }
-                .tint(Color.brandSecondary)
-                Toggle(isOn: $eveningEnabled) {
-                    Text("notif.slot.evening").appFont(.body)
-                }
-                .tint(Color.brandSecondary)
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var writingTipsSection: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("書き方のコツ")
+                    .appFont(.bodyEmphasis)
+                    .foregroundStyle(Color.textPrimary)
+                Text("「したい」で終わる願い、または「もし〜したら〜する」の形にすると、毎日の行動に移しやすくなります。")
+                    .appFont(.caption)
+                    .foregroundStyle(Color.textSecondary)
             }
         }
     }
@@ -279,13 +351,19 @@ struct AddAffirmationView: View {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         let mode = selectedTemplate?.internalMode ?? "affirmation"
+        let customName = customCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
         let aff = store.add(
             text: trimmed,
             internalMode: mode,
             templateUsed: selectedTemplate?.id,
             category: category,
-            morningEnabled: morningEnabled,
-            eveningEnabled: eveningEnabled
+            customCategoryName: category == .custom && !customName.isEmpty ? customName : nil,
+            morningEnabled: true,
+            eveningEnabled: false,
+            includeInRoutine: includeInRoutine,
+            startDate: hasStartDate ? startDate : nil,
+            endDate: hasEndDate ? endDate : nil,
+            weekdayMask: weekdayMask
         )
         // 録音ファイルを Affirmation の id にリネーム (pendingId で先行録音した場合)
         if let recName = recordingFileName, !recName.isEmpty {

@@ -26,6 +26,8 @@ struct HomeView: View {
     @State private var navigateToTemplateForTip: AffirmationTemplate?
     @State private var firstReadPromptShown = false
     @State private var showRoutineEditor = false
+    @State private var requestedMode: ReadPlaybackMode = .ai
+    @StateObject private var ttsPrefs = TTSPreferences.shared
 
     var body: some View {
         let stats = store.userStats()
@@ -41,18 +43,14 @@ struct HomeView: View {
                     todaysSetCard(morningSet: morning, eveningSet: evening)
                         .padding(.top, AppSpacing.md)
 
-                    // Primary CTA: 短冊追加
-                    PrimaryButton(titleKey: "home.add.tanzaku", action: { showAdd = true })
-
-                    // ストリーク (小さく、副次情報として)
-                    StreakHeader(stats: stats)
-                        .padding(.top, AppSpacing.xs)
+                    homeControlPanel
 
                     // 今日のヒント (1日1回、消去可、最後に表示)
-                    if !dismissedTipToday {
-                        dailyTipCard
-                            .padding(.top, AppSpacing.sm)
-                    }
+                    dailyTipCard
+                        .padding(.top, AppSpacing.sm)
+
+                    StreakHeader(stats: stats)
+                        .padding(.top, AppSpacing.xs)
 
                     // バナーは Stack 内には置かず、ScrollView 外で safeAreaInset で底固定 (上に来すぎバグ修正)
                 }
@@ -91,7 +89,7 @@ struct HomeView: View {
                 RoutineEditorView()
             }
             .fullScreenCover(isPresented: $showReadAloud) {
-                ReadAloudView(items: routineItems, slot: "routine")
+                ReadAloudView(items: routineItems, slot: "routine", initialMode: requestedMode, autoStart: requestedMode != .selfRead)
             }
             .sheet(isPresented: $showHelp) {
                 HelpView()
@@ -163,8 +161,8 @@ struct HomeView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
-                    Text("home.todaysSet")
-                        .appFont(.h3)
+                    Text("今日の言葉")
+                        .appFont(.h1)
                         .foregroundStyle(Color.textPrimary)
                     Text("(\(items.count))")
                         .appFont(.caption)
@@ -175,7 +173,7 @@ struct HomeView: View {
                         showRoutineEditor = true
                     } label: {
                         Label("編集", systemImage: "slider.horizontal.3")
-                            .appFont(.caption)
+                            .appFont(.bodyEmphasis)
                             .foregroundStyle(Color.brandSecondary)
                     }
                 }
@@ -215,24 +213,79 @@ struct HomeView: View {
                             .padding(.top, AppSpacing.xs)
                     }
                 }
-
-                Button {
-                    showReadAloud = true
-                } label: {
-                    HStack(spacing: AppSpacing.xs) {
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 26))
-                        Text("home.set.read")
-                            .appFont(.h3)
-                    }
-                    .foregroundStyle(Color.bgPrimary)
-                    .frame(maxWidth: .infinity, minHeight: 64)
-                    .background(Color.brandPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
-                }
-                .padding(.top, AppSpacing.sm)
             }
         }
+    }
+
+    private var homeControlPanel: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                HStack(spacing: AppSpacing.sm) {
+                    playbackButton(mode: .selfRead)
+                    playbackButton(mode: .ai)
+                    playbackButton(mode: .recorded)
+                }
+
+                Button {
+                    showAdd = true
+                } label: {
+                    Label("言葉を追加する", systemImage: "plus.circle.fill")
+                        .appFont(.bodyEmphasis)
+                        .foregroundStyle(Color.brandPrimary)
+                        .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                        .background(Color.brandAccent.opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                }
+                .buttonStyle(.plain)
+
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    Toggle(isOn: $ttsPrefs.autoplayOnLaunch) {
+                        Text("アプリ起動時に音声を自動再生")
+                            .appFont(.bodyEmphasis)
+                    }
+                    .tint(Color.brandSecondary)
+
+                    if ttsPrefs.autoplayOnLaunch {
+                        Picker("再生方法", selection: $ttsPrefs.autoplayMode) {
+                            Text("音読をする").tag("self")
+                            Text("AIで読み上げる").tag("ai")
+                            Text("録音した音声で流す").tag("recorded")
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
+                    Toggle(isOn: $ttsPrefs.backgroundAIPlaybackEnabled) {
+                        Text("バックグラウンドでAI音声を流す")
+                            .appFont(.caption)
+                    }
+                    .tint(Color.brandSecondary)
+                }
+            }
+        }
+    }
+
+    private func playbackButton(mode: ReadPlaybackMode) -> some View {
+        Button {
+            requestedMode = mode
+            showReadAloud = true
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: mode.icon)
+                    .font(.system(size: 20, weight: .semibold))
+                Text(mode.label)
+                    .appFont(.micro)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.82)
+            }
+            .foregroundStyle(mode == .ai ? Color.bgPrimary : Color.textPrimary)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(mode == .ai ? Color.brandPrimary : Color.bgTertiary)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+        }
+        .buttonStyle(.plain)
+        .disabled(routineItems.isEmpty)
+        .opacity(routineItems.isEmpty ? 0.45 : 1)
     }
 
     private func setCard(titleKey: LocalizedStringKey,
@@ -288,7 +341,7 @@ struct HomeView: View {
 
     private var dailyTipCard: some View {
         let tip = DailyTipProvider.tipForToday()
-        return DismissableCard(content: {
+        return AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 HStack(spacing: AppSpacing.xs) {
                     Image(systemName: "lightbulb.fill")
@@ -316,7 +369,7 @@ struct HomeView: View {
                     .padding(.top, 2)
                 }
             }
-        }, onDismiss: { dismissedTipToday = true })
+        }
     }
 }
 

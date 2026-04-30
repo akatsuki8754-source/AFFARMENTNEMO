@@ -10,6 +10,26 @@ import SwiftUI
 import FirebaseFirestore
 #endif
 
+private enum TimelineReaction: String, CaseIterable {
+    case like, heart, peace
+
+    var icon: String {
+        switch self {
+        case .like: "hand.thumbsup.fill"
+        case .heart: "heart.fill"
+        case .peace: "hand.peace.fill"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .like: "いいね"
+        case .heart: "ハート"
+        case .peace: "ピース"
+        }
+    }
+}
+
 struct TimelineView: View {
     @AppStorage("kotodama.timeline.firstSeen") private var firstSeen: Bool = false
     @AppStorage("kotodama.timeline.canPost") private var canPost: Bool = false
@@ -22,6 +42,7 @@ struct TimelineView: View {
     @State private var showContact = false
     @StateObject private var blocks = UserBlockStore.shared
     @State private var locallyHiddenPostIds: Set<String> = []
+    @State private var refreshNonce = UUID()
     #if canImport(FirebaseFirestore)
     @State private var listener: ListenerRegistration?
     #endif
@@ -172,9 +193,6 @@ struct TimelineView: View {
                     }
                 }
                 Spacer()
-                Text("timeline.expires.note")
-                    .appFont(.micro)
-                    .foregroundStyle(Color.textSecondary)
             }
             .padding(.horizontal, AppSpacing.screenEdge)
             .padding(.vertical, AppSpacing.sm)
@@ -199,10 +217,14 @@ struct TimelineView: View {
                     .padding(.horizontal, AppSpacing.screenEdge)
                     .padding(.vertical, AppSpacing.md)
                 }
+                .refreshable {
+                    await refreshTimeline()
+                }
             }
 
             AdBannerSlot()
         }
+        .id(refreshNonce)
         .overlay(alignment: .bottomTrailing) {
             Button {
                 // EULA はタイムライン入場時に同意済 (eulaAccepted=true)。投稿前の追加同意は不要
@@ -283,6 +305,8 @@ struct TimelineView: View {
                 .appFont(.body)
                 .foregroundStyle(Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+            reactionRow(post)
         }
         .padding(AppSpacing.md)
         .background(Color.bgSecondary)
@@ -320,6 +344,76 @@ struct TimelineView: View {
         }
     }
 
+    private func reactionRow(_ post: TimelinePost) -> some View {
+        HStack(spacing: AppSpacing.xs) {
+            ForEach(TimelineReaction.allCases, id: \.rawValue) { reaction in
+                let selected = selectedReaction(for: post) == reaction.rawValue
+                Button {
+                    Task { await toggleReaction(post, reaction: reaction) }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: reaction.icon)
+                        Text("\(reactionCount(post, reaction: reaction))")
+                    }
+                    .appFont(.micro)
+                    .foregroundStyle(selected ? Color.bgPrimary : Color.textSecondary)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, 6)
+                    .background(selected ? Color.brandPrimary : Color.bgPrimary)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(reaction.label))
+            }
+            Spacer()
+        }
+        .padding(.top, AppSpacing.xs)
+    }
+
+    private func selectedReaction(for post: TimelinePost) -> String? {
+        if SakuraTemplateProvider.isSample(post) {
+            return UserDefaults.standard.string(forKey: sampleReactionKey(post.id))
+        }
+        return post.myReaction
+    }
+
+    private func reactionCount(_ post: TimelinePost, reaction: TimelineReaction) -> Int {
+        let base: Int
+        switch reaction {
+        case .like: base = post.reactionLike
+        case .heart: base = post.reactionHeart
+        case .peace: base = post.reactionPeace
+        }
+        if SakuraTemplateProvider.isSample(post),
+           selectedReaction(for: post) == reaction.rawValue {
+            return base + 1
+        }
+        return max(0, base)
+    }
+
+    private func toggleReaction(_ post: TimelinePost, reaction: TimelineReaction) async {
+        if SakuraTemplateProvider.isSample(post) {
+            let key = sampleReactionKey(post.id)
+            if UserDefaults.standard.string(forKey: key) == reaction.rawValue {
+                UserDefaults.standard.removeObject(forKey: key)
+            } else {
+                UserDefaults.standard.set(reaction.rawValue, forKey: key)
+            }
+            refreshNonce = UUID()
+            return
+        }
+        do {
+            try await TimelineService.shared.toggleReaction(post: post, reaction: reaction.rawValue)
+            await refreshTimeline()
+        } catch {
+            print("[Timeline] reaction failed: \(error)")
+        }
+    }
+
+    private func sampleReactionKey(_ postId: String) -> String {
+        "kotodama.timeline.sampleReaction.\(postId)"
+    }
+
     private struct RoomEntry { let code: String; let label: String; let flag: String }
     private let supportedRooms: [RoomEntry] = [
         RoomEntry(code: "ja_JP", label: "日本語", flag: "🇯🇵"),
@@ -340,6 +434,15 @@ struct TimelineView: View {
         unsubscribe()
         posts = []
         subscribe()
+    }
+
+    private func refreshTimeline() async {
+        #if canImport(FirebaseFirestore)
+        if let fetched = try? await TimelineService.shared.fetchPosts(room: room) {
+            posts = fetched
+        }
+        #endif
+        refreshNonce = UUID()
     }
 
     private func relativeTime(_ date: Date) -> String {
@@ -441,9 +544,6 @@ private struct ComposeView: View {
 
     private var infoBanner: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label("timeline.notice.expire", systemImage: "info.circle")
-                .appFont(.caption)
-                .foregroundStyle(Color.semanticInfo)
             Label("timeline.notice.pii", systemImage: "info.circle")
                 .appFont(.caption)
                 .foregroundStyle(Color.semanticInfo)

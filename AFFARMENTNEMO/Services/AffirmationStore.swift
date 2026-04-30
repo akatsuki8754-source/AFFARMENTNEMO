@@ -58,7 +58,11 @@ final class AffirmationStore {
              ifTrigger: String? = nil,
              thenAction: String? = nil,
              morningEnabled: Bool = true,
-             eveningEnabled: Bool = false) -> Affirmation {
+             eveningEnabled: Bool = false,
+             includeInRoutine: Bool = true,
+             startDate: Date? = nil,
+             endDate: Date? = nil,
+             weekdayMask: Int = 127) -> Affirmation {
         let nextOrder = (allAffirmations(activeOnly: false).map(\.orderIndex).max() ?? -1) + 1
         let aff = Affirmation(
             text: text,
@@ -72,6 +76,10 @@ final class AffirmationStore {
             eveningEnabled: eveningEnabled,
             orderIndex: nextOrder
         )
+        aff.includeInRoutine = includeInRoutine
+        aff.startDate = startDate
+        aff.endDate = endDate
+        aff.weekdayMask = weekdayMask == 0 ? 127 : weekdayMask
         context.insert(aff)
         try? context.save()
         return aff
@@ -82,12 +90,20 @@ final class AffirmationStore {
                 category: AffirmationCategoryKind? = nil,
                 morningEnabled: Bool? = nil,
                 eveningEnabled: Bool? = nil,
+                customCategoryName: String?? = nil,
+                startDate: Date?? = nil,
+                endDate: Date?? = nil,
+                weekdayMask: Int? = nil,
                 recordingFileName: String?? = nil,
                 includeInRoutine: Bool? = nil) {
         if let text { aff.text = text }
         if let category { aff.category = category.rawValue }
+        if let customCategoryName { aff.customCategoryName = customCategoryName }
         if let morningEnabled { aff.morningEnabled = morningEnabled }
         if let eveningEnabled { aff.eveningEnabled = eveningEnabled }
+        if let startDate { aff.startDate = startDate }
+        if let endDate { aff.endDate = endDate }
+        if let weekdayMask { aff.weekdayMask = weekdayMask == 0 ? 127 : weekdayMask }
         if let recordingFileName { aff.recordingFileName = recordingFileName }
         if let includeInRoutine { aff.includeInRoutine = includeInRoutine }
         aff.updatedAt = Date()

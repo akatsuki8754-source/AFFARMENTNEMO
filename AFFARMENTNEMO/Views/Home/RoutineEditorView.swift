@@ -24,6 +24,7 @@ struct RoutineEditorView: View {
     @State private var searchText: String = ""
     @State private var pendingDelete: Affirmation?
     @State private var showAdd = false
+    @State private var editingAffirmation: Affirmation?
 
     private var inSetItems: [Affirmation] {
         let q = searchText.lowercased()
@@ -128,6 +129,9 @@ struct RoutineEditorView: View {
             .sheet(isPresented: $showAdd) {
                 AddAffirmationView()
             }
+            .sheet(item: $editingAffirmation) { aff in
+                EditAffirmationView(affirmation: aff)
+            }
             .alert("この言葉を削除しますか?", isPresented: .constant(pendingDelete != nil), presenting: pendingDelete) { aff in
                 Button("キャンセル", role: .cancel) { pendingDelete = nil }
                 Button("削除する", role: .destructive) {
@@ -199,6 +203,11 @@ struct RoutineEditorView: View {
             .buttonStyle(.plain)
         }
         .contextMenu {
+            Button {
+                editingAffirmation = aff
+            } label: {
+                Label("編集", systemImage: "pencil")
+            }
             Button(role: .destructive) {
                 pendingDelete = aff
             } label: {

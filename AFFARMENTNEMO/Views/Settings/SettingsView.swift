@@ -29,6 +29,7 @@ struct SettingsView: View {
     @StateObject private var perms = PermissionDiagnostics.shared
     @AppStorage("kotodama.appLanguage") private var appLanguage: String = "system"
     @AppStorage("kotodama.screenshot.mode") private var screenshotMode: Bool = false
+    @AppStorage("kotodama.onboarding.completed") private var onboardingCompleted: Bool = true
     /// 隠しコマンド: バージョン情報を5回タップで表示
     @State private var versionTapCount = 0
     @State private var showDebugSection = false
@@ -73,20 +74,14 @@ struct SettingsView: View {
                         .foregroundStyle(Color.textSecondary)
                 }
 
-                Section(header: Text("AI音声 (TTS)")) {
-                    let voices = ttsPrefs.availableVoices()
-                    Picker("声", selection: Binding(
-                        get: { ttsPrefs.selectedVoiceId ?? "" },
-                        set: { ttsPrefs.selectedVoiceId = $0.isEmpty ? nil : $0 }
-                    )) {
-                        Text("自動 (端末の言語)").tag("")
-                        ForEach(voices) { v in
-                            Text("\(v.language) / \(v.name) (\(v.gender) ・\(v.quality))")
-                                .tag(v.id)
-                        }
+                Section(header: Text("AI音声")) {
+                    Picker("声", selection: $ttsPrefs.selectedVoiceGender) {
+                        Text("女性").tag("female")
+                        Text("男性").tag("male")
                     }
+                    .pickerStyle(.segmented)
                     Button {
-                        ttsPrefs.preview(voiceId: ttsPrefs.selectedVoiceId)
+                        ttsPrefs.preview()
                     } label: {
                         Label("試しに再生", systemImage: "play.circle")
                     }
@@ -99,10 +94,13 @@ struct SettingsView: View {
                     }
                     if ttsPrefs.autoplayOnLaunch {
                         Picker("再生方法", selection: $ttsPrefs.autoplayMode) {
-                            Text("自分で読む").tag("self")
-                            Text("AIで再生").tag("ai")
-                            Text("録音で再生").tag("recorded")
+                            Text("音読をする").tag("self")
+                            Text("AIで読み上げる").tag("ai")
+                            Text("録音した音声で流す").tag("recorded")
                         }
+                    }
+                    Toggle(isOn: $ttsPrefs.backgroundAIPlaybackEnabled) {
+                        Text("バックグラウンドでAI音声を流す")
                     }
                 }
 
@@ -126,6 +124,19 @@ struct SettingsView: View {
                 }
 
                 Section(header: Text("settings.help")) {
+                    Button {
+                        onboardingCompleted = false
+                        dismiss()
+                    } label: {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("オンボーディングをもう一度表示")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                    }
+                    .foregroundStyle(Color.textPrimary)
+
                     Button {
                         showHelp = true
                     } label: {
@@ -215,11 +226,6 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle(Text("settings.title"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: { Text("common.close") }
-                }
-            }
             .sheet(isPresented: $showHelp) { HelpView() }
             .sheet(isPresented: $showEULA) { EULAView() }
             .sheet(isPresented: $showContact) { ContactView() }

@@ -11,8 +11,9 @@
  *   npm install firebase-functions firebase-admin @google/generative-ai
  *   firebase deploy --only functions --project kotodama-86a14
  *
- * 必要な Secret:
+ * 必要な Secret / Params:
  *   firebase functions:secrets:set GEMINI_API_KEY
+ *   firebase functions:config:set ai.enabled=true ではなく、v2 param AI_GENERATION_ENABLED=true を使う
  *
  * 注意:
  *   このファイルは Phase 3 デプロイ用のスタブ。
@@ -22,64 +23,86 @@
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
+const { defineSecret, defineString, defineInt } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 
 admin.initializeApp();
 const db = admin.firestore();
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
+const aiGenerationEnabled = defineString('AI_GENERATION_ENABLED', { default: 'false' });
+const maxUserDaily = defineInt('AI_MAX_USER_DAILY', { default: 5 });
+const maxGlobalDaily = defineInt('AI_MAX_GLOBAL_DAILY', { default: 800 });
+const aiModelName = defineString('AI_GEMINI_MODEL', { default: 'gemini-2.5-flash-lite' });
 
 // ─────────────────────────────────────────────
 // AI 短冊生成 (Gemini Flash-Lite)
 // ─────────────────────────────────────────────
 exports.aiGenerateWish = onCall(
-  { secrets: [geminiApiKey], region: 'asia-northeast1' },
+  {
+    secrets: [geminiApiKey],
+    region: 'asia-northeast1',
+    timeoutSeconds: 30,
+    minInstances: 0,
+    maxInstances: 5,
+  },
   async (request) => {
     const uid = request.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+    if (aiGenerationEnabled.value() !== 'true') {
+      throw new HttpsError('failed-precondition', 'AI generation disabled');
+    }
 
-    // 個人クォータチェック (1日5回)
+    const budgetSnap = await db.doc('system/aiBudgetAlert').get();
+    if (budgetSnap.data()?.monthlyEmergencyStop === true) {
+      throw new HttpsError('resource-exhausted', 'AI budget emergency stop');
+    }
+
+    const path = validatePath(request.data?.path);
+    const prompt = buildPrompt(path);
     const today = new Date().toISOString().slice(0, 10);
     const quotaRef = db.collection('userQuotas').doc(`${uid}_${today}`);
-    const quotaSnap = await quotaRef.get();
-    const used = quotaSnap.exists ? (quotaSnap.data().count || 0) : 0;
-    if (used >= 5) {
-      throw new HttpsError('resource-exhausted', 'Daily AI quota exceeded');
-    }
-
-    // グローバルクォータチェック (1日800)
     const globalRef = db.collection('globalQuota').doc(today);
-    const globalSnap = await globalRef.get();
-    const globalUsed = globalSnap.exists ? (globalSnap.data().count || 0) : 0;
-    if (globalUsed >= 800) {
-      throw new HttpsError('resource-exhausted', 'Global AI capacity full');
-    }
 
-    const path = request.data.path; // [{title, prompt}, ...]
-    const prompt = buildPrompt(path);
+    const reservation = await reserveQuota({
+      uid,
+      quotaRef,
+      globalRef,
+      maxUser: maxUserDaily.value(),
+      maxGlobal: maxGlobalDaily.value(),
+    });
 
-    // Gemini API 呼び出し
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
-    let candidates = [];
     try {
+      const { GoogleGenerativeAI } = require('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiApiKey.value());
+      const model = genAI.getGenerativeModel({
+        model: aiModelName.value(),
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.8,
+          maxOutputTokens: 512,
+        },
+      });
       const result = await model.generateContent(prompt);
       const text = result.response.text();
-      candidates = parseCandidates(text);
+      const candidates = parseCandidates(text);
+      await logAIUsage(uid, path, candidates, false);
+      return {
+        candidates,
+        quotaRemaining: reservation.userRemaining,
+        fallback: false,
+      };
     } catch (err) {
       console.error('Gemini error:', err);
-      // フォールバック: テンプレ
-      candidates = fallbackCandidates(path);
+      await rollbackQuota({ quotaRef, globalRef });
+      const candidates = fallbackCandidates(path);
+      await logAIUsage(uid, path, candidates, true);
+      return {
+        candidates,
+        quotaRemaining: reservation.userRemaining + 1,
+        fallback: true,
+      };
     }
-
-    // クォータ更新
-    await quotaRef.set({ count: used + 1, updatedAt: Date.now() }, { merge: true });
-    await globalRef.set({ count: globalUsed + 1, updatedAt: Date.now() }, { merge: true });
-
-    return { candidates };
   }
 );
 
@@ -88,34 +111,137 @@ function buildPrompt(path) {
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
 ユーザーの状況: ${titles}
 
-以下の3つの異なるアプローチで、それぞれ80文字以内の言葉を1つずつ作ってください。番号付きリストで出力。
-1. 自己肯定型 (Self-Affirmation Theory): 「私は◯◯」で始まる断定的でない、価値観を肯定する文
-2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯する」の形
+以下の3つの異なるアプローチで、それぞれ80文字以内の言葉を1つずつ作ってください。
+すべて「〜したい」「〜でいたい」「〜になりたい」の願い形で統一してください。
+有名人や名言がテーマの場合も、既存の名言を引用せず、考え方だけを参考にしたオリジナル文にしてください。
+1. 自己肯定型 (Self-Affirmation Theory): 価値観を肯定する文
+2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯したい」の形
 3. 価値観型 (Mental Contrasting): 障害を予期しつつ前向きに進む文
 
 出力形式:
-1. <80文字以内>
-2. <80文字以内>
-3. <80文字以内>`;
+JSONのみ。コードブロックや説明文は不要。
+{
+  "candidates": [
+    {"type": "self_affirmation", "text": "<80文字以内>"},
+    {"type": "if_then", "text": "<80文字以内>"},
+    {"type": "values", "text": "<80文字以内>"}
+  ]
+}`;
 }
 
 function parseCandidates(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-  const candidates = [];
-  for (const line of lines) {
-    const m = line.match(/^\d+[.)]\s*(.+)$/);
-    if (m) candidates.push(m[1].slice(0, 200));
-    if (candidates.length >= 3) break;
+  const cleaned = text
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```$/i, '')
+    .trim();
+  try {
+    const parsed = JSON.parse(cleaned);
+    const items = Array.isArray(parsed.candidates) ? parsed.candidates : [];
+    const candidates = items
+      .map(item => normalizeCandidate(String(item.text ?? item)))
+      .filter(Boolean)
+      .slice(0, 3);
+    if (candidates.length === 3) return candidates;
+  } catch (_) {
+    // below: tolerate numbered-list model drift
   }
-  return candidates.length === 3 ? candidates : fallbackCandidates([]);
+  const lines = cleaned.split('\n').map(line => line.trim()).filter(Boolean);
+  const candidates = lines
+    .map(line => line.match(/^\d+[.)]\s*(.+)$/)?.[1])
+    .filter(Boolean)
+    .map(normalizeCandidate)
+    .slice(0, 3);
+  if (candidates.length === 3) return candidates;
+  throw new Error(`AI response parse failed: ${cleaned.slice(0, 200)}`);
 }
 
 function fallbackCandidates(path) {
+  const selected = path.map(p => p.title).filter(Boolean).slice(-1)[0] || '今日の一歩';
   return [
-    '私は今日も小さな一歩を踏み出せる人だ。',
-    'もし迷ったら、深呼吸してから次の選択をする。',
-    '進む方向は揺らいでも、私は私の歩幅で歩める。',
+    normalizeCandidate(`${selected}に向けて、今日も小さな一歩を踏み出したい。`),
+    normalizeCandidate(`もし迷ったら、深呼吸してから${selected}に戻りたい。`),
+    normalizeCandidate(`進む方向が揺れても、自分の歩幅で${selected}を大切にしたい。`),
   ];
+}
+
+function normalizeCandidate(raw) {
+  const trimmed = raw.trim().replace(/^["'「『]|["'」』]$/g, '').slice(0, 100);
+  if (!trimmed) return '';
+  if (/(したい|でいたい|になりたい|たい)[。.!！]?$/.test(trimmed)) {
+    return /[。.!！]$/.test(trimmed) ? trimmed : `${trimmed}。`;
+  }
+  return `${trimmed.replace(/[。.!！]+$/, '')}したい。`;
+}
+
+function validatePath(path) {
+  if (!Array.isArray(path) || path.length === 0 || path.length > 8) {
+    throw new HttpsError('invalid-argument', 'Invalid path');
+  }
+  return path.map(item => {
+    const title = String(item?.title ?? '').trim().slice(0, 80);
+    const prompt = String(item?.prompt ?? '').trim().slice(0, 200);
+    if (!title) throw new HttpsError('invalid-argument', 'Invalid path title');
+    return { title, prompt };
+  });
+}
+
+async function reserveQuota({ uid, quotaRef, globalRef, maxUser, maxGlobal }) {
+  return db.runTransaction(async tx => {
+    const [quotaSnap, globalSnap] = await Promise.all([tx.get(quotaRef), tx.get(globalRef)]);
+    const userUsed = quotaSnap.exists ? (quotaSnap.data().count || 0) : 0;
+    const globalUsed = globalSnap.exists ? (globalSnap.data().count || 0) : 0;
+    if (globalUsed >= maxGlobal) {
+      throw new HttpsError('resource-exhausted', 'Daily global quota exceeded', {
+        reason: 'global_quota',
+      });
+    }
+    if (userUsed >= maxUser) {
+      throw new HttpsError('resource-exhausted', 'Daily user quota exceeded', {
+        reason: 'user_quota',
+        canWatchAd: (quotaSnap.data()?.adWatchCountToday || 0) < 2,
+      });
+    }
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    tx.set(quotaRef, {
+      uid,
+      count: userUsed + 1,
+      updatedAt: now,
+      dateKey: quotaRef.id.split('_').pop(),
+    }, { merge: true });
+    tx.set(globalRef, {
+      count: globalUsed + 1,
+      updatedAt: now,
+    }, { merge: true });
+    return { userRemaining: Math.max(0, maxUser - userUsed - 1) };
+  });
+}
+
+async function rollbackQuota({ quotaRef, globalRef }) {
+  await db.runTransaction(async tx => {
+    const [quotaSnap, globalSnap] = await Promise.all([tx.get(quotaRef), tx.get(globalRef)]);
+    const userUsed = quotaSnap.exists ? (quotaSnap.data().count || 0) : 0;
+    const globalUsed = globalSnap.exists ? (globalSnap.data().count || 0) : 0;
+    tx.set(quotaRef, {
+      count: Math.max(0, userUsed - 1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    tx.set(globalRef, {
+      count: Math.max(0, globalUsed - 1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  });
+}
+
+async function logAIUsage(uid, path, candidates, fallback) {
+  await db.collection('aiUsageLogs').add({
+    uid,
+    path,
+    candidates,
+    fallback,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
 }
 
 // ─────────────────────────────────────────────

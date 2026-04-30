@@ -38,6 +38,9 @@ struct LibraryView: View {
     @State private var searchText: String = ""
     @State private var filterCategory: AffirmationCategoryKind?
     @State private var sortMode: LibrarySortMode = .orderIndex
+    @State private var isSelecting = false
+    @State private var selectedIDs: Set<UUID> = []
+    @State private var showBulkDeleteConfirm = false
 
     private var filteredItems: [Affirmation] {
         var result = items
@@ -77,11 +80,26 @@ struct LibraryView: View {
                         ForEach(items) { aff in
                             // バグ修正: タップで詳細/編集シートを開く (旧: 何も起きなかった)
                             Button {
-                                editingAffirmation = aff
+                                if isSelecting {
+                                    toggleSelection(aff)
+                                } else {
+                                    editingAffirmation = aff
+                                }
                             } label: {
-                                AffirmationRow(affirmation: aff)
+                                HStack(spacing: AppSpacing.sm) {
+                                    if isSelecting {
+                                        Image(systemName: selectedIDs.contains(aff.id) ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 24))
+                                            .foregroundStyle(selectedIDs.contains(aff.id) ? Color.brandPrimary : Color.textSecondary)
+                                    }
+                                    AffirmationRow(affirmation: aff)
+                                }
                             }
                             .buttonStyle(.plain)
+                            .onLongPressGesture {
+                                isSelecting = true
+                                selectedIDs.insert(aff.id)
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     softDelete(aff)
@@ -153,11 +171,40 @@ struct LibraryView: View {
                     }
                     .accessibilityLabel(Text("フィルター"))
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAdd = true } label: {
-                        Image(systemName: "plus")
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if isSelecting {
+                        Button {
+                            selectAllFiltered(items)
+                        } label: {
+                            Image(systemName: "checkmark.square")
+                        }
+                        .accessibilityLabel(Text("表示中をすべて選択"))
+
+                        Button(role: .destructive) {
+                            showBulkDeleteConfirm = true
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .disabled(selectedIDs.isEmpty)
+                        .accessibilityLabel(Text("選択した言葉を削除"))
+
+                        Button("完了") {
+                            isSelecting = false
+                            selectedIDs = []
+                        }
+                    } else {
+                        Button {
+                            isSelecting = true
+                        } label: {
+                            Image(systemName: "checkmark.circle")
+                        }
+                        .accessibilityLabel(Text("複数選択"))
+
+                        Button { showAdd = true } label: {
+                            Image(systemName: "plus")
+                        }
+                        .accessibilityLabel(Text("home.add"))
                     }
-                    .accessibilityLabel(Text("home.add"))
                 }
             }
             .sheet(item: $editingAffirmation) { aff in
@@ -165,6 +212,16 @@ struct LibraryView: View {
             }
             .sheet(isPresented: $showAdd) {
                 AddAffirmationView()
+            }
+            .confirmationDialog("選択した言葉を削除しますか?",
+                                isPresented: $showBulkDeleteConfirm,
+                                titleVisibility: .visible) {
+                Button("削除する", role: .destructive) {
+                    bulkDeleteSelected()
+                }
+                Button("キャンセル", role: .cancel) {}
+            } message: {
+                Text("\(selectedIDs.count)件を削除します")
             }
     }
 
@@ -210,6 +267,30 @@ struct LibraryView: View {
                 }
             }
         }
+    }
+
+    private func toggleSelection(_ aff: Affirmation) {
+        if selectedIDs.contains(aff.id) {
+            selectedIDs.remove(aff.id)
+        } else {
+            selectedIDs.insert(aff.id)
+        }
+    }
+
+    private func selectAllFiltered(_ visibleItems: [Affirmation]) {
+        let ids = Set(visibleItems.map(\.id))
+        if selectedIDs.isSuperset(of: ids), !ids.isEmpty {
+            selectedIDs.subtract(ids)
+        } else {
+            selectedIDs.formUnion(ids)
+        }
+    }
+
+    private func bulkDeleteSelected() {
+        let targets = items.filter { selectedIDs.contains($0.id) }
+        targets.forEach { store.softDelete($0) }
+        selectedIDs = []
+        isSelecting = false
     }
 
     private func undoBar(_ aff: Affirmation) -> some View {
@@ -367,7 +448,12 @@ struct EditAffirmationView: View {
             Form {
                 Section {
                     TextEditor(text: $text)
-                        .frame(minHeight: 120)
+                        .appFont(.body)
+                        .scrollContentBackground(.hidden)
+                        .padding(AppSpacing.sm)
+                        .frame(minHeight: 160)
+                        .background(Color.bgSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                 }
                 Section(header: Text("add.category")) {
                     Picker("", selection: $category) {
@@ -381,9 +467,7 @@ struct EditAffirmationView: View {
                             .textInputAutocapitalization(.never)
                     }
                 }
-                Section(header: Text("add.schedule")) {
-                    Toggle(isOn: $morningEnabled) { Text("notif.slot.morning") }
-                    Toggle(isOn: $eveningEnabled) { Text("notif.slot.evening") }
+                Section(header: Text("読み上げ設定")) {
                     Toggle(isOn: $includeInRoutine) { Text("ホームの読み上げセットに含める") }
                 }
                 Section(header: Text("期間 (任意)")) {
@@ -404,6 +488,9 @@ struct EditAffirmationView: View {
                 Section(header: Text("自分の声")) {
                     RecordingControl(fileName: $recordingFileName, affirmationId: affirmation.id)
                 }
+                Section {
+                    PrimaryButton(titleKey: "common.save", action: save, isEnabled: canSave)
+                }
             }
             .navigationTitle(Text("edit.title"))
             .toolbar {
@@ -411,30 +498,32 @@ struct EditAffirmationView: View {
                     Button { dismiss() } label: { Text("common.cancel") }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !trimmed.isEmpty else { return }
-                        if category == .custom {
-                            affirmation.customCategoryName = customCategoryName.trimmingCharacters(in: .whitespaces).isEmpty
-                                ? nil : customCategoryName
-                        } else {
-                            affirmation.customCategoryName = nil
-                        }
-                        // 期限・曜日反映
-                        affirmation.startDate = hasStartDate ? startDate : nil
-                        affirmation.endDate = hasEndDate ? endDate : nil
-                        affirmation.weekdayMask = weekdayMask == 0 ? 127 : weekdayMask
-                        store.update(affirmation,
-                                     text: trimmed,
-                                     category: category,
-                                     morningEnabled: morningEnabled,
-                                     eveningEnabled: eveningEnabled,
-                                     recordingFileName: .some(recordingFileName),
-                                     includeInRoutine: includeInRoutine)
-                        dismiss()
-                    } label: { Text("common.save") }
+                    Button(action: save) { Text("common.save") }
+                        .disabled(!canSave)
                 }
             }
         }
+    }
+
+    private var canSave: Bool {
+        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func save() {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let customName = customCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+        store.update(affirmation,
+                     text: trimmed,
+                     category: category,
+                     morningEnabled: true,
+                     eveningEnabled: false,
+                     customCategoryName: .some(category == .custom && !customName.isEmpty ? customName : nil),
+                     startDate: .some(hasStartDate ? startDate : nil),
+                     endDate: .some(hasEndDate ? endDate : nil),
+                     weekdayMask: weekdayMask,
+                     recordingFileName: .some(recordingFileName),
+                     includeInRoutine: includeInRoutine)
+        dismiss()
     }
 }

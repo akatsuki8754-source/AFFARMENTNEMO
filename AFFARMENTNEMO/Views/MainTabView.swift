@@ -7,34 +7,33 @@ import SwiftUI
 
 struct MainTabView: View {
     @AppStorage("kotodama.timeline.showTab") private var showTimelineTab: Bool = true
+    /// デバッグ/スクショ用: 起動時の初期タブ (0=Home, 1=Library, 2=Timeline, 3=Settings)
+    @AppStorage("kotodama.debug.startTab") private var startTab: Int = 0
+    @State private var selection: Int = 0
 
     var body: some View {
-        TabView {
-            // ホーム
+        TabView(selection: $selection) {
             HomeView()
-                .tabItem {
-                    Label("tab.home", systemImage: "house.fill")
-                }
+                .tabItem { Label("tab.home", systemImage: "house.fill") }
+                .tag(0)
 
-            // 自分の言葉
             LibraryView()
-                .tabItem {
-                    Label("tab.affirmations", systemImage: "text.quote")
-                }
+                .tabItem { Label("tab.affirmations", systemImage: "text.quote") }
+                .tag(1)
 
-            // みんなの願い (星モチーフは反応のみ、タブは言葉系で統一)
             if showTimelineTab {
                 TimelineView()
-                    .tabItem {
-                        Label("tab.timeline", systemImage: "bubble.left.and.bubble.right")
-                    }
+                    .tabItem { Label("tab.timeline", systemImage: "bubble.left.and.bubble.right") }
+                    .tag(2)
             }
 
             SettingsView()
-                .tabItem {
-                    Label("tab.settings", systemImage: "gearshape")
-                }
+                .tabItem { Label("tab.settings", systemImage: "gearshape") }
+                .tag(3)
         }
         .tint(Color.brandPrimary)
+        .onAppear {
+            selection = startTab
+        }
     }
 }

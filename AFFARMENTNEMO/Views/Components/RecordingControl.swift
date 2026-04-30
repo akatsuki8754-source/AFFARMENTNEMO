@@ -83,6 +83,7 @@ struct RecordingControl: View {
                             .background(Color.brandPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
+                    .buttonStyle(.plain)
                 } else if rec.isRecording {
                     // 録音停止
                     Button {
@@ -98,6 +99,7 @@ struct RecordingControl: View {
                             .background(Color.semanticError)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
+                    .buttonStyle(.plain)
                 } else {
                     // 再生 / 録音し直す / 削除
                     Button {
@@ -111,6 +113,7 @@ struct RecordingControl: View {
                             .background(Color.bgSecondary)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
+                    .buttonStyle(.plain)
                     Button {
                         Task { await startRecording() }
                     } label: {
@@ -122,8 +125,10 @@ struct RecordingControl: View {
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
                     .accessibilityLabel(Text("録音し直す"))
+                    .buttonStyle(.plain)
                     Button(role: .destructive) {
                         if let fn = fileName {
+                            rec.stopPlaying()
                             rec.deleteRecording(fileName: fn)
                             fileName = nil
                             savedDuration = 0
@@ -137,6 +142,7 @@ struct RecordingControl: View {
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
                     .accessibilityLabel(Text("録音を削除"))
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -149,6 +155,7 @@ struct RecordingControl: View {
         .padding(AppSpacing.sm)
         .background(Color.bgPrimary)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+        .contentShape(Rectangle())
         .onAppear {
             if let fn = fileName, rec.hasRecording(fileName: fn) {
                 savedDuration = rec.duration(of: fn)
