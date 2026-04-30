@@ -126,7 +126,15 @@ print(f"  {PASS if len(enabled_versions)==1 else WARN} ENABLED versions: {enable
 # ─── 5. Cloud Functions 状態 ───
 print("\n[5] Cloud Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 s, d = req("GET", f"https://cloudfunctions.googleapis.com/v2/projects/{PROJECT}/locations/asia-northeast1/functions")
-expected = {"aiGenerateWish", "cleanupExpiredPosts", "sakuraSeeder", "budgetAlert"}
+expected = {
+    "aiGenerateWish",
+    "submitTimelinePost",
+    "reactToPost",
+    "reportPost",
+    "cleanupExpiredPosts",
+    "sakuraSeeder",
+    "budgetAlert",
+}
 found = set()
 for fn in d.get("functions", []):
     fname = fn["name"].split("/")[-1]
@@ -163,8 +171,8 @@ if firestore_release:
     src = d.get("source", {}).get("files", [{}])[0].get("content", "")
     checks = [
         ("system/{docId} で write: false", "allow write: if false" in src and "system" in src),
-        ("text サイズ <=100 制限", "text.size() <= 100" in src),
-        ("expireAt < 25h制限", "duration.value(25" in src),
+        ("timeline create は client 直書き禁止", "allow create: if false" in src and "timelineRooms" in src),
+        ("反応/通報は client 直書き禁止", "Functions 専用" in src and "reports" in src),
         ("delete 全禁止", "allow delete: if false" in src),
         ("matched users/{uid}", "match /users/{uid}" in src),
     ]
@@ -242,7 +250,7 @@ for api in required_apis:
 
 # ─── 11. Cloud Run service IAM (Functions Gen2) — public invoker チェック ───
 print("\n[11] Cloud Run Service Invoker IAM ━━━━━━━━━━━━")
-for fn in ["aigeneratewish", "cleanupexpiredposts", "sakuraseeder", "budgetalert"]:
+for fn in ["aigeneratewish", "submittimelinepost", "reacttopost", "reportpost", "cleanupexpiredposts", "sakuraseeder", "budgetalert"]:
     s, d = req("POST", f"https://asia-northeast1-run.googleapis.com/v2/projects/{PROJECT}/locations/asia-northeast1/services/{fn}:getIamPolicy")
     invoker_members = []
     for b in d.get("bindings", []):

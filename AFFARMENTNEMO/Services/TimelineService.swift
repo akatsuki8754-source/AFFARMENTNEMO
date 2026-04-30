@@ -24,6 +24,9 @@ struct TimelinePost: Identifiable, Hashable {
 #if canImport(FirebaseFirestore) && canImport(FirebaseAuth)
 import FirebaseFirestore
 import FirebaseAuth
+#if canImport(FirebaseFunctions)
+import FirebaseFunctions
+#endif
 
 @MainActor
 final class TimelineService {
@@ -45,6 +48,10 @@ final class TimelineService {
     }
 
     private var db: Firestore { Firestore.firestore() }
+
+    #if canImport(FirebaseFunctions)
+    private var functions: Functions { Functions.functions(region: "asia-northeast1") }
+    #endif
 
     /// PII (URL/email/phone) + 不適切コンテンツ パターン拒否 (MASTER §14.6 + Apple Guideline 1.2)
     static func validatePost(_ text: String) -> ValidationResult {
@@ -100,14 +107,22 @@ final class TimelineService {
 
     /// 投稿
     func post(text: String, room: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else {
+        await AuthService.shared.signInAnonymouslyIfNeeded()
+        guard Auth.auth().currentUser?.uid != nil else {
             throw NSError(domain: "TimelineService", code: -1,
                           userInfo: [NSLocalizedDescriptionKey: "Not signed in"])
         }
+        #if canImport(FirebaseFunctions)
+        let callable = functions.httpsCallable("submitTimelinePost")
+        _ = try await callable.call([
+            "text": text.trimmingCharacters(in: .whitespacesAndNewlines),
+            "room": room,
+        ])
+        #else
         let now = Date()
         let expireAt = Calendar.current.date(byAdding: .hour, value: 24, to: now) ?? now.addingTimeInterval(86400)
         let data: [String: Any] = [
-            "authorUid": uid,
+            "authorUid": Auth.auth().currentUser?.uid ?? "",
             "text": text,
             "languageRoom": room,
             "createdAt": Timestamp(date: now),
@@ -122,6 +137,7 @@ final class TimelineService {
         ]
         try await db.collection("timelineRooms").document(room).collection("posts")
             .addDocument(data: data)
+        #endif
     }
 
     /// 自分の投稿を即時削除 (Apple 1.2 「ユーザーがフィードから即時削除」)
@@ -139,24 +155,23 @@ final class TimelineService {
 
     /// 通報
     func report(postId: String, room: String, reason: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        try await db.collection("reports").addDocument(data: [
-            "reporterUid": uid,
-            "targetType": "post",
-            "targetId": postId,
-            "targetRoom": room,
+        await AuthService.shared.signInAnonymouslyIfNeeded()
+        guard Auth.auth().currentUser?.uid != nil else { return }
+        #if canImport(FirebaseFunctions)
+        let callable = functions.httpsCallable("reportPost")
+        _ = try await callable.call([
+            "postId": postId,
+            "room": room,
             "reason": reason,
-            "createdAt": Timestamp(date: Date()),
         ])
-        // クライアント側で即時非表示用にreportedByへ自身のUIDを追加
-        let postRef = db.collection("timelineRooms").document(room).collection("posts").document(postId)
-        try await postRef.updateData([
-            "reportedBy": FieldValue.arrayUnion([uid]),
-            "reportCount": FieldValue.increment(Int64(1)),
-        ])
+        #else
+        throw NSError(domain: "TimelineService", code: -3,
+                      userInfo: [NSLocalizedDescriptionKey: "Report requires Firebase Functions"])
+        #endif
     }
 
     func fetchPosts(room: String, limit: Int = 100) async throws -> [TimelinePost] {
+        await AuthService.shared.signInAnonymouslyIfNeeded()
         let now = Date()
         let snap = try await db.collection("timelineRooms").document(room).collection("posts")
             .whereField("isHidden", isEqualTo: false)
@@ -171,7 +186,17 @@ final class TimelineService {
     }
 
     func toggleReaction(post: TimelinePost, reaction: String) async throws {
+        await AuthService.shared.signInAnonymouslyIfNeeded()
         guard let uid = Auth.auth().currentUser?.uid else { return }
+        #if canImport(FirebaseFunctions)
+        let callable = functions.httpsCallable("reactToPost")
+        let nextReaction = post.myReaction == reaction ? "none" : reaction
+        _ = try await callable.call([
+            "postId": post.id,
+            "room": post.languageRoom,
+            "reaction": nextReaction,
+        ])
+        #else
         let ref = db.collection("timelineRooms").document(post.languageRoom).collection("posts").document(post.id)
         try await db.runTransaction { transaction, errorPointer in
             do {
@@ -196,6 +221,7 @@ final class TimelineService {
             }
             return nil
         }
+        #endif
     }
 
     private static func reactionField(_ reaction: String) -> String {
@@ -223,13 +249,20 @@ final class TimelineService {
             languageRoom: room,
             createdAt: createdAt,
             expireAt: expireAt,
-            reportCount: (data["reportCount"] as? Int) ?? 0,
+            reportCount: numericValue(data["reportCount"]),
             isHidden: (data["isHidden"] as? Bool) ?? false,
-            reactionLike: (data["reactionLike"] as? Int) ?? 0,
-            reactionHeart: (data["reactionHeart"] as? Int) ?? 0,
-            reactionPeace: (data["reactionPeace"] as? Int) ?? 0,
+            reactionLike: numericValue(data["reactionLike"]),
+            reactionHeart: numericValue(data["reactionHeart"]),
+            reactionPeace: numericValue(data["reactionPeace"]),
             myReaction: Auth.auth().currentUser.flatMap { reactedBy[$0.uid] }
         )
+    }
+
+    private static func numericValue(_ value: Any?) -> Int {
+        if let int = value as? Int { return int }
+        if let int64 = value as? Int64 { return Int(int64) }
+        if let number = value as? NSNumber { return number.intValue }
+        return 0
     }
 }
 #else

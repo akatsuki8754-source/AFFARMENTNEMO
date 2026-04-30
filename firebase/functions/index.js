@@ -34,7 +34,14 @@ const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const aiGenerationEnabled = defineString('AI_GENERATION_ENABLED', { default: 'false' });
 const maxUserDaily = defineInt('AI_MAX_USER_DAILY', { default: 5 });
 const maxGlobalDaily = defineInt('AI_MAX_GLOBAL_DAILY', { default: 800 });
+const maxAIPerMinute = defineInt('AI_MAX_GLOBAL_PER_MINUTE', { default: 25 });
 const aiModelName = defineString('AI_GEMINI_MODEL', { default: 'gemini-2.5-flash-lite' });
+const maxPostUserDaily = defineInt('POST_MAX_USER_DAILY', { default: 30 });
+const maxPostGlobalDaily = defineInt('POST_MAX_GLOBAL_DAILY', { default: 1000 });
+const maxReactionUserDaily = defineInt('REACTION_MAX_USER_DAILY', { default: 200 });
+const maxReportUserDaily = defineInt('REPORT_MAX_USER_DAILY', { default: 30 });
+
+const ALLOWED_ROOMS = ['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'];
 
 // ─────────────────────────────────────────────
 // AI 短冊生成 (Gemini Flash-Lite)
@@ -49,9 +56,10 @@ exports.aiGenerateWish = onCall(
     concurrency: 10,            // 1インスタンスあたり 10 並列まで
     memory: '256MiB',           // メモリ最小 (コスト削減)
     cpu: 1,
-    enforceAppCheck: false,     // App Check は将来有効化 (移行時に true へ)
+    enforceAppCheck: false,      // アプリ外からの直叩きを拒否
   },
   async (request) => {
+    requireAppCheck(request);
     const uid = request.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
     if (aiGenerationEnabled.value() !== 'true') {
@@ -64,12 +72,15 @@ exports.aiGenerateWish = onCall(
     }
 
     const path = validatePath(request.data?.path);
-    const prompt = buildPrompt(path);
+    const locale = validateLocale(request.data?.locale);
+    const prompt = buildPrompt(path, locale);
     // 日付キーは JST (UTC+9) で計算 (日本ユーザー向け、リセットは深夜0時)
     const today = jstDateKey();
     const quotaRef = db.collection('userQuotas').doc(`${uid}_${today}`);
     const globalRef = db.collection('globalQuota').doc(today);
 
+    await rateLimit(uid, 'ai', 3, maxUserDaily.value());
+    await globalRateLimit('ai', maxAIPerMinute.value());
     const reservation = await reserveQuota({
       uid,
       quotaRef,
@@ -94,7 +105,7 @@ exports.aiGenerateWish = onCall(
       const isFamousQuoteMode = /famous_quotes|quote_business|quote_life|quote_sport/.test(
         path.map(p => p.prompt || '').join(' ')
       );
-      const candidates = parseCandidates(text, isFamousQuoteMode);
+      const candidates = parseCandidates(text, isFamousQuoteMode, locale);
       await logAIUsage(uid, path, candidates, false);
       return {
         candidates,
@@ -107,7 +118,7 @@ exports.aiGenerateWish = onCall(
       // ロールバック失敗時もフォールバック候補は返す (UX 優先)
       try { await rollbackQuota({ quotaRef, globalRef }); }
       catch (rbErr) { console.error('rollback failed:', rbErr); }
-      const candidates = fallbackCandidates(path);
+      const candidates = fallbackCandidates(path, locale);
       try { await logAIUsage(uid, path, candidates, true); }
       catch (logErr) { console.error('log failed:', logErr); }
       return {
@@ -145,7 +156,46 @@ async function rateLimit(uid, kind, perMinMax, perDayMax) {
   });
 }
 
+async function globalRateLimit(kind, perMinMax) {
+  const ref = db.collection('rateLimits').doc(`global_${kind}`);
+  return db.runTransaction(async tx => {
+    const snap = await tx.get(ref);
+    const now = Date.now();
+    const ts = (snap.exists ? snap.data().ts : []) || [];
+    const recent = ts.filter(t => now - t < 60_000);
+    if (recent.length >= perMinMax) {
+      throw new HttpsError('resource-exhausted', `Rate limit (${kind}/global/min)`);
+    }
+    recent.push(now);
+    tx.set(ref, {
+      ts: recent,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  });
+}
+
+async function reserveGlobalDaily(kind, maxDaily) {
+  const day = jstDateKey();
+  const ref = db.collection('globalDailyLimits').doc(`${kind}_${day}`);
+  return db.runTransaction(async tx => {
+    const snap = await tx.get(ref);
+    const used = snap.exists ? (snap.data().count || 0) : 0;
+    if (used >= maxDaily) {
+      throw new HttpsError('resource-exhausted', `Daily global quota exceeded (${kind})`, {
+        reason: 'global_quota',
+      });
+    }
+    tx.set(ref, {
+      kind,
+      day,
+      count: used + 1,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  });
+}
+
 async function checkBudgetAndAuth(request) {
+  requireAppCheck(request);
   const uid = request.auth?.uid;
   if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
   const budgetSnap = await db.doc('system/aiBudgetAlert').get();
@@ -155,17 +205,23 @@ async function checkBudgetAndAuth(request) {
   return uid;
 }
 
+function requireAppCheck(request) {
+  if (!request.app?.appId) {
+    throw new HttpsError('failed-precondition', 'App Check required');
+  }
+}
+
 // ─────────────────────────────────────────────
 // Post 反応 via Cloud Function (1 ユーザー 1 投稿に 1 reaction、1分20件、1日200件)
 // ─────────────────────────────────────────────
 exports.reactToPost = onCall(
-  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 5, concurrency: 20 },
+  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 5, concurrency: 20, enforceAppCheck: false },
   async (request) => {
     const uid = await checkBudgetAndAuth(request);
     const room = String(request.data?.room || '');
     const postId = String(request.data?.postId || '');
     const reaction = String(request.data?.reaction || '');
-    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+    if (!ALLOWED_ROOMS.includes(room)) {
       throw new HttpsError('invalid-argument', 'invalid room');
     }
     if (!['like', 'heart', 'peace', 'none'].includes(reaction)) {
@@ -174,13 +230,17 @@ exports.reactToPost = onCall(
     if (!postId || postId.length > 64) {
       throw new HttpsError('invalid-argument', 'invalid postId');
     }
-    await rateLimit(uid, 'react', 20, 200);
+    await rateLimit(uid, 'react', 20, maxReactionUserDaily.value());
 
     const ref = db.collection('timelineRooms').doc(room).collection('posts').doc(postId);
     return db.runTransaction(async tx => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new HttpsError('not-found', 'post not found');
       const data = snap.data();
+      if (data.isHidden === true) throw new HttpsError('failed-precondition', 'post hidden');
+      if (data.expireAt && data.expireAt.toMillis() <= Date.now()) {
+        throw new HttpsError('failed-precondition', 'post expired');
+      }
       const reactedBy = data.reactedBy || {};
       const prev = reactedBy[uid] || null;
       const counts = {
@@ -213,34 +273,46 @@ exports.reactToPost = onCall(
 // Post 通報 via Cloud Function (1ユーザー 1分5件、1日30件)
 // ─────────────────────────────────────────────
 exports.reportPost = onCall(
-  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 3, concurrency: 10 },
+  { region: 'asia-northeast1', timeoutSeconds: 10, memory: '256MiB', maxInstances: 3, concurrency: 10, enforceAppCheck: false },
   async (request) => {
     const uid = await checkBudgetAndAuth(request);
     const room = String(request.data?.room || '');
     const postId = String(request.data?.postId || '');
     const reason = String(request.data?.reason || '').slice(0, 200);
-    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+    if (!ALLOWED_ROOMS.includes(room)) {
       throw new HttpsError('invalid-argument', 'invalid room');
     }
     if (!postId || postId.length > 64 || !reason) {
       throw new HttpsError('invalid-argument', 'invalid params');
     }
-    await rateLimit(uid, 'report', 5, 30);
+    await rateLimit(uid, 'report', 5, maxReportUserDaily.value());
 
     const postRef = db.collection('timelineRooms').doc(room).collection('posts').doc(postId);
-    await db.collection('reports').add({
-      reporterUid: uid,
-      targetType: 'post',
-      targetId: postId,
-      targetRoom: room,
-      reason,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    const reportRef = db.collection('reports').doc(`${uid}_${room}_${postId}`);
+    const result = await db.runTransaction(async tx => {
+      const [postSnap, reportSnap] = await Promise.all([tx.get(postRef), tx.get(reportRef)]);
+      if (!postSnap.exists) throw new HttpsError('not-found', 'post not found');
+      const post = postSnap.data();
+      if (post.isHidden === true) throw new HttpsError('failed-precondition', 'post hidden');
+      if (post.expireAt && post.expireAt.toMillis() <= Date.now()) {
+        throw new HttpsError('failed-precondition', 'post expired');
+      }
+      if (reportSnap.exists) return { ok: true, duplicate: true };
+      tx.set(reportRef, {
+        reporterUid: uid,
+        targetType: 'post',
+        targetId: postId,
+        targetRoom: room,
+        reason,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      tx.update(postRef, {
+        reportedBy: admin.firestore.FieldValue.arrayUnion(uid),
+        reportCount: admin.firestore.FieldValue.increment(1),
+      });
+      return { ok: true, duplicate: false };
     });
-    await postRef.update({
-      reportedBy: admin.firestore.FieldValue.arrayUnion(uid),
-      reportCount: admin.firestore.FieldValue.increment(1),
-    });
-    return { ok: true };
+    return result;
   }
 );
 
@@ -258,8 +330,10 @@ exports.submitTimelinePost = onCall(
     memory: '256MiB',
     maxInstances: 5,
     concurrency: 20,
+    enforceAppCheck: false,
   },
   async (request) => {
+    requireAppCheck(request);
     const uid = request.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
 
@@ -275,8 +349,12 @@ exports.submitTimelinePost = onCall(
     if (text.length < 1 || text.length > 100) {
       throw new HttpsError('invalid-argument', 'text must be 1-100 chars');
     }
-    if (!['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'].includes(room)) {
+    if (!ALLOWED_ROOMS.includes(room)) {
       throw new HttpsError('invalid-argument', 'invalid room');
+    }
+    const textValidation = validateTimelineText(text);
+    if (!textValidation.ok) {
+      throw new HttpsError('invalid-argument', textValidation.reason);
     }
 
     // Rate limit transaction: 60秒に5件、1日30件
@@ -294,7 +372,7 @@ exports.submitTimelinePost = onCall(
         return { ok: false, reason: 'rate_60s' };
       }
       const dailyUsed = dailySnap.exists ? (dailySnap.data().count || 0) : 0;
-      if (dailyUsed >= 30) {
+      if (dailyUsed >= maxPostUserDaily.value()) {
         return { ok: false, reason: 'rate_day' };
       }
       recent.push(now);
@@ -306,6 +384,7 @@ exports.submitTimelinePost = onCall(
     if (!allowed.ok) {
       throw new HttpsError('resource-exhausted', `Rate limit: ${allowed.reason}`, allowed);
     }
+    await reserveGlobalDaily('timelinePost', maxPostGlobalDaily.value());
 
     // 投稿作成
     const now = admin.firestore.Timestamp.now();
@@ -318,15 +397,21 @@ exports.submitTimelinePost = onCall(
       expireAt,
       reportCount: 0,
       isHidden: false,
+      reportedBy: [],
+      reactionLike: 0,
+      reactionHeart: 0,
+      reactionPeace: 0,
+      reactedBy: {},
     };
     const ref = await db.collection('timelineRooms').doc(room).collection('posts').add(post);
     return { id: ref.id, postedAt: now.toMillis() };
   }
 );
 
-function buildPrompt(path) {
+function buildPrompt(path, locale = 'ja') {
   const titles = path.map(p => p.title).join(' > ');
   const prompts = path.map(p => p.prompt || '').join(' ');
+  const language = languageInstruction(locale);
   // 名言モード判定 (path に famous_quotes / quote_xxx が入っている)
   const isFamousQuoteMode =
     /famous_quotes|quote_business|quote_life|quote_sport/.test(prompts) ||
@@ -335,6 +420,7 @@ function buildPrompt(path) {
   if (isFamousQuoteMode) {
     return `あなたは世界の偉人・哲学者・歴史的人物の名言を案内するアシスタントです。
 ユーザーの状況: ${titles}
+出力言語: ${language}
 
 以下のテーマに合う、3つの実在する名言を選んでください。
 - 著作権切れ (1923年以前公開) または広く流通する古典的引用に限る
@@ -355,9 +441,10 @@ function buildPrompt(path) {
 
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
 ユーザーの状況: ${titles}
+出力言語: ${language}
 
 以下の3つの異なるアプローチで、それぞれ80文字以内の言葉を1つずつ作ってください。
-すべて「〜したい」「〜でいたい」「〜になりたい」の願い形で統一してください。
+すべて、その言語で自然な「I want to / I wish to / 〜したい」に相当する願い形で統一してください。
 1. 自己肯定型 (Self-Affirmation Theory): 価値観を肯定する文
 2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯したい」の形
 3. 価値観型 (Mental Contrasting): 障害を予期しつつ前向きに進む文
@@ -373,7 +460,7 @@ JSONのみ。コードブロックや説明文は不要。
 }`;
 }
 
-function parseCandidates(text, isFamousQuoteMode = false) {
+function parseCandidates(text, isFamousQuoteMode = false, locale = 'ja') {
   const cleaned = text
     .trim()
     .replace(/^```json\s*/i, '')
@@ -381,7 +468,7 @@ function parseCandidates(text, isFamousQuoteMode = false) {
     .replace(/```$/i, '')
     .trim();
   // 名言モードでは normalize 不要 (「〜したい」を強制すると引用が壊れる)
-  const norm = isFamousQuoteMode ? (s) => s.trim() : normalizeCandidate;
+  const norm = isFamousQuoteMode ? (s) => s.trim() : (s) => normalizeCandidate(s, locale);
   try {
     const parsed = JSON.parse(cleaned);
     const items = Array.isArray(parsed.candidates) ? parsed.candidates : [];
@@ -403,8 +490,11 @@ function parseCandidates(text, isFamousQuoteMode = false) {
   throw new Error(`AI response parse failed: ${cleaned.slice(0, 200)}`);
 }
 
-function fallbackCandidates(path) {
+function fallbackCandidates(path, locale = 'ja') {
   const prompts = path.map(p => p.prompt || '').join(' ');
+  if (!isJapaneseLocale(locale)) {
+    return localizedFallbackCandidates(path, locale);
+  }
   // 名言モード: 偉人の実際の言葉 (著作権切れ・古典)
   if (/quote_business/.test(prompts)) {
     return [
@@ -436,9 +526,12 @@ function fallbackCandidates(path) {
   ];
 }
 
-function normalizeCandidate(raw) {
+function normalizeCandidate(raw, locale = 'ja') {
   const trimmed = raw.trim().replace(/^["'「『]|["'」』]$/g, '').slice(0, 100);
   if (!trimmed) return '';
+  if (!isJapaneseLocale(locale)) {
+    return /[.!?。！？]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  }
   if (/(したい|でいたい|になりたい|たい)[。.!！]?$/.test(trimmed)) {
     return /[。.!！]$/.test(trimmed) ? trimmed : `${trimmed}。`;
   }
@@ -455,6 +548,128 @@ function validatePath(path) {
     if (!title) throw new HttpsError('invalid-argument', 'Invalid path title');
     return { title, prompt };
   });
+}
+
+function validateLocale(raw) {
+  const locale = String(raw || 'ja').replace(/[^A-Za-z_-]/g, '').slice(0, 16);
+  if (!locale) return 'ja';
+  const normalized = locale.replace('-', '_');
+  if (/^ja/i.test(normalized)) return 'ja';
+  if (/^ko/i.test(normalized)) return 'ko';
+  if (/^zh(_Hans|_CN)?/i.test(normalized)) return 'zh_CN';
+  if (/^zh(_Hant|_TW|_HK|_MO)/i.test(normalized)) return 'zh_TW';
+  if (/^en/i.test(normalized)) return 'en';
+  return 'en';
+}
+
+function isJapaneseLocale(locale) {
+  return /^ja/i.test(String(locale || ''));
+}
+
+function languageInstruction(locale) {
+  switch (validateLocale(locale)) {
+    case 'ja': return '日本語';
+    case 'ko': return '한국어';
+    case 'zh_CN': return '简体中文';
+    case 'zh_TW': return '繁體中文';
+    default: return 'English';
+  }
+}
+
+function localizedFallbackCandidates(path, locale = 'en') {
+  const prompts = path.map(p => p.prompt || '').join(' ');
+  const selected = path.map(p => p.title).filter(Boolean).slice(-1)[0] || 'today';
+  const normalized = validateLocale(locale);
+  if (/quote_business|quote_life|quote_sport|famous_quotes/.test(prompts)) {
+    switch (normalized) {
+      case 'ko':
+        return [
+          '“The greatest glory is not in never falling, but in rising every time we fall.” — Confucius',
+          '“Know thyself.” — Socrates',
+          '“Well done is better than well said.” — Benjamin Franklin',
+        ];
+      case 'zh_CN':
+        return [
+          '“知人者智，自知者明。” — 老子',
+          '“千里之行，始于足下。” — 老子',
+          '“Well done is better than well said.” — Benjamin Franklin',
+        ];
+      case 'zh_TW':
+        return [
+          '「知人者智，自知者明。」 — 老子',
+          '「千里之行，始於足下。」 — 老子',
+          '“Well done is better than well said.” — Benjamin Franklin',
+        ];
+      default:
+        return [
+          '“The journey of a thousand miles begins with a single step.” — Lao Tzu',
+          '“Know thyself.” — Socrates',
+          '“Well done is better than well said.” — Benjamin Franklin',
+        ];
+    }
+  }
+  switch (normalized) {
+    case 'ko':
+      return [
+        `${selected}를 향해 오늘도 작은 한 걸음을 내딛고 싶다.`,
+        `망설여질 때는 숨을 고르고 ${selected}에 다시 집중하고 싶다.`,
+        `완벽하지 않아도 내 속도로 ${selected}를 이어가고 싶다.`,
+      ];
+    case 'zh_CN':
+      return [
+        `我想为了${selected}，今天也迈出小小一步。`,
+        `如果犹豫了，我想先深呼吸，再回到${selected}。`,
+        `即使不完美，我也想按自己的节奏靠近${selected}。`,
+      ];
+    case 'zh_TW':
+      return [
+        `我想為了${selected}，今天也邁出小小一步。`,
+        `如果猶豫了，我想先深呼吸，再回到${selected}。`,
+        `即使不完美，我也想按自己的節奏靠近${selected}。`,
+      ];
+    default:
+      return [
+        `I want to take one small step toward ${selected} today.`,
+        `If I hesitate, I want to breathe first and return to ${selected}.`,
+        `I want to keep moving toward ${selected} at my own pace.`,
+      ];
+  }
+}
+
+function validateTimelineText(text) {
+  if (!text || text.length > 100) return { ok: false, reason: 'text must be 1-100 chars' };
+  if (text.split(/\r?\n/).length > 5) return { ok: false, reason: 'text must be 5 lines or fewer' };
+  const piiPatterns = [
+    /https?:\/\/|www\.|\.com|\.jp|\.net|\.org/i,
+    /[\w.-]+@[\w.-]+\.\w+/i,
+    /\d{2,4}[-_ ]?\d{2,4}[-_ ]?\d{4}/,
+    /(LINE|ライン|line)\s*(ID|id)\s*[:：]/i,
+  ];
+  if (piiPatterns.some(re => re.test(text))) {
+    return { ok: false, reason: 'URLs and contact information are not allowed' };
+  }
+  const prohibited = [
+    'セックス', 'セフレ', '風俗', '売春', 'AV', 'アダルト',
+    'ちんこ', 'ちんちん', 'ちんぽ', 'チンコ', 'チンチン', 'チンポ',
+    'まんこ', 'マンコ', 'おまんこ', 'オマンコ',
+    'おっぱい', 'オッパイ', '乳首', 'ちくび', 'おちんちん', 'ちんぽこ',
+    'うんこ', 'ウンコ', 'うんち', 'ウンチ',
+    'ザーメン', 'ザー汁', '射精', 'オナニー', 'おなにー', '自慰',
+    'エロ', 'えろい', 'エロい', 'h する', 'Hする', 'ヤる', 'やりたい',
+    'fuck', 'fck', 'sex', 'porn', 'pornhub', 'nude', 'naked', 'xxx', 'dick', 'pussy', 'cock',
+    '殺す', '死ね', '氏ね', 'ぶっ殺す', 'コロス',
+    'kill yourself', 'kys', 'go die',
+    'kkk', 'nigger', 'n-word', 'faggot', 'tranny', 'retard',
+    '出会い', '援助交際', '援交', '副業募集', '稼げます', '高収入', '在宅で月',
+    'パパ活', 'ママ活', 'セフレ募集', 'LINE交換',
+    'クソ野郎', 'ゴミ', 'アホ', 'バカ野郎', 'カス', 'クズ',
+    'asshole', 'bitch', 'bastard',
+  ];
+  const lower = text.toLowerCase();
+  if (prohibited.some(word => lower.includes(String(word).toLowerCase()))) {
+    return { ok: false, reason: 'inappropriate content is not allowed' };
+  }
+  return { ok: true };
 }
 
 async function reserveQuota({ uid, quotaRef, globalRef, maxUser, maxGlobal }) {
@@ -481,6 +696,7 @@ async function reserveQuota({ uid, quotaRef, globalRef, maxUser, maxGlobal }) {
       dateKey: quotaRef.id.split('_').pop(),
     }, { merge: true });
     tx.set(globalRef, {
+      day: globalRef.id,
       count: globalUsed + 1,
       updatedAt: now,
     }, { merge: true });
@@ -551,9 +767,36 @@ exports.cleanupExpiredPosts = onSchedule(
         totalDeleted += expired.size;
       }
     }
-    console.log(`[cleanup] deleted ${totalDeleted} expired posts`);
+    const cutoffDay = dateKeyDaysAgo(3);
+    const cutoffLog = admin.firestore.Timestamp.fromMillis(Date.now() - 30 * 24 * 3600 * 1000);
+    const operationalDeleted =
+      await deleteOldDocsByField('rateLimits', 'day', cutoffDay, 500) +
+      await deleteOldDocsByField('postRateLimits', 'day', cutoffDay, 500) +
+      await deleteOldDocsByField('userQuotas', 'dateKey', cutoffDay, 500) +
+      await deleteOldDocsByField('globalQuota', 'day', cutoffDay, 500) +
+      await deleteOldDocsByField('globalDailyLimits', 'day', cutoffDay, 500) +
+      await deleteOldDocsByField('aiUsageLogs', 'createdAt', cutoffLog, 500);
+    console.log(`[cleanup] deleted ${totalDeleted} expired posts, ${operationalDeleted} operational docs`);
   }
 );
+
+function dateKeyDaysAgo(days) {
+  return new Date(Date.now() + 9 * 60 * 60 * 1000 - days * 24 * 3600 * 1000)
+    .toISOString()
+    .slice(0, 10);
+}
+
+async function deleteOldDocsByField(collectionName, field, cutoff, limit) {
+  const snap = await db.collection(collectionName)
+    .where(field, '<', cutoff)
+    .limit(limit)
+    .get();
+  if (snap.empty) return 0;
+  const batch = db.batch();
+  snap.docs.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+  return snap.size;
+}
 
 // ─────────────────────────────────────────────
 // サクラ自動投稿 (Phase 3 拡張用、現状は無効化)

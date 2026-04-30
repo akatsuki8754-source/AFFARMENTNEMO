@@ -118,6 +118,7 @@ struct AddAffirmationView: View {
                 .padding(.vertical, AppSpacing.md)
                 .responsivePage()
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Text("add.title"))
             .navigationBarTitleDisplayMode(.inline)
@@ -138,6 +139,12 @@ struct AddAffirmationView: View {
                             .foregroundStyle(canSave ? Color.brandPrimary : Color.textDisabled)
                     }
                     .disabled(!canSave)
+                }
+                // キーボード上部に「完了」(textEditor 入力時にすぐ閉じれるように)
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("完了") { focused = false }
+                        .appFont(.bodyEmphasis)
                 }
             }
             .onChange(of: text) { _, _ in

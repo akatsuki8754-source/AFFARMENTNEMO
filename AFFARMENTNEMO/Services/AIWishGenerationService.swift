@@ -80,7 +80,8 @@ final class AIWishGenerationService {
         let functions = Functions.functions(region: "asia-northeast1")
         let callable = functions.httpsCallable("aiGenerateWish")
         let payload: [String: Any] = [
-            "path": path.map { ["title": $0.title, "prompt": $0.prompt] }
+            "path": path.map { ["title": $0.title, "prompt": $0.prompt] },
+            "locale": Locale.current.identifier
         ]
         let result: HTTPSCallableResult
         do {
@@ -114,6 +115,13 @@ final class AIWishGenerationService {
     private static func normalizeCandidate(_ raw: String) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return trimmed }
+        if Locale.current.language.languageCode?.identifier != "ja" {
+            let punctuation = CharacterSet(charactersIn: ".!?。！？")
+            if trimmed.unicodeScalars.last.map({ punctuation.contains($0) }) == true {
+                return trimmed
+            }
+            return "\(trimmed)."
+        }
         // 〜したい / 〜でいたい / 〜になりたい で終わる文は補正不要
         if trimmed.hasSuffix("したい。") ||
            trimmed.hasSuffix("いたい。") ||

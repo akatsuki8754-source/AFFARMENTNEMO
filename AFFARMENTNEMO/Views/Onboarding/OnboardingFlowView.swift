@@ -260,19 +260,35 @@ private struct FirstAffirmationStep: View {
     private let maxLen = 200
 
     var body: some View {
-        firstContent
-            .responsivePage()
-            .onChange(of: text) { _, _ in }
-            .sheet(isPresented: $showAIWizard) {
-                AIWishWizardView()
+        ScrollView {
+            firstContent
+                .responsivePage()
+                .padding(.bottom, AppSpacing.xl * 2)  // キーボード回避用余白
+        }
+        .scrollDismissesKeyboard(.interactively)  // ドラッグでキーボードを閉じる
+        .onTapGesture {
+            // 余白タップでキーボード dismiss
+            focused = false
+        }
+        .toolbar {
+            // キーボード上部に「完了」ボタン
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("完了") { focused = false }
+                    .appFont(.bodyEmphasis)
             }
-            .onChange(of: showAIWizard) { _, isShown in
-                guard !isShown else { return }
-                let updated = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
-                if !updated.isEmpty {
-                    text = String(updated.prefix(maxLen))
-                }
+        }
+        .onChange(of: text) { _, _ in }
+        .sheet(isPresented: $showAIWizard) {
+            AIWishWizardView()
+        }
+        .onChange(of: showAIWizard) { _, isShown in
+            guard !isShown else { return }
+            let updated = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
+            if !updated.isEmpty {
+                text = String(updated.prefix(maxLen))
             }
+        }
     }
 
     private var firstContent: some View {

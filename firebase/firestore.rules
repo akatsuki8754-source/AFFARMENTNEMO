@@ -44,66 +44,25 @@ service cloud.firestore {
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // タイムライン (流すだけ)
-    //   - 100文字 / 25h以内 / 自分の uid のみ create
-    //   - update は reactions (uid 一致 + count ±1) / report (uid 追加) / 自分の post hide のみ
-    //   - delete 禁止
+    //   - 投稿/反応/通報は Cloud Functions 経由に固定
+    //   - Client 直接書き込みは「自分の投稿を isHidden=true にする」だけ許可
+    //   - rate limit / budget stop / App Check / server moderation は Functions 側で実施
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     match /timelineRooms/{room}/posts/{postId} {
       allow read: if authed();
-      allow create: if authed()
-                    && request.resource.data.authorUid == request.auth.uid
-                    && request.resource.data.text is string
-                    && request.resource.data.text.size() > 0
-                    && request.resource.data.text.size() <= 100
-                    && request.resource.data.languageRoom == room
-                    && request.resource.data.expireAt is timestamp
-                    && request.resource.data.expireAt > request.time
-                    && request.resource.data.expireAt < request.time + duration.value(25, 'h');
-      // ── update: 反応/通報/自分の hide のみ、count 改竄不可 ──
+      allow create: if false;
+      // ── update: 自分の hide のみ。反応/通報は Functions 専用 ──
       allow update: if authed()
-                    && (
-                      // ① 通報: 自分の uid のみ追加、reportCount は +1 のみ
-                      (
-                        request.resource.data.diff(resource.data).affectedKeys()
-                          .hasOnly(['reportedBy','reportCount'])
-                        && request.resource.data.reportCount == resource.data.reportCount + 1
-                        && request.auth.uid in request.resource.data.reportedBy
-                      )
-                      ||
-                      // ② リアクション: 自分の uid のみ操作、count 差分は ±1 のみ
-                      (
-                        request.resource.data.diff(resource.data).affectedKeys()
-                          .hasOnly(['reactionLike','reactionHeart','reactionPeace','reactedBy'])
-                        && request.resource.data.reactedBy.diff(resource.data.reactedBy).affectedKeys()
-                          .hasOnly([request.auth.uid])
-                        && (request.resource.data.reactionLike   - resource.data.reactionLike)   in [-1, 0, 1]
-                        && (request.resource.data.reactionHeart  - resource.data.reactionHeart)  in [-1, 0, 1]
-                        && (request.resource.data.reactionPeace  - resource.data.reactionPeace)  in [-1, 0, 1]
-                      )
-                      ||
-                      // ③ 自分の投稿を非表示化のみ
-                      (
-                        request.auth.uid == resource.data.authorUid
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isHidden'])
-                        && request.resource.data.isHidden == true
-                      )
-                    );
+                    && request.auth.uid == resource.data.authorUid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isHidden'])
+                    && request.resource.data.isHidden == true;
       allow delete: if false;
     }
 
-    // 通報 collection: 自分の uid + サイズ検証
+    // 通報 collection: Cloud Functions 専用
     match /reports/{reportId} {
       allow read: if false;
-      allow create: if authed()
-                    && request.resource.data.reporterUid == request.auth.uid
-                    && request.resource.data.targetType in ['post', 'user']
-                    && request.resource.data.targetId is string
-                    && request.resource.data.targetId.size() > 0
-                    && request.resource.data.targetId.size() <= 64
-                    && request.resource.data.reason is string
-                    && request.resource.data.reason.size() > 0
-                    && request.resource.data.reason.size() <= 200;
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
 
     // システム設定: read のみ (Admin SDK のみ write)
@@ -119,6 +78,9 @@ service cloud.firestore {
       allow write: if false;
     }
     match /globalQuota/{day} {
+      allow read, write: if false;
+    }
+    match /globalDailyLimits/{day} {
       allow read, write: if false;
     }
     match /aiUsageLogs/{logId} {

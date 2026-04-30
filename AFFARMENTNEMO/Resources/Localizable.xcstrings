@@ -16,6 +16,24 @@
             "state": "translated",
             "value": "スキップ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
         }
       }
     },
@@ -32,6 +50,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "キャンセル"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         }
       }
@@ -50,6 +86,24 @@
             "state": "translated",
             "value": "登録する"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register"
+          }
         }
       }
     },
@@ -66,6 +120,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "完了"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
           }
         }
       }
@@ -84,6 +156,24 @@
             "state": "translated",
             "value": "閉じる"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
         }
       }
     },
@@ -100,6 +190,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "削除"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         }
       }
@@ -118,6 +226,24 @@
             "state": "translated",
             "value": "編集"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
         }
       }
     },
@@ -134,6 +260,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "保存"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
           }
         }
       }
@@ -152,6 +296,24 @@
             "state": "translated",
             "value": "後で"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
         }
       }
     },
@@ -168,6 +330,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "コトダマ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama"
           }
         }
       }
@@ -186,6 +366,24 @@
             "state": "translated",
             "value": "自分の言葉で、自分を変える。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change yourself with your own words."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change yourself with your own words."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change yourself with your own words."
+          }
         }
       }
     },
@@ -202,6 +400,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ようこそ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome"
           }
         }
       }
@@ -220,6 +436,24 @@
             "state": "translated",
             "value": "自分の願いや目標を書いて、毎日見返す。みんなの願いや想いをみて元気をもらう。そんなアプリです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your wishes and goals, revisit them daily. Get energy from others' words. That's what this app is."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your wishes and goals, revisit them daily. Get energy from others' words. That's what this app is."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your wishes and goals, revisit them daily. Get energy from others' words. That's what this app is."
+          }
         }
       }
     },
@@ -236,6 +470,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "完全無料です"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completely free"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completely free"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completely free"
           }
         }
       }
@@ -254,6 +506,24 @@
             "state": "translated",
             "value": "課金もサブスクもありません"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases, no subscriptions"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases, no subscriptions"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases, no subscriptions"
+          }
         }
       }
     },
@@ -270,6 +540,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "批判のない場所です"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A space without negativity"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A space without negativity"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A space without negativity"
           }
         }
       }
@@ -288,6 +576,24 @@
             "state": "translated",
             "value": "コメントもいいねもありません。みんなの言葉も静かに流れてきます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes. Other people's words drift by quietly."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes. Other people's words drift by quietly."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes. Other people's words drift by quietly."
+          }
         }
       }
     },
@@ -304,6 +610,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "30秒で始められます"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start in 30 seconds"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start in 30 seconds"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start in 30 seconds"
           }
         }
       }
@@ -322,6 +646,24 @@
             "state": "translated",
             "value": "はじめる"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
         }
       }
     },
@@ -338,6 +680,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "最初の言葉を書いてみましょう"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
           }
         }
       }
@@ -356,6 +716,24 @@
             "state": "translated",
             "value": "願い・目標・決意を、自由に。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A wish, a goal, a promise — yours."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A wish, a goal, a promise — yours."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A wish, a goal, a promise — yours."
+          }
         }
       }
     },
@@ -372,6 +750,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ここに書いてください"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write here"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write here"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write here"
           }
         }
       }
@@ -390,6 +786,24 @@
             "state": "translated",
             "value": "💡 書き方に迷ったら、テンプレを選んで穴を埋めてみて"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Stuck? Pick a template — just fill in the blanks."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Stuck? Pick a template — just fill in the blanks."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Stuck? Pick a template — just fill in the blanks."
+          }
         }
       }
     },
@@ -406,6 +820,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "なりたい自分"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who I'm becoming"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who I'm becoming"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who I'm becoming"
           }
         }
       }
@@ -424,6 +856,24 @@
             "state": "translated",
             "value": "私は[___]な人になっていく。毎日少しずつ、確実に。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'm becoming a [___] person. Day by day, surely."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'm becoming a [___] person. Day by day, surely."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'm becoming a [___] person. Day by day, surely."
+          }
         }
       }
     },
@@ -440,6 +890,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "叶えたい目標"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal to achieve"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal to achieve"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal to achieve"
           }
         }
       }
@@ -458,6 +926,24 @@
             "state": "translated",
             "value": "今年中に[___]を達成する。そのために、今日できる一歩を踏み出す。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'll achieve [___] this year. I take a step today."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'll achieve [___] this year. I take a step today."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'll achieve [___] this year. I take a step today."
+          }
         }
       }
     },
@@ -474,6 +960,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "大切にしたいこと"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What I value"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What I value"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What I value"
           }
         }
       }
@@ -492,6 +996,24 @@
             "state": "translated",
             "value": "[___]を大切にしたい。だから、今日の選択を丁寧にする。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I cherish [___]. So I choose today with care."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I cherish [___]. So I choose today with care."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I cherish [___]. So I choose today with care."
+          }
         }
       }
     },
@@ -508,6 +1030,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "習慣のキッカケ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit cue"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit cue"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit cue"
           }
         }
       }
@@ -526,6 +1066,24 @@
             "state": "translated",
             "value": "もし[___]したら、[___]する。これを毎日続ける。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If [___], then [___]. Every day."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If [___], then [___]. Every day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If [___], then [___]. Every day."
+          }
         }
       }
     },
@@ -542,6 +1100,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分への励まし"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A note to myself"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A note to myself"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A note to myself"
           }
         }
       }
@@ -560,6 +1136,24 @@
             "state": "translated",
             "value": "今日もよくやった。[___]できた自分を認める。明日も歩ける。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today. I recognize myself for [___]. Tomorrow I keep going."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today. I recognize myself for [___]. Tomorrow I keep going."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today. I recognize myself for [___]. Tomorrow I keep going."
+          }
         }
       }
     },
@@ -576,6 +1170,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ビジネスの計画"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business plans"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business plans"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business plans"
           }
         }
       }
@@ -594,6 +1206,24 @@
             "state": "translated",
             "value": "Q3でクライアントを5社獲得する"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acquire 5 clients in Q3"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acquire 5 clients in Q3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acquire 5 clients in Q3"
+          }
         }
       }
     },
@@ -610,6 +1240,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "いつ読み上げますか?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When to remind?"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When to remind?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When to remind?"
           }
         }
       }
@@ -628,6 +1276,24 @@
             "state": "translated",
             "value": "毎日朝と夜に読み上げると、習慣化と記憶定着の研究で効果が出ています。1日2分でOKです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading morning and night helps habit formation (research shows). Just 2 minutes a day."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading morning and night helps habit formation (research shows). Just 2 minutes a day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading morning and night helps habit formation (research shows). Just 2 minutes a day."
+          }
         }
       }
     },
@@ -644,6 +1310,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "朝"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning"
           }
         }
       }
@@ -662,6 +1346,24 @@
             "state": "translated",
             "value": "夜"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening"
+          }
         }
       }
     },
@@ -678,6 +1380,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "通知は1日に最大2件しか送りません"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum 2 notifications per day"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum 2 notifications per day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum 2 notifications per day"
           }
         }
       }
@@ -696,6 +1416,24 @@
             "state": "translated",
             "value": "通知は後で設定でオン/オフできます"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can change this later in Settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can change this later in Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can change this later in Settings"
+          }
         }
       }
     },
@@ -712,6 +1450,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "声に出して読みましょう"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
           }
         }
       }
@@ -730,6 +1486,24 @@
             "state": "translated",
             "value": "今日のふり返りに"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflect on your day"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflect on your day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflect on your day"
+          }
         }
       }
     },
@@ -746,6 +1520,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "おはようございます。今日のひと言を"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning. Today's words."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning. Today's words."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning. Today's words."
           }
         }
       }
@@ -764,6 +1556,24 @@
             "state": "translated",
             "value": "朝の言葉、読みましょう"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time for your morning words."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time for your morning words."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time for your morning words."
+          }
         }
       }
     },
@@ -780,6 +1590,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "今日も自分の言葉から"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin the day with your words."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin the day with your words."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin the day with your words."
           }
         }
       }
@@ -798,6 +1626,24 @@
             "state": "translated",
             "value": "おつかれさまでした"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening."
+          }
         }
       }
     },
@@ -814,6 +1660,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "夜のひと言、声に出して"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening words, aloud."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening words, aloud."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening words, aloud."
           }
         }
       }
@@ -832,6 +1696,24 @@
             "state": "translated",
             "value": "今日もお疲れさま"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today."
+          }
         }
       }
     },
@@ -848,6 +1730,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "おはようございます"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning"
           }
         }
       }
@@ -866,6 +1766,24 @@
             "state": "translated",
             "value": "こんにちは"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello"
+          }
         }
       }
     },
@@ -882,6 +1800,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "こんばんは"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening"
           }
         }
       }
@@ -900,6 +1836,24 @@
             "state": "translated",
             "value": "+ 言葉を追加"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
         }
       }
     },
@@ -916,6 +1870,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "朝のセット"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning set"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning set"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning set"
           }
         }
       }
@@ -934,6 +1906,24 @@
             "state": "translated",
             "value": "夜のセット"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening set"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening set"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening set"
+          }
         }
       }
     },
@@ -950,6 +1940,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "▶ 音読する"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▶ Read aloud"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▶ Read aloud"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▶ Read aloud"
           }
         }
       }
@@ -968,6 +1976,24 @@
             "state": "translated",
             "value": "最初の言葉を書きましょう"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write your first words"
+          }
         }
       }
     },
@@ -984,6 +2010,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「+ 言葉を追加」から始められます"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap \"+ Add words\" to begin"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap \"+ Add words\" to begin"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap \"+ Add words\" to begin"
           }
         }
       }
@@ -1002,6 +2046,24 @@
             "state": "translated",
             "value": "今日のヒント"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's tip"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's tip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's tip"
+          }
         }
       }
     },
@@ -1018,6 +2080,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "→ 書いてみる"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "→ Try writing"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "→ Try writing"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "→ Try writing"
           }
         }
       }
@@ -1036,6 +2116,24 @@
             "state": "translated",
             "value": "書き方のコツ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
         }
       }
     },
@@ -1052,6 +2150,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "設定"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
           }
         }
       }
@@ -1070,6 +2186,24 @@
             "state": "translated",
             "value": "言葉を追加"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words"
+          }
         }
       }
     },
@@ -1086,6 +2220,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "テンプレートから選ぶ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a template"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a template"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a template"
           }
         }
       }
@@ -1104,6 +2256,24 @@
             "state": "translated",
             "value": "カテゴリ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
         }
       }
     },
@@ -1120,6 +2290,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "通知時刻"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification time"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification time"
           }
         }
       }
@@ -1138,6 +2326,24 @@
             "state": "translated",
             "value": "言葉を編集"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit words"
+          }
         }
       }
     },
@@ -1154,6 +2360,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "💡 ヒント：『〜したい』『〜を大切にしたい』に変えると、自分の気持ちと矛盾しにくく続けやすいです"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: Try '…want to' or '…value' — easier to sustain without conflicting with your feelings."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: Try '…want to' or '…value' — easier to sustain without conflicting with your feelings."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: Try '…want to' or '…value' — easier to sustain without conflicting with your feelings."
           }
         }
       }
@@ -1172,6 +2396,24 @@
             "state": "translated",
             "value": "💡 ヒント：もう少し具体的に書くと、続きやすいですよ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: A little more detail helps you stick with it."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: A little more detail helps you stick with it."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Tip: A little more detail helps you stick with it."
+          }
         }
       }
     },
@@ -1188,6 +2430,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "💡 いいですね！「もし◯◯したら、◯◯する」は研究でも効果が高いと言われている書き方です"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! \"If X, then Y\" is research-backed as effective."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! \"If X, then Y\" is research-backed as effective."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! \"If X, then Y\" is research-backed as effective."
           }
         }
       }
@@ -1206,6 +2466,24 @@
             "state": "translated",
             "value": "💡 いいですね！「大切にしたい」という書き方は、心理研究でも勧められています"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! Writing \"I value …\" is recommended by psychological research."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! Writing \"I value …\" is recommended by psychological research."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💡 Nice! Writing \"I value …\" is recommended by psychological research."
+          }
         }
       }
     },
@@ -1222,6 +2500,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "朝の音読"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning read"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning read"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning read"
           }
         }
       }
@@ -1240,6 +2536,24 @@
             "state": "translated",
             "value": "夜の音読"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening read"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening read"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening read"
+          }
         }
       }
     },
@@ -1256,6 +2570,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "声に出して読みましょう ✨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud ✨"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud ✨"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud ✨"
           }
         }
       }
@@ -1274,6 +2606,24 @@
             "state": "translated",
             "value": "自分の声で読むと、記憶に定着しやすいです"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading in your own voice helps it stick in memory."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading in your own voice helps it stick in memory."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading in your own voice helps it stick in memory."
+          }
         }
       }
     },
@@ -1290,6 +2640,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "✓ 読みました"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ Done"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ Done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ Done"
           }
         }
       }
@@ -1308,6 +2676,24 @@
             "state": "translated",
             "value": "補助読み上げ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio aid"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio aid"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio aid"
+          }
         }
       }
     },
@@ -1324,6 +2710,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "スキップ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
           }
         }
       }
@@ -1342,6 +2746,24 @@
             "state": "translated",
             "value": "明日も通知します"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We'll remind you tomorrow"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We'll remind you tomorrow"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We'll remind you tomorrow"
+          }
         }
       }
     },
@@ -1358,6 +2780,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ホームへ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
           }
         }
       }
@@ -1376,6 +2816,24 @@
             "state": "translated",
             "value": "今日もお疲れさま"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
+          }
         }
       }
     },
@@ -1392,6 +2850,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "3日続いた！"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 days in a row!"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 days in a row!"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 days in a row!"
           }
         }
       }
@@ -1410,6 +2886,24 @@
             "state": "translated",
             "value": "1週間達成! 🎉"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1-week milestone! 🎉"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1-week milestone! 🎉"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1-week milestone! 🎉"
+          }
         }
       }
     },
@@ -1426,6 +2920,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "2週間続いた、すごい"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 weeks — amazing"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 weeks — amazing"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 weeks — amazing"
           }
         }
       }
@@ -1444,6 +2956,24 @@
             "state": "translated",
             "value": "21日達成! 習慣化の節目です"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "21 days! A habit-formation milestone"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "21 days! A habit-formation milestone"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "21 days! A habit-formation milestone"
+          }
         }
       }
     },
@@ -1460,6 +2990,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "1ヶ月達成! 🎊"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month! 🎊"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month! 🎊"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month! 🎊"
           }
         }
       }
@@ -1478,6 +3026,24 @@
             "state": "translated",
             "value": "100日達成! 本当にすごい"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100 days! Truly impressive"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100 days! Truly impressive"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100 days! Truly impressive"
+          }
         }
       }
     },
@@ -1494,6 +3060,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "今日もお疲れさま"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well done today"
           }
         }
       }
@@ -1512,6 +3096,24 @@
             "state": "translated",
             "value": "言葉一覧"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
         }
       }
     },
@@ -1528,6 +3130,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "まだ言葉がありません"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No words yet"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No words yet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No words yet"
           }
         }
       }
@@ -1546,6 +3166,24 @@
             "state": "translated",
             "value": "大切にしたい言葉を、自分のペースで増やしていきましょう"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words you want to keep, at your own pace"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words you want to keep, at your own pace"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add words you want to keep, at your own pace"
+          }
         }
       }
     },
@@ -1562,6 +3200,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "削除しました"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted"
           }
         }
       }
@@ -1580,6 +3236,24 @@
             "state": "translated",
             "value": "取り消す"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
         }
       }
     },
@@ -1596,6 +3270,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ホーム"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
           }
         }
       }
@@ -1614,6 +3306,24 @@
             "state": "translated",
             "value": "一覧"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
         }
       }
     },
@@ -1630,6 +3340,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "設定"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
           }
         }
       }
@@ -1648,6 +3376,24 @@
             "state": "translated",
             "value": "設定"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
         }
       }
     },
@@ -1664,6 +3410,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "通知"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
           }
         }
       }
@@ -1682,6 +3446,24 @@
             "state": "translated",
             "value": "通知設定を保存"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply notification settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply notification settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply notification settings"
+          }
         }
       }
     },
@@ -1698,6 +3480,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ヘルプ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help"
           }
         }
       }
@@ -1716,6 +3516,24 @@
             "state": "translated",
             "value": "コトダマの書き方のコツ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
         }
       }
     },
@@ -1732,6 +3550,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "アプリについて"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
           }
         }
       }
@@ -1750,6 +3586,24 @@
             "state": "translated",
             "value": "バージョン"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
         }
       }
     },
@@ -1766,6 +3620,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "全データを削除"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete all data"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete all data"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete all data"
           }
         }
       }
@@ -1784,6 +3656,24 @@
             "state": "translated",
             "value": "本当に削除しますか?"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Really delete?"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Really delete?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Really delete?"
+          }
         }
       }
     },
@@ -1800,6 +3690,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "登録した言葉・履歴・統計が全て削除されます。この操作は取り消せません。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All affirmations, history and stats will be deleted. This cannot be undone."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All affirmations, history and stats will be deleted. This cannot be undone."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All affirmations, history and stats will be deleted. This cannot be undone."
           }
         }
       }
@@ -1818,6 +3726,24 @@
             "state": "translated",
             "value": "書き方のコツ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing tips"
+          }
         }
       }
     },
@@ -1835,6 +3761,24 @@
             "state": "translated",
             "value": "このアプリは、心理学研究をベースに設計されています。難しい話は読まなくても効果は出ます。興味があれば読んでみてください。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is based on psychological research. You don't need to read this to benefit. Read on if interested."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is based on psychological research. You don't need to read this to benefit. Read on if interested."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is based on psychological research. You don't need to read this to benefit. Read on if interested."
+          }
         }
       }
     },
@@ -1848,6 +3792,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1."
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "1."
@@ -1869,6 +3831,24 @@
             "state": "translated",
             "value": "声に出して読みましょう"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read aloud"
+          }
         }
       }
     },
@@ -1885,6 +3865,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分で声に出して読む方が、聞くより記憶に定着しやすいことが研究で示されています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud yourself sticks in memory better than listening."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud yourself sticks in memory better than listening."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud yourself sticks in memory better than listening."
           }
         }
       }
@@ -1903,6 +3901,24 @@
             "state": "translated",
             "value": "出典: MacLeod & Forrin, Production Effect"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: MacLeod & Forrin, Production Effect"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: MacLeod & Forrin, Production Effect"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: MacLeod & Forrin, Production Effect"
+          }
         }
       }
     },
@@ -1916,6 +3932,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2."
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "2."
@@ -1937,6 +3971,24 @@
             "state": "translated",
             "value": "「〜したい」「〜を大切にしたい」が安全"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"…want to\" or \"…value\" is safer"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"…want to\" or \"…value\" is safer"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"…want to\" or \"…value\" is safer"
+          }
         }
       }
     },
@@ -1953,6 +4005,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「私は完璧だ」のような断定は、自分の気持ちと矛盾していると逆に気分が下がる、という研究もあります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong assertions like \"I am perfect\" can backfire when they conflict with how you actually feel."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong assertions like \"I am perfect\" can backfire when they conflict with how you actually feel."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong assertions like \"I am perfect\" can backfire when they conflict with how you actually feel."
           }
         }
       }
@@ -1971,6 +4041,24 @@
             "state": "translated",
             "value": "出典: Wood et al. 2009"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Wood et al. 2009"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Wood et al. 2009"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Wood et al. 2009"
+          }
         }
       }
     },
@@ -1984,6 +4072,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3."
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "3."
@@ -2005,6 +4111,24 @@
             "state": "translated",
             "value": "「もし◯◯したら、◯◯する」が最強"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If X, then Y\" is strongest"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If X, then Y\" is strongest"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If X, then Y\" is strongest"
+          }
         }
       }
     },
@@ -2021,6 +4145,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "目標達成研究のメタ分析で最も強力な手法とされ、効果サイズ d=.65 の中〜大効果が確認されています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In goal-achievement meta-analyses, this is the strongest format with effect size d=.65."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In goal-achievement meta-analyses, this is the strongest format with effect size d=.65."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In goal-achievement meta-analyses, this is the strongest format with effect size d=.65."
           }
         }
       }
@@ -2039,6 +4181,24 @@
             "state": "translated",
             "value": "出典: Gollwitzer 1999"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Gollwitzer 1999"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Gollwitzer 1999"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source: Gollwitzer 1999"
+          }
         }
       }
     },
@@ -2052,6 +4212,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4."
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "4."
@@ -2073,6 +4251,24 @@
             "state": "translated",
             "value": "効果は個人差があります"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effects vary by individual"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effects vary by individual"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effects vary by individual"
+          }
         }
       }
     },
@@ -2089,6 +4285,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "合わないと感じたら、休んでも、変えても、削除してもOK。自分のペースで使ってください。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If it doesn't feel right, take a break, change it, or delete it. Use it at your own pace."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If it doesn't feel right, take a break, change it, or delete it. Use it at your own pace."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If it doesn't feel right, take a break, change it, or delete it. Use it at your own pace."
           }
         }
       }
@@ -2107,6 +4321,24 @@
             "state": "translated",
             "value": "このアプリは医療行為ではありません。心身の不調を感じたら、専門家にご相談ください。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is not a medical service. If you feel unwell, please consult a professional."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is not a medical service. If you feel unwell, please consult a professional."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app is not a medical service. If you feel unwell, please consult a professional."
+          }
         }
       }
     },
@@ -2123,6 +4355,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "目標"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal"
           }
         }
       }
@@ -2141,6 +4391,24 @@
             "state": "translated",
             "value": "習慣"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit"
+          }
         }
       }
     },
@@ -2157,6 +4425,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自己肯定"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-affirm"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-affirm"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-affirm"
           }
         }
       }
@@ -2175,6 +4461,24 @@
             "state": "translated",
             "value": "計画"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
         }
       }
     },
@@ -2191,6 +4495,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "懸念"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concern"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concern"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concern"
           }
         }
       }
@@ -2209,6 +4531,24 @@
             "state": "translated",
             "value": "価値"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Values"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Values"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Values"
+          }
         }
       }
     },
@@ -2225,6 +4565,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "カスタム"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
           }
         }
       }
@@ -2243,6 +4601,24 @@
             "state": "translated",
             "value": "「もし◯◯したら、◯◯する」という書き方は習慣化に効果的だと研究で示されています。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Research shows \"If X, then Y\" is effective for habit formation."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Research shows \"If X, then Y\" is effective for habit formation."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Research shows \"If X, then Y\" is effective for habit formation."
+          }
         }
       }
     },
@@ -2259,6 +4635,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「◯◯を大切にしたい」という書き方は、ストレス時に強くなる効果が研究で示されています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"I value…\" has research-backed effects on resilience under stress."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"I value…\" has research-backed effects on resilience under stress."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"I value…\" has research-backed effects on resilience under stress."
           }
         }
       }
@@ -2277,6 +4671,24 @@
             "state": "translated",
             "value": "声に出して読むと、目で読むより記憶に残りやすいことが分かっています。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud sticks better in memory than reading silently."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud sticks better in memory than reading silently."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud sticks better in memory than reading silently."
+          }
         }
       }
     },
@@ -2293,6 +4705,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "短い言葉でもOK。続けられる長さが一番です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short is fine. The length you can sustain is best."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short is fine. The length you can sustain is best."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short is fine. The length you can sustain is best."
           }
         }
       }
@@ -2311,6 +4741,24 @@
             "state": "translated",
             "value": "ストリークが途切れても、また始めれば大丈夫です。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If your streak breaks, just start again."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If your streak breaks, just start again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If your streak breaks, just start again."
+          }
         }
       }
     },
@@ -2327,6 +4775,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "完璧より継続。今日も少しでもOKです。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency over perfection. A little today is enough."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency over perfection. A little today is enough."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency over perfection. A little today is enough."
           }
         }
       }
@@ -2345,6 +4811,24 @@
             "state": "translated",
             "value": "「朝起きたら...」「会社に着いたら...」のように具体的な状況から書くと続きやすいです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete triggers like \"When I wake up…\" help things stick."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete triggers like \"When I wake up…\" help things stick."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete triggers like \"When I wake up…\" help things stick."
+          }
         }
       }
     },
@@ -2361,6 +4845,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分が大切にしている価値を確認するだけで、防衛反応が和らぐ研究があります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming your core values softens defensive reactions, research shows."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming your core values softens defensive reactions, research shows."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming your core values softens defensive reactions, research shows."
           }
         }
       }
@@ -2393,6 +4895,60 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "🔥 ストリーク：%lld日"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld days"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "🔥 Streak: %lld days"
                 }
               }
             }
@@ -2432,6 +4988,60 @@
               }
             }
           }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Lv. %lld"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2463,6 +5073,60 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "ほか %lld 件"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more"
                 }
               }
             }
@@ -2502,6 +5166,60 @@
               }
             }
           }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld time"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld times"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld time"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld times"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld time"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Read %lld times"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2537,6 +5255,60 @@
               }
             }
           }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld days"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Streak: %lld days"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2564,6 +5336,60 @@
         "ja": {
           "variations": {
             "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "+%lld XP"
+                }
+              },
               "other": {
                 "stringUnit": {
                   "state": "translated",
@@ -2607,6 +5433,60 @@
               }
             }
           }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Level up to %lld!"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2623,6 +5503,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分の言葉"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My words"
           }
         }
       }
@@ -2641,6 +5539,24 @@
             "state": "translated",
             "value": "みんなの願い"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
         }
       }
     },
@@ -2658,6 +5574,24 @@
             "state": "translated",
             "value": "次へ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
         }
       }
     },
@@ -2671,6 +5605,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 / 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 / 2"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 / 2"
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "1 / 2"
@@ -2692,6 +5644,24 @@
             "state": "translated",
             "value": "2 / 2"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 / 2"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 / 2"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 / 2"
+          }
         }
       }
     },
@@ -2708,6 +5678,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "みんなの願い"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
           }
         }
       }
@@ -2726,6 +5714,24 @@
             "state": "translated",
             "value": "みんなの願い"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others' wishes"
+          }
         }
       }
     },
@@ -2742,6 +5748,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "今、誰かが書いた言葉が静かに流れてきます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words from others drift by, quietly."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words from others drift by, quietly."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words from others drift by, quietly."
           }
         }
       }
@@ -2760,6 +5784,24 @@
             "state": "translated",
             "value": "24時間で消えます"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disappear after 24 hours"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disappear after 24 hours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disappear after 24 hours"
+          }
         }
       }
     },
@@ -2776,6 +5818,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "コメント・いいねはありません"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No comments, no likes"
           }
         }
       }
@@ -2794,6 +5854,24 @@
             "state": "translated",
             "value": "反応は「⭐ 星をあげる」だけ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only \"⭐ Give a star\" reactions"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only \"⭐ Give a star\" reactions"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only \"⭐ Give a star\" reactions"
+          }
         }
       }
     },
@@ -2810,6 +5888,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "見るだけでもOK。投稿は任意です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just looking is fine. Posting is optional."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just looking is fine. Posting is optional."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just looking is fine. Posting is optional."
           }
         }
       }
@@ -2828,6 +5924,24 @@
             "state": "translated",
             "value": "見てみる"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a look"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a look"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a look"
+          }
         }
       }
     },
@@ -2844,6 +5958,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "流すだけタイムラインは Phase 1.5 で公開予定です"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream is coming in Phase 1.5"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream is coming in Phase 1.5"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream is coming in Phase 1.5"
           }
         }
       }
@@ -2862,6 +5994,24 @@
             "state": "translated",
             "value": "Firebase連携 (24時間TTL) によるライブストリームは次回リリース予定。オプトイン同意フローは実装済みです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live posts via Firebase Firestore (24-hour TTL) will arrive here in the next release. The opt-in flow is already wired."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live posts via Firebase Firestore (24-hour TTL) will arrive here in the next release. The opt-in flow is already wired."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live posts via Firebase Firestore (24-hour TTL) will arrive here in the next release. The opt-in flow is already wired."
+          }
         }
       }
     },
@@ -2878,6 +6028,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "朝は脳が最も受容的な時間帯。起きてすぐ読むのが効果的です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning is when the brain is most receptive — try reading right after waking."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning is when the brain is most receptive — try reading right after waking."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning is when the brain is most receptive — try reading right after waking."
           }
         }
       }
@@ -2896,6 +6064,24 @@
             "state": "translated",
             "value": "寝る前に読むと、睡眠中の記憶定着が強まると言われています。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading before bed strengthens memory consolidation during sleep."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading before bed strengthens memory consolidation during sleep."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading before bed strengthens memory consolidation during sleep."
+          }
         }
       }
     },
@@ -2912,6 +6098,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "具体的な数字や日付を入れると、目標がリアルに感じられます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete numbers and dates make goals feel more real."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete numbers and dates make goals feel more real."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concrete numbers and dates make goals feel more real."
           }
         }
       }
@@ -2930,6 +6134,24 @@
             "state": "translated",
             "value": "「毎日成長している」のような過程に注目した書き方が、自己評価より続きやすいです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Process-focused phrases (\"growing every day\") often outperform fixed self-labels."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Process-focused phrases (\"growing every day\") often outperform fixed self-labels."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Process-focused phrases (\"growing every day\") often outperform fixed self-labels."
+          }
         }
       }
     },
@@ -2946,6 +6168,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "夜の音読に感謝を1つ加えるとストレスが下がる研究があります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding one gratitude item to evening reading reduces stress."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding one gratitude item to evening reading reduces stress."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding one gratitude item to evening reading reduces stress."
           }
         }
       }
@@ -2964,6 +6204,24 @@
             "state": "translated",
             "value": "小さな一歩が勝ち。「5分歩く」は「ジムに行く」より続きます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small steps win. \"Walk 5 min\" beats \"go to gym\"."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small steps win. \"Walk 5 min\" beats \"go to gym\"."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small steps win. \"Walk 5 min\" beats \"go to gym\"."
+          }
         }
       }
     },
@@ -2980,6 +6238,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分の価値観と合った言葉は、無理なく続きます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phrasing aligned with your values feels less forced."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phrasing aligned with your values feels less forced."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phrasing aligned with your values feels less forced."
           }
         }
       }
@@ -2998,6 +6274,24 @@
             "state": "translated",
             "value": "1日抜けてもOK。翌日再開すれば大丈夫です。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping a day is fine. Just resume the next day."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping a day is fine. Just resume the next day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping a day is fine. Just resume the next day."
+          }
         }
       }
     },
@@ -3014,6 +6308,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "言葉は時々見直しを。あなたと一緒に言葉も育ちます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review your words occasionally — they evolve as you do."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review your words occasionally — they evolve as you do."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review your words occasionally — they evolve as you do."
           }
         }
       }
@@ -3032,6 +6344,24 @@
             "state": "translated",
             "value": "同じ言葉を繰り返し読むと、深いなじみが生まれます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the same words multiple times builds deeper familiarity."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the same words multiple times builds deeper familiarity."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the same words multiple times builds deeper familiarity."
+          }
         }
       }
     },
@@ -3048,6 +6378,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「コーヒーの後に」など具体的な合図につけると実行率が倍増します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tying actions to specific cues (\"after coffee\") doubles follow-through."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tying actions to specific cues (\"after coffee\") doubles follow-through."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tying actions to specific cues (\"after coffee\") doubles follow-through."
           }
         }
       }
@@ -3066,6 +6414,24 @@
             "state": "translated",
             "value": "親友に話すように、自分にも優しい言葉を。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to yourself as you would to a good friend."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to yourself as you would to a good friend."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to yourself as you would to a good friend."
+          }
         }
       }
     },
@@ -3082,6 +6448,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "習慣化には、夢のような目標より達成可能な目標が効きます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievable goals beat aspirational ones — for habit formation."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievable goals beat aspirational ones — for habit formation."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievable goals beat aspirational ones — for habit formation."
           }
         }
       }
@@ -3100,6 +6484,24 @@
             "state": "translated",
             "value": "四半期のビジネス目標は具体的な成果指標があると続きます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quarterly business goals work better with concrete outcome metrics."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quarterly business goals work better with concrete outcome metrics."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quarterly business goals work better with concrete outcome metrics."
+          }
         }
       }
     },
@@ -3116,6 +6518,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "人生は変わるもの。言葉も柔軟に変えていきましょう。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust your words as life changes — flexibility is a feature."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust your words as life changes — flexibility is a feature."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust your words as life changes — flexibility is a feature."
           }
         }
       }
@@ -3134,6 +6554,24 @@
             "state": "translated",
             "value": "短く明確な言葉ほど、長く凝った言葉に勝ちます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short and clear beats long and elaborate."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short and clear beats long and elaborate."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short and clear beats long and elaborate."
+          }
         }
       }
     },
@@ -3150,6 +6588,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「やめる」より「する」の方が脳に届きます。回避を行動に置き換えてみて。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Stop X\" is harder than \"Do Y\". Reframe avoidance as approach."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Stop X\" is harder than \"Do Y\". Reframe avoidance as approach."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Stop X\" is harder than \"Do Y\". Reframe avoidance as approach."
           }
         }
       }
@@ -3168,6 +6624,24 @@
             "state": "translated",
             "value": "強い合図 → 素早い反応。合図ははっきり明確に。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong cue → fast response. Make your trigger unmistakable."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong cue → fast response. Make your trigger unmistakable."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong cue → fast response. Make your trigger unmistakable."
+          }
         }
       }
     },
@@ -3184,6 +6658,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "自分の核となる価値を確認することは、ストレスへの防御反応を和らげます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming core values softens defensive reactions to stress."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming core values softens defensive reactions to stress."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirming core values softens defensive reactions to stress."
           }
         }
       }
@@ -3202,6 +6694,24 @@
             "state": "translated",
             "value": "30秒の自分への問いかけは、1時間の計画より続きます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A 30-second self check-in beats hour-long planning."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A 30-second self check-in beats hour-long planning."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A 30-second self check-in beats hour-long planning."
+          }
         }
       }
     },
@@ -3218,6 +6728,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "辛い日は基準を下げる。アプリを開くだけでも価値があります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On hard days, lower the bar. Just open the app counts."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On hard days, lower the bar. Just open the app counts."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On hard days, lower the bar. Just open the app counts."
           }
         }
       }
@@ -3236,6 +6764,24 @@
             "state": "translated",
             "value": "小さな成功を祝う。脳はポジティブな合図から学びます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celebrate small wins. The brain learns from positive signals."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celebrate small wins. The brain learns from positive signals."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celebrate small wins. The brain learns from positive signals."
+          }
         }
       }
     },
@@ -3252,6 +6798,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿は24時間で消えます"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
           }
         }
       }
@@ -3270,6 +6834,24 @@
             "state": "translated",
             "value": "読み込み中... or まだ投稿がありません"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading or no posts yet"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading or no posts yet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading or no posts yet"
+          }
         }
       }
     },
@@ -3286,6 +6868,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿する"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
           }
         }
       }
@@ -3304,6 +6904,24 @@
             "state": "translated",
             "value": "流すだけに投稿"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose"
+          }
         }
       }
     },
@@ -3320,6 +6938,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "コピーする"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
           }
         }
       }
@@ -3338,6 +6974,24 @@
             "state": "translated",
             "value": "報告する"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report"
+          }
         }
       }
     },
@@ -3354,6 +7008,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿する"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post"
           }
         }
       }
@@ -3372,6 +7044,24 @@
             "state": "translated",
             "value": "投稿は24時間で自動的に消えます"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours"
+          }
         }
       }
     },
@@ -3388,6 +7078,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "個人情報・連絡先・暴言は禁止です"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal info & profanity prohibited"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal info & profanity prohibited"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal info & profanity prohibited"
           }
         }
       }
@@ -3406,6 +7114,24 @@
             "state": "translated",
             "value": "投稿する前に"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before posting"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before posting"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before posting"
+          }
         }
       }
     },
@@ -3422,6 +7148,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿は24時間で消えます。個人情報・連絡先は禁止です。暴言や攻撃は永久ブロック対象です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours. Personal info is prohibited. Abusive content leads to permanent block."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours. Personal info is prohibited. Abusive content leads to permanent block."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posts disappear in 24 hours. Personal info is prohibited. Abusive content leads to permanent block."
           }
         }
       }
@@ -3440,6 +7184,24 @@
             "state": "translated",
             "value": "同意して投稿"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and post"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and post"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and post"
+          }
         }
       }
     },
@@ -3456,6 +7218,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "利用規約"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Service"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Service"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Service"
           }
         }
       }
@@ -3474,6 +7254,24 @@
             "state": "translated",
             "value": "お問い合わせ"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact"
+          }
         }
       }
     },
@@ -3490,6 +7288,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "プライバシー"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
           }
         }
       }
@@ -3508,6 +7324,24 @@
             "state": "translated",
             "value": "ブロック中のユーザー"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocked Users"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocked Users"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocked Users"
+          }
         }
       }
     },
@@ -3524,6 +7358,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "あなたの投稿"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your post"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your post"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your post"
           }
         }
       }
@@ -3542,6 +7394,24 @@
             "state": "translated",
             "value": "このユーザーをブロック"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block this user"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block this user"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block this user"
+          }
         }
       }
     },
@@ -3558,6 +7428,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "規約を読んで同意する"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read & Agree to Terms"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read & Agree to Terms"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read & Agree to Terms"
           }
         }
       }
@@ -3576,6 +7464,24 @@
             "state": "translated",
             "value": "このフィードから隠す"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide from my feed"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide from my feed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide from my feed"
+          }
         }
       }
     },
@@ -3592,6 +7498,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿のオプション"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post options"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post options"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post options"
           }
         }
       }
@@ -3610,6 +7534,24 @@
             "state": "translated",
             "value": "今年の願い"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish of the year"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish of the year"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish of the year"
+          }
         }
       }
     },
@@ -3626,6 +7568,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "今年は[___]な日々を過ごせますように。健やかに、笑顔で。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May this year bring [___] days. Healthy, smiling."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May this year bring [___] days. Healthy, smiling."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May this year bring [___] days. Healthy, smiling."
           }
         }
       }
@@ -3644,6 +7604,24 @@
             "state": "translated",
             "value": "+ 言葉を追加"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add words"
+          }
         }
       }
     },
@@ -3660,6 +7638,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "願い"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish"
           }
         }
       }
@@ -3678,6 +7674,24 @@
             "state": "translated",
             "value": "今日の言葉"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's words"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's words"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's words"
+          }
         }
       }
     },
@@ -3694,6 +7708,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "朝に読む"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in morning"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in morning"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in morning"
           }
         }
       }
@@ -3712,6 +7744,24 @@
             "state": "translated",
             "value": "夜に読む"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in evening"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in evening"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in evening"
+          }
         }
       }
     },
@@ -3725,6 +7775,24 @@
           }
         },
         "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "akatsuki8754@gmail.com"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "akatsuki8754@gmail.com"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "akatsuki8754@gmail.com"
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "akatsuki8754@gmail.com"
@@ -3746,6 +7814,24 @@
             "state": "translated",
             "value": "追加"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Append"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Append"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Append"
+          }
         }
       }
     },
@@ -3762,6 +7848,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "置き換え"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
           }
         }
       }
@@ -3780,6 +7884,24 @@
             "state": "translated",
             "value": "リセット"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
         }
       }
     },
@@ -3796,6 +7918,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "戻る"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
           }
         }
       }
@@ -3814,6 +7954,24 @@
             "state": "translated",
             "value": "進む"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
         }
       }
     },
@@ -3830,6 +7988,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "七夕は中国五行に基づく文化。青(成長)・赤(感謝)・黄(信頼)・白(規律)・紫(夢)で願いを書き分けます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanabata uses Wu Xing colors: blue (growth), red (gratitude), yellow (trust), white (discipline), purple (dreams)."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanabata uses Wu Xing colors: blue (growth), red (gratitude), yellow (trust), white (discipline), purple (dreams)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanabata uses Wu Xing colors: blue (growth), red (gratitude), yellow (trust), white (discipline), purple (dreams)."
           }
         }
       }
@@ -3848,6 +8024,24 @@
             "state": "translated",
             "value": "「願いを書く」習慣は、紙に書くだけで実現確率が42%上がるという研究があります (Dr. Gail Matthews 2015)。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing down a wish increases its likelihood of becoming reality by 42% (Dr. Gail Matthews, 2015)."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing down a wish increases its likelihood of becoming reality by 42% (Dr. Gail Matthews, 2015)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing down a wish increases its likelihood of becoming reality by 42% (Dr. Gail Matthews, 2015)."
+          }
         }
       }
     },
@@ -3864,6 +8058,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "神社の絵馬は『言葉に魂が宿る』言霊文化の延長。書いて奉納することで意識が変わります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese ema plaques extend the kotodama belief — written words carry spirit and reshape intention."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese ema plaques extend the kotodama belief — written words carry spirit and reshape intention."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese ema plaques extend the kotodama belief — written words carry spirit and reshape intention."
           }
         }
       }
@@ -3882,6 +8094,24 @@
             "state": "translated",
             "value": "世界の Wish Tree (願いの木): スコットランドの Clootie wells、トルコの Wish Tree、香港の Lam Tsuen 等、文化を越えて『木に願いを掛ける』儀礼が存在します。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish trees exist across cultures: Clootie wells (Scotland), Lam Tsuen (HK), Anatolian Wish Trees (Turkey)."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish trees exist across cultures: Clootie wells (Scotland), Lam Tsuen (HK), Anatolian Wish Trees (Turkey)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish trees exist across cultures: Clootie wells (Scotland), Lam Tsuen (HK), Anatolian Wish Trees (Turkey)."
+          }
         }
       }
     },
@@ -3898,6 +8128,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "先住民族 Ojibwe のドリームキャッチャーは『良い夢を通し、悪夢をフィルタする』象徴。願い文化の心理学的機能を体現しています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Ojibwe dreamcatcher symbolizes filtering bad dreams while letting good wishes through — wish culture in form."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Ojibwe dreamcatcher symbolizes filtering bad dreams while letting good wishes through — wish culture in form."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Ojibwe dreamcatcher symbolizes filtering bad dreams while letting good wishes through — wish culture in form."
           }
         }
       }
@@ -3916,6 +8164,24 @@
             "state": "translated",
             "value": "ローマのトレヴィの泉では年間 €1.5 million のコインが投げ込まれます。願いを物理的に手放す行為が脳に区切りを生みます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€1.5M of coins are thrown into the Trevi Fountain yearly. Physically releasing wishes creates closure in the brain."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€1.5M of coins are thrown into the Trevi Fountain yearly. Physically releasing wishes creates closure in the brain."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€1.5M of coins are thrown into the Trevi Fountain yearly. Physically releasing wishes creates closure in the brain."
+          }
         }
       }
     },
@@ -3932,6 +8198,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "韓国の소원의 나무 (Sowonui Namu) はリボンに願いを書いて結ぶ伝統。色は5色で五行に対応します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korea's Sowonui Namu (Wish Tree) ties colored ribbons by Wu Xing symbolism — same 5-color cosmology as tanabata."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korea's Sowonui Namu (Wish Tree) ties colored ribbons by Wu Xing symbolism — same 5-color cosmology as tanabata."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korea's Sowonui Namu (Wish Tree) ties colored ribbons by Wu Xing symbolism — same 5-color cosmology as tanabata."
           }
         }
       }
@@ -3950,6 +8234,24 @@
             "state": "translated",
             "value": "チベットのタルチョ(祈祷旗)は風に願いを乗せる文化。書く→流す→受容のサイクルが心を整えます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tibetan prayer flags release wishes to the wind. Write → release → accept calms the mind."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tibetan prayer flags release wishes to the wind. Write → release → accept calms the mind."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tibetan prayer flags release wishes to the wind. Write → release → accept calms the mind."
+          }
         }
       }
     },
@@ -3966,6 +8268,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "『言霊(ことだま)』は古事記から続く日本の世界観。発する言葉が現実を形作るという哲学です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama from Kojiki: spoken words shape reality — Japan's foundational view of language."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama from Kojiki: spoken words shape reality — Japan's foundational view of language."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotodama from Kojiki: spoken words shape reality — Japan's foundational view of language."
           }
         }
       }
@@ -3984,6 +8304,24 @@
             "state": "translated",
             "value": "初夢に『一富士・二鷹・三茄子』を願う江戸文化。具体的な象徴は記憶に定着しやすいと脳科学でも実証されています。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo-era \"Hatsuyume\" symbols (Fuji-Hawk-Eggplant) prove neuroscience: vivid imagery encodes memory deeper."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo-era \"Hatsuyume\" symbols (Fuji-Hawk-Eggplant) prove neuroscience: vivid imagery encodes memory deeper."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo-era \"Hatsuyume\" symbols (Fuji-Hawk-Eggplant) prove neuroscience: vivid imagery encodes memory deeper."
+          }
         }
       }
     },
@@ -4000,6 +8338,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「自分が信じたものが、自分を作る」 — エマソン。書いた言葉は信念の種になります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"What you believe becomes you.\" — Emerson. Written words seed beliefs."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"What you believe becomes you.\" — Emerson. Written words seed beliefs."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"What you believe becomes you.\" — Emerson. Written words seed beliefs."
           }
         }
       }
@@ -4018,6 +8374,24 @@
             "state": "translated",
             "value": "「人は自分の心が思っているもので作られる」 — マルクス・アウレリウス『自省録』。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Such as are your thoughts, such will be your mind.\" — Marcus Aurelius, Meditations."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Such as are your thoughts, such will be your mind.\" — Marcus Aurelius, Meditations."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Such as are your thoughts, such will be your mind.\" — Marcus Aurelius, Meditations."
+          }
         }
       }
     },
@@ -4034,6 +8408,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「千里の道も一歩から」 — 老子。If-Then で小さな最初の一歩を仕込みましょう。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"A journey of a thousand miles begins with one step.\" — Lao Tzu. Encode that first step with If-Then."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"A journey of a thousand miles begins with one step.\" — Lao Tzu. Encode that first step with If-Then."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"A journey of a thousand miles begins with one step.\" — Lao Tzu. Encode that first step with If-Then."
           }
         }
       }
@@ -4052,6 +8444,24 @@
             "state": "translated",
             "value": "「目的のない船にとって、どんな風も追い風にはならない」 — セネカ。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If a man knows not which port he sails for, no wind is favorable.\" — Seneca."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If a man knows not which port he sails for, no wind is favorable.\" — Seneca."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"If a man knows not which port he sails for, no wind is favorable.\" — Seneca."
+          }
         }
       }
     },
@@ -4068,6 +8478,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "『言葉に魂が宿る』 — 古事記の言霊観。書くこと、声に出すことに意味があります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kojiki teaches words carry spirit — writing and speaking matter."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kojiki teaches words carry spirit — writing and speaking matter."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kojiki teaches words carry spirit — writing and speaking matter."
           }
         }
       }
@@ -4086,6 +8514,24 @@
             "state": "translated",
             "value": "「松のことは松に習え、竹のことは竹に習え」 — 芭蕉。願う対象を具体に観察することから始まります。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Learn of the pine from a pine.\" — Bashō. Specific observation begins the wish."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Learn of the pine from a pine.\" — Bashō. Specific observation begins the wish."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Learn of the pine from a pine.\" — Bashō. Specific observation begins the wish."
+          }
         }
       }
     },
@@ -4102,6 +8548,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「心がすべて。あなたが思考したものに、あなたはなる」 — 仏陀の言葉。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"All that we are is the result of what we have thought.\" — Buddha (Dhammapada)."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"All that we are is the result of what we have thought.\" — Buddha (Dhammapada)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"All that we are is the result of what we have thought.\" — Buddha (Dhammapada)."
           }
         }
       }
@@ -4120,6 +8584,24 @@
             "state": "translated",
             "value": "「私たちは繰り返し行うことの結果である。卓越とは、行為ではなく習慣である」 — アリストテレス。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"We are what we repeatedly do. Excellence is a habit.\" — Aristotle."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"We are what we repeatedly do. Excellence is a habit.\" — Aristotle."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"We are what we repeatedly do. Excellence is a habit.\" — Aristotle."
+          }
         }
       }
     },
@@ -4136,6 +8618,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "「夢なき者に成功なし」 — 吉田松陰。書いて毎日見返すことが第一歩。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Without dreams, no success.\" — Yoshida Shōin. Writing & rereading is the first step."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Without dreams, no success.\" — Yoshida Shōin. Writing & rereading is the first step."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Without dreams, no success.\" — Yoshida Shōin. Writing & rereading is the first step."
           }
         }
       }
@@ -4154,6 +8654,24 @@
             "state": "translated",
             "value": "「準備に失敗すれば、失敗の準備をしている」 — フランクリン。If-Thenプランで先回りしましょう。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"By failing to prepare, you are preparing to fail.\" — Franklin. If-Then plans get ahead."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"By failing to prepare, you are preparing to fail.\" — Franklin. If-Then plans get ahead."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"By failing to prepare, you are preparing to fail.\" — Franklin. If-Then plans get ahead."
+          }
         }
       }
     },
@@ -4170,6 +8688,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Self-Affirmation Theory (Steele 1988): 自分の価値観を再確認するだけで、ストレス反応が和らぐと実証されています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation Theory (Steele 1988): reaffirming core values measurably reduces stress response."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation Theory (Steele 1988): reaffirming core values measurably reduces stress response."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation Theory (Steele 1988): reaffirming core values measurably reduces stress response."
           }
         }
       }
@@ -4188,6 +8724,24 @@
             "state": "translated",
             "value": "Wood et al. 2009: 自己肯定感が低い人は『私は◯◯だ』が逆効果。『◯◯したい』『◯◯を大切に』が安全です。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood et al. 2009: \"I am [X]\" can backfire for low self-esteem. \"I want X\" or \"I value X\" is safer."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood et al. 2009: \"I am [X]\" can backfire for low self-esteem. \"I want X\" or \"I value X\" is safer."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood et al. 2009: \"I am [X]\" can backfire for low self-esteem. \"I want X\" or \"I value X\" is safer."
+          }
         }
       }
     },
@@ -4204,6 +8758,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Implementation Intentions メタ分析 (Gollwitzer 1999, d=.65): If-Then プランは目標達成の最強手法とされています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gollwitzer's meta-analysis (d=.65): If-Then plans are the strongest goal achievement technique."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gollwitzer's meta-analysis (d=.65): If-Then plans are the strongest goal achievement technique."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gollwitzer's meta-analysis (d=.65): If-Then plans are the strongest goal achievement technique."
           }
         }
       }
@@ -4222,6 +8794,24 @@
             "state": "translated",
             "value": "Production Effect (MacLeod & Forrin 2017): 自分で声に出して読むと、黙読より20%以上記憶定着が向上します。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Production Effect (MacLeod & Forrin 2017): reading aloud yourself improves memory >20% vs silent reading."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Production Effect (MacLeod & Forrin 2017): reading aloud yourself improves memory >20% vs silent reading."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Production Effect (MacLeod & Forrin 2017): reading aloud yourself improves memory >20% vs silent reading."
+          }
         }
       }
     },
@@ -4238,6 +8828,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Growth Mindset (Dweck): 『なっていく』『成長している』という process 系の自己語りが結果に直結します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Growth Mindset (Dweck): process-language (\"growing\", \"becoming\") drives outcomes."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Growth Mindset (Dweck): process-language (\"growing\", \"becoming\") drives outcomes."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Growth Mindset (Dweck): process-language (\"growing\", \"becoming\") drives outcomes."
           }
         }
       }
@@ -4256,6 +8864,24 @@
             "state": "translated",
             "value": "Lally et al. 2010: 新習慣の自動化には平均66日 (個人差18-254日)。最初の2-3週がヤマです。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lally et al. 2010: habit automaticity averages 66 days (range 18-254). The first 2-3 weeks are the climb."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lally et al. 2010: habit automaticity averages 66 days (range 18-254). The first 2-3 weeks are the climb."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lally et al. 2010: habit automaticity averages 66 days (range 18-254). The first 2-3 weeks are the climb."
+          }
         }
       }
     },
@@ -4272,6 +8898,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "意志力枯渇 (Baumeister): 朝の言葉が一日の意志力を温存します。決定疲れの前に固定行動を仕込む。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willpower depletion (Baumeister): morning words preserve daily willpower. Lock-in actions before decision fatigue."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willpower depletion (Baumeister): morning words preserve daily willpower. Lock-in actions before decision fatigue."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willpower depletion (Baumeister): morning words preserve daily willpower. Lock-in actions before decision fatigue."
           }
         }
       }
@@ -4290,6 +8934,24 @@
             "state": "translated",
             "value": "『The Power of Full Engagement』(Loehr & Schwartz): 90分サイクルの集中→休息のリズムで願いを再確認するのが効率的。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loehr & Schwartz: 90-min focus-rest cycles align well with revisiting wishes."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loehr & Schwartz: 90-min focus-rest cycles align well with revisiting wishes."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loehr & Schwartz: 90-min focus-rest cycles align well with revisiting wishes."
+          }
         }
       }
     },
@@ -4307,6 +8969,24 @@
             "state": "translated",
             "value": "Self-Compassion (Kristin Neff): 自分への優しい言葉は、自己批判より持続的なモチベーションを生みます。"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Compassion (Neff): kind self-talk creates more sustained motivation than self-criticism."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Compassion (Neff): kind self-talk creates more sustained motivation than self-criticism."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Compassion (Neff): kind self-talk creates more sustained motivation than self-criticism."
+          }
         }
       }
     },
@@ -4323,6 +9003,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Self-Affirmation 神経科学 (Creswell et al. 2013): VMPFCが活性化、価値再確認は脅威を緩和します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation neuroscience (Creswell et al. 2013): VMPFC activates, reaffirmation buffers threat."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation neuroscience (Creswell et al. 2013): VMPFC activates, reaffirmation buffers threat."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Affirmation neuroscience (Creswell et al. 2013): VMPFC activates, reaffirmation buffers threat."
           }
         }
       }

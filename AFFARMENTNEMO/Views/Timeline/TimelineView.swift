@@ -43,6 +43,7 @@ struct TimelineView: View {
     @StateObject private var blocks = UserBlockStore.shared
     @State private var locallyHiddenPostIds: Set<String> = []
     @State private var refreshNonce = UUID()
+    @State private var subscribeTask: Task<Void, Never>?
     #if canImport(FirebaseFirestore)
     @State private var listener: ListenerRegistration?
     #endif
@@ -453,16 +454,26 @@ struct TimelineView: View {
     }
 
     private func subscribe() {
-        guard firstSeen else { return }
+        guard firstSeen && eulaAccepted else { return }
         #if canImport(FirebaseFirestore)
-        listener?.remove()
-        listener = TimelineService.shared.subscribePosts(room: room) { newPosts in
-            self.posts = newPosts
+        subscribeTask?.cancel()
+        let targetRoom = room
+        subscribeTask = Task {
+            await AuthService.shared.signInAnonymouslyIfNeeded()
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                listener?.remove()
+                listener = TimelineService.shared.subscribePosts(room: targetRoom) { newPosts in
+                    self.posts = newPosts
+                }
+            }
         }
         #endif
     }
 
     private func unsubscribe() {
+        subscribeTask?.cancel()
+        subscribeTask = nil
         #if canImport(FirebaseFirestore)
         listener?.remove()
         listener = nil
