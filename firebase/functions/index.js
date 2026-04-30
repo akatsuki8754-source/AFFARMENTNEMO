@@ -44,7 +44,11 @@ exports.aiGenerateWish = onCall(
     region: 'asia-northeast1',
     timeoutSeconds: 30,
     minInstances: 0,
-    maxInstances: 5,
+    maxInstances: 3,            // 同時 3 インスタンス上限 (Gemini 30RPM 内)
+    concurrency: 10,            // 1インスタンスあたり 10 並列まで
+    memory: '256MiB',           // メモリ最小 (コスト削減)
+    cpu: 1,
+    enforceAppCheck: false,     // App Check は将来有効化 (移行時に true へ)
   },
   async (request) => {
     const uid = request.auth?.uid;
@@ -60,7 +64,8 @@ exports.aiGenerateWish = onCall(
 
     const path = validatePath(request.data?.path);
     const prompt = buildPrompt(path);
-    const today = new Date().toISOString().slice(0, 10);
+    // 日付キーは JST (UTC+9) で計算 (日本ユーザー向け、リセットは深夜0時)
+    const today = jstDateKey();
     const quotaRef = db.collection('userQuotas').doc(`${uid}_${today}`);
     const globalRef = db.collection('globalQuota').doc(today);
 
@@ -94,9 +99,12 @@ exports.aiGenerateWish = onCall(
       };
     } catch (err) {
       console.error('Gemini error:', err);
-      await rollbackQuota({ quotaRef, globalRef });
+      // ロールバック失敗時もフォールバック候補は返す (UX 優先)
+      try { await rollbackQuota({ quotaRef, globalRef }); }
+      catch (rbErr) { console.error('rollback failed:', rbErr); }
       const candidates = fallbackCandidates(path);
-      await logAIUsage(uid, path, candidates, true);
+      try { await logAIUsage(uid, path, candidates, true); }
+      catch (logErr) { console.error('log failed:', logErr); }
       return {
         candidates,
         quotaRemaining: reservation.userRemaining + 1,
@@ -234,6 +242,14 @@ async function rollbackQuota({ quotaRef, globalRef }) {
   });
 }
 
+/// JST (UTC+9) で YYYY-MM-DD 形式の日付キーを返す
+function jstDateKey() {
+  const now = new Date();
+  // JST = UTC + 9h
+  const jstMs = now.getTime() + 9 * 60 * 60 * 1000;
+  return new Date(jstMs).toISOString().slice(0, 10);
+}
+
 async function logAIUsage(uid, path, candidates, fallback) {
   await db.collection('aiUsageLogs').add({
     uid,
@@ -248,7 +264,13 @@ async function logAIUsage(uid, path, candidates, fallback) {
 // 24h 以上経過した posts を削除 (毎時)
 // ─────────────────────────────────────────────
 exports.cleanupExpiredPosts = onSchedule(
-  { schedule: 'every 60 minutes', region: 'asia-northeast1' },
+  {
+    schedule: 'every 60 minutes',
+    region: 'asia-northeast1',
+    memory: '256MiB',
+    timeoutSeconds: 60,
+    maxInstances: 1,
+  },
   async () => {
     const now = admin.firestore.Timestamp.now();
     const rooms = ['ja_JP', 'en', 'zh_CN', 'zh_TW', 'ko_KR'];
@@ -275,10 +297,16 @@ exports.cleanupExpiredPosts = onSchedule(
 // サクラ自動投稿 (Phase 3 拡張用、現状は無効化)
 // ─────────────────────────────────────────────
 exports.sakuraSeeder = onSchedule(
-  { schedule: 'every 15 minutes', region: 'asia-northeast1' },
-  async () => {
+  {
     // クライアント側で既にサンプル表示しているため、サーバー側はオプション
-    // Phase 3 で運用方針確定後に有効化
+    // 現状は1日1回のno-op (コスト最小) — Phase 3 で運用方針確定後に頻度上げる
+    schedule: 'every 1440 minutes',
+    region: 'asia-northeast1',
+    memory: '256MiB',
+    timeoutSeconds: 30,
+    maxInstances: 1,
+  },
+  async () => {
     console.log('[sakuraSeeder] disabled in current phase');
   }
 );
