@@ -10,20 +10,23 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
+            // Wish Tree v2: 笹/木モチーフ
             HomeView()
                 .tabItem {
-                    Label("tab.home", systemImage: "house.fill")
+                    Label("tab.home", systemImage: "leaf.fill")
                 }
 
+            // 自分の短冊一覧
             LibraryView()
                 .tabItem {
-                    Label("tab.affirmations", systemImage: "text.quote")
+                    Label("tab.affirmations", systemImage: "star.bubble")
                 }
 
+            // みんなの願い (夜空 / star)
             if showTimelineTab {
                 TimelineView()
                     .tabItem {
-                        Label("tab.timeline", systemImage: "bubble.left.and.bubble.right")
+                        Label("tab.timeline", systemImage: "sparkles")
                     }
             }
 

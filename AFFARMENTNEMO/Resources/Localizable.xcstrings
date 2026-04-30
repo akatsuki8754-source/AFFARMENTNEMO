@@ -161,13 +161,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kotodama"
+            "value": "Kotodama - Wish Tree"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コトダマ"
+            "value": "コトダマ - Wish Tree"
           }
         }
       }
@@ -178,13 +178,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change yourself with your own words"
+            "value": "Hang your wish on the tree."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分の言葉で、自分を変える"
+            "value": "願いを、夜空に。"
           }
         }
       }
@@ -212,13 +212,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A simple app to change yourself with your own words."
+            "value": "Write your wish, hang it on the tree. See others' hopes drift across the sky."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分の言葉で、自分を変える\nシンプルなアプリです"
+            "value": "願いを書いて、笹の葉に飾る。みんなの願いも流れてくる。"
           }
         }
       }
@@ -263,13 +263,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not a social network"
+            "value": "A space without negativity"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "SNSではありません"
+            "value": "批判ゼロのSNSです"
           }
         }
       }
@@ -280,13 +280,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No follows, no likes"
+            "value": "No comments, no likes. Wishes drift away after 24 hours."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォローもいいねもありません"
+            "value": "コメントも、いいねもありません。24時間で天に流れて消えます。"
           }
         }
       }
@@ -297,7 +297,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get started in 30 seconds"
+            "value": "Start in 30 seconds"
           }
         },
         "ja": {
@@ -331,13 +331,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Write your first words"
+            "value": "Write your first wish"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最初の言葉を書いてみましょう"
+            "value": "最初の短冊を書いてみましょう"
           }
         }
       }
@@ -348,13 +348,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Write what you want to read aloud every day."
+            "value": "A wish, a dream, a promise — yours."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "毎日読み上げたい言葉を、自由に。"
+            "value": "願い・夢・決意を、自由に。"
           }
         }
       }
@@ -382,13 +382,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "💡 Tap a template if you're stuck"
+            "value": "💡 Stuck? Pick a template — fill in the blanks."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "💡 書き方に迷ったら、タップしてみて"
+            "value": "💡 書き方に迷ったら、テンプレを選んでみて (穴埋めで完成します)"
           }
         }
       }
@@ -399,7 +399,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aspirational self"
+            "value": "Who I'm becoming"
           }
         },
         "ja": {
@@ -416,13 +416,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "I'm growing a little every day"
+            "value": "I'm becoming a [___] person. Day by day, surely."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "私は毎日少しずつ成長している"
+            "value": "私は[___]な人になっていく。毎日少しずつ、確実に。"
           }
         }
       }
@@ -433,7 +433,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Goals to achieve"
+            "value": "Goal to achieve"
           }
         },
         "ja": {
@@ -450,13 +450,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pass certification A this year"
+            "value": "I'll achieve [___] this year. I take a step today."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "年内に資格Aに合格する"
+            "value": "今年中に[___]を達成する。そのために、今日できる一歩を踏み出す。"
           }
         }
       }
@@ -484,13 +484,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "I value time with my family"
+            "value": "I cherish [___]. So I choose today with care."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "家族との時間を大切にしたい"
+            "value": "[___]を大切にしたい。だから、今日の選択を丁寧にする。"
           }
         }
       }
@@ -501,7 +501,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Habit triggers"
+            "value": "Habit cue"
           }
         },
         "ja": {
@@ -518,13 +518,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "When I wake up, I drink warm water"
+            "value": "If [___], then [___]. Every day."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "もし朝起きたら、白湯を飲む"
+            "value": "もし[___]したら、[___]する。これを毎日続ける。"
           }
         }
       }
@@ -535,7 +535,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Self-encouragement"
+            "value": "A note to myself"
           }
         },
         "ja": {
@@ -552,13 +552,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Good job today, well done"
+            "value": "Well done today. I recognize myself for [___]. Tomorrow I keep going."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今日もよくやった、お疲れさま"
+            "value": "今日もよくやった。[___]できた自分を認める。明日も歩ける。"
           }
         }
       }
@@ -2616,13 +2616,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Affirmations"
+            "value": "My wishes"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アファメ"
+            "value": "自分の短冊"
           }
         }
       }
@@ -2633,13 +2633,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stream"
+            "value": "Wishes"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "流すだけ"
+            "value": "みんなの願い"
           }
         }
       }
@@ -2701,13 +2701,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stream"
+            "value": "Everyone's wishes"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "流すだけタイムライン"
+            "value": "みんなの願い"
           }
         }
       }
@@ -2718,13 +2718,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stream timeline"
+            "value": "Everyone's wishes"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "流すだけタイムライン"
+            "value": "みんなの願い"
           }
         }
       }
@@ -2735,13 +2735,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Words written by others flow by, right now."
+            "value": "Wishes from others drift across the sky."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今、誰かが書いた言葉が流れてきます"
+            "value": "今、誰かが書いた願いが流れてきます。"
           }
         }
       }
@@ -3592,6 +3592,176 @@
           "stringUnit": {
             "state": "translated",
             "value": "投稿のオプション"
+          }
+        }
+      }
+    },
+    "tpl.negai.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish of the year"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今年の願い"
+          }
+        }
+      }
+    },
+    "tpl.negai.example": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May this year bring [___] days. Healthy, smiling."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今年は[___]な日々を過ごせますように。健やかに、笑顔で。"
+          }
+        }
+      }
+    },
+    "home.add.tanzaku": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Write a wish"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ 短冊を書く"
+          }
+        }
+      }
+    },
+    "tanzaku.color.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色"
+          }
+        }
+      }
+    },
+    "tanzaku.blue.meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue — growth, relationships"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "青 — 自己成長・人間関係"
+          }
+        }
+      }
+    },
+    "tanzaku.red.meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red — family, gratitude"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "赤 — 家族・感謝"
+          }
+        }
+      }
+    },
+    "tanzaku.yellow.meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yellow — friendship, trust"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黄 — 友情・信頼"
+          }
+        }
+      }
+    },
+    "tanzaku.white.meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "White — discipline, health"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "白 — 規律・健康"
+          }
+        }
+      }
+    },
+    "tanzaku.purple.meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purple — work, learning, dreams"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紫 — 仕事・学業・夢"
+          }
+        }
+      }
+    },
+    "category.wish": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "願い"
           }
         }
       }

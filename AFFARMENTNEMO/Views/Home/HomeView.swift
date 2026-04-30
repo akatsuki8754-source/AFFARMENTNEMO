@@ -24,15 +24,23 @@ struct HomeView: View {
 
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppSpacing.md) {
-                    StreakHeader(stats: stats)
-
+                // v2: スリム化 — Hero (今日のセット) を主役にし、ヒント・ストリークは控えめに
+                VStack(spacing: AppSpacing.lg) {
+                    // Hero: 今日読み上げる短冊 (中央配置、breathing space 確保)
                     todaysSetCard(morningSet: morning, eveningSet: evening)
+                        .padding(.top, AppSpacing.md)
 
-                    PrimaryButton(titleKey: "home.add", action: { showAdd = true })
+                    // Primary CTA: 短冊追加
+                    PrimaryButton(titleKey: "home.add.tanzaku", action: { showAdd = true })
 
+                    // ストリーク (小さく、副次情報として)
+                    StreakHeader(stats: stats)
+                        .padding(.top, AppSpacing.xs)
+
+                    // 今日のヒント (1日1回、消去可、最後に表示)
                     if !dismissedTipToday {
                         dailyTipCard
+                            .padding(.top, AppSpacing.sm)
                     }
 
                     AdBannerSlot()
