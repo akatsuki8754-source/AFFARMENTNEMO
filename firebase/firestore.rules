@@ -1,19 +1,21 @@
 rules_version = '2';
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  防御戦略 (重要):
+//   1. Firestore rules: 軽量 (get()/exists() 呼ばない、read課金を発生させない)
+//   2. Cloud Functions: in-memory で monthlyEmergencyStop チェック (90%以上で AI/投稿/反応/通報 全停止)
+//   3. **TRUE HARD CAP**: budgetAlert 関数が 100% 到達時に請求先アンリンク
+//      → Firestore も Functions も Auth も全 API が即座に課金停止 → コスト 0
+//
+//  Firestore rules 単体での emergencyStop チェックは get() を毎 write 評価に必要としコスト発生する
+//  (1M 攻撃試行で 1M reads ≒ $0.6) ため、ここでは入れない。
+//  代わりに 100% 到達時の billing unlink で物理的に止める。
+//
+//  最大被害額: 予算上限 (¥750) — それ以上は絶対に発生しない
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // 共通ヘルパー
-    //   - emergencyStop(): 予算超過で全 write 停止
-    //   - rateOk(): per-user の書込み rate limit (1分10件)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function emergencyStop() {
-      // system/aiBudgetAlert.monthlyEmergencyStop == true なら全 write 拒否
-      // get() は 1 read 消費するが、emergencyStop 時はサービスを止める方が重要
-      return exists(/databases/$(database)/documents/system/aiBudgetAlert)
-          && get(/databases/$(database)/documents/system/aiBudgetAlert).data.monthlyEmergencyStop == true;
-    }
 
     function authed() {
       return request.auth != null && request.auth.uid != null;
@@ -23,40 +25,32 @@ service cloud.firestore {
       return authed() && request.auth.uid == uid;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // ユーザー個人データ: 本人のみ R/W (emergency stop 中も読みは許可、書きは制限)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ユーザー個人データ: 本人のみ R/W
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     match /users/{uid} {
-      allow read: if isOwner(uid);
-      allow write: if isOwner(uid) && !emergencyStop();
+      allow read, write: if isOwner(uid);
 
       match /affirmations/{affirmationId} {
-        allow read: if isOwner(uid);
-        allow write: if isOwner(uid) && !emergencyStop();
+        allow read, write: if isOwner(uid);
       }
       match /readLogs/{dateKey} {
-        allow read: if isOwner(uid);
-        allow write: if isOwner(uid) && !emergencyStop();
+        allow read, write: if isOwner(uid);
       }
       match /blocks/{targetUid} {
-        allow read: if isOwner(uid);
-        allow write: if isOwner(uid) && !emergencyStop();
+        allow read, write: if isOwner(uid);
       }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // タイムライン (流すだけ)
-    //   - read: 認証済 + emergency stop 中は禁止 (read 課金抑制)
-    //   - create: 100文字 / 25h以内 / 自分の uid / emergency stop 中は禁止
-    //   - update: report/reaction/isHidden のみ
-    //   - delete: 全員不可
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //   - 100文字 / 25h以内 / 自分の uid のみ create
+    //   - update は reactions (uid 一致 + count ±1) / report (uid 追加) / 自分の post hide のみ
+    //   - delete 禁止
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     match /timelineRooms/{room}/posts/{postId} {
-      allow read: if authed() && !emergencyStop();
-      // Build 9 互換: クライアント直接 create 許可 (emergency stop 中は禁止)
-      // v1.0.3 (Build 10) で submitTimelinePost Cloud Function 経由へ移行予定
-      // emergencyStop 発火時 (予算90%到達) は client 直接 create も完全停止
-      allow create: if authed() && !emergencyStop()
+      allow read: if authed();
+      allow create: if authed()
                     && request.resource.data.authorUid == request.auth.uid
                     && request.resource.data.text is string
                     && request.resource.data.text.size() > 0
@@ -65,10 +59,10 @@ service cloud.firestore {
                     && request.resource.data.expireAt is timestamp
                     && request.resource.data.expireAt > request.time
                     && request.resource.data.expireAt < request.time + duration.value(25, 'h');
-      // ── Reaction & Report の update は本人 uid のキーのみ変更可能、count は ±1 のみ
-      allow update: if authed() && !emergencyStop()
+      // ── update: 反応/通報/自分の hide のみ、count 改竄不可 ──
+      allow update: if authed()
                     && (
-                      // ① 通報: reportedBy に request.auth.uid のみ追加可、reportCount は +1 のみ
+                      // ① 通報: 自分の uid のみ追加、reportCount は +1 のみ
                       (
                         request.resource.data.diff(resource.data).affectedKeys()
                           .hasOnly(['reportedBy','reportCount'])
@@ -76,19 +70,18 @@ service cloud.firestore {
                         && request.auth.uid in request.resource.data.reportedBy
                       )
                       ||
-                      // ② リアクション: 自分の uid のみ reactedBy で操作、count は ±1 のみ
+                      // ② リアクション: 自分の uid のみ操作、count 差分は ±1 のみ
                       (
                         request.resource.data.diff(resource.data).affectedKeys()
                           .hasOnly(['reactionLike','reactionHeart','reactionPeace','reactedBy'])
                         && request.resource.data.reactedBy.diff(resource.data.reactedBy).affectedKeys()
                           .hasOnly([request.auth.uid])
-                        // count は前後で ±1 以内 (3 種類のうち合計差分が 0 or ±1)
                         && (request.resource.data.reactionLike   - resource.data.reactionLike)   in [-1, 0, 1]
                         && (request.resource.data.reactionHeart  - resource.data.reactionHeart)  in [-1, 0, 1]
                         && (request.resource.data.reactionPeace  - resource.data.reactionPeace)  in [-1, 0, 1]
                       )
                       ||
-                      // ③ 自分の投稿を非表示化のみ (Apple 1.2 即時削除)
+                      // ③ 自分の投稿を非表示化のみ
                       (
                         request.auth.uid == resource.data.authorUid
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isHidden'])
@@ -98,10 +91,10 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // 通報: 作成のみ、自分の uid と一致 + 必須フィールド検証
+    // 通報 collection: 自分の uid + サイズ検証
     match /reports/{reportId} {
       allow read: if false;
-      allow create: if authed() && !emergencyStop()
+      allow create: if authed()
                     && request.resource.data.reporterUid == request.auth.uid
                     && request.resource.data.targetType in ['post', 'user']
                     && request.resource.data.targetId is string
@@ -113,30 +106,31 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // システム設定: 読みのみ許可、書きは Admin SDK のみ
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // システム設定: read のみ (Admin SDK のみ write)
     match /system/{docId} {
       allow read: if authed()
                   && docId in ['aiRuntime', 'aiBudgetAlert'];
       allow write: if false;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // クォータ管理コレクション: クライアント書き込み禁止 (Admin SDK のみ)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // クォータ管理: client 書き禁止
     match /userQuotas/{quotaId} {
       allow read: if authed() && quotaId.matches(request.auth.uid + '_.*');
       allow write: if false;
     }
     match /globalQuota/{day} {
-      allow read: if false;
-      allow write: if false;
+      allow read, write: if false;
     }
     match /aiUsageLogs/{logId} {
-      allow read, write: if false;  // Admin SDK のみ
+      allow read, write: if false;
+    }
+    match /rateLimits/{limitId} {
+      allow read, write: if false;  // Cloud Functions 専用
+    }
+    match /postRateLimits/{limitId} {
+      allow read, write: if false;
     }
 
-    // 既定: 拒否 (上記に該当しないパスは全て deny)
+    // 既定: 拒否
   }
 }

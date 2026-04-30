@@ -508,12 +508,35 @@ exports.cleanupExpiredPosts = onSchedule(
 //   90% 到達時に system/aiBudgetAlert.monthlyEmergencyStop = true を立て、
 //   aiGenerateWish 全停止 (UX 影響なし、フォールバック静的サンプルが返る)
 // ─────────────────────────────────────────────
+// 100% 到達時に請求先アンリンクするための service account 必要権限:
+//   roles/billing.projectManager (project レベル)
+// → 自動付与済 (compute SA に editor 権限あるため)
+const PROJECT_ID = 'kotodama-86a14';
+const PROJECT_BILLING_RESOURCE = `projects/${PROJECT_ID}`;
+
+async function disableProjectBilling() {
+  // Cloud Billing API: PUT billingInfo with empty billingAccountName → unlink
+  const { GoogleAuth } = require('google-auth-library');
+  const auth = new GoogleAuth({
+    scopes: ['https://www.googleapis.com/auth/cloud-billing']
+  });
+  const client = await auth.getClient();
+  const url = `https://cloudbilling.googleapis.com/v1/${PROJECT_BILLING_RESOURCE}/billingInfo`;
+  const res = await client.request({
+    url,
+    method: 'PUT',
+    data: { billingAccountName: '' },
+  });
+  console.error(`[budgetAlert] BILLING DISABLED:`, res.data);
+  return res.data;
+}
+
 exports.budgetAlert = onMessagePublished(
   {
     topic: 'kotodama-budget-alerts',
     region: 'asia-northeast1',
     memory: '256MiB',
-    timeoutSeconds: 30,
+    timeoutSeconds: 60,
     maxInstances: 1,
   },
   async (event) => {
@@ -538,7 +561,32 @@ exports.budgetAlert = onMessagePublished(
 
     console.log(`[budgetAlert] ${budgetDisplayName}: ${costAmount}/${budgetAmount} ${currency} (${(ratio * 100).toFixed(1)}%)`);
 
-    // 90% 以上で緊急停止
+    // 100% 到達 → 請求先アカウントをアンリンク (TRUE HARD CAP、Firebase全機能停止)
+    if (ratio >= 1.0) {
+      try {
+        await disableProjectBilling();
+        await db.doc('system/aiBudgetAlert').set({
+          monthlyEmergencyStop: true,
+          billingDisabled: true,
+          currentMonthUSD: costAmount,
+          triggeredRatio: ratio,
+          triggeredAt: admin.firestore.FieldValue.serverTimestamp(),
+          triggerReason: `BILLING DISABLED at ${(ratio * 100).toFixed(0)}% (${costAmount}/${budgetAmount} ${currency})`,
+        }, { merge: true });
+        console.error(`[budgetAlert] 🚨 BILLING DISABLED at ${(ratio * 100).toFixed(0)}%`);
+      } catch (e) {
+        console.error(`[budgetAlert] Failed to disable billing:`, e);
+        // フォールバック: フラグだけでも立てる
+        await db.doc('system/aiBudgetAlert').set({
+          monthlyEmergencyStop: true,
+          billingDisabled: false,
+          billingDisableError: String(e).slice(0, 500),
+        }, { merge: true });
+      }
+      return;
+    }
+
+    // 90% 以上 → 緊急停止フラグ (Firestore writes / Functions invocations 拒否)
     if (ratio >= 0.9) {
       await db.doc('system/aiBudgetAlert').set({
         monthlyEmergencyStop: true,
@@ -552,7 +600,7 @@ exports.budgetAlert = onMessagePublished(
     } else {
       // 90% 未満 → 解除
       const snap = await db.doc('system/aiBudgetAlert').get();
-      if (snap.data()?.monthlyEmergencyStop === true) {
+      if (snap.data()?.monthlyEmergencyStop === true && !snap.data()?.billingDisabled) {
         await db.doc('system/aiBudgetAlert').set({
           monthlyEmergencyStop: false,
           currentMonthUSD: costAmount,
