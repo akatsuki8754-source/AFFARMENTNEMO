@@ -18,6 +18,9 @@ struct AddAffirmationView: View {
     @State private var templateExpanded: Bool = false
     @State private var hint: SmartHint?
     @State private var hintDismissedThisSession: Bool = false
+    /// 新規追加時の録音 (保存時にAffirmationにリネーム移動)
+    @State private var recordingFileName: String?
+    @State private var pendingId: UUID = UUID()
 
     @FocusState private var focused: Bool
     private let maxLen = 200
@@ -60,6 +63,9 @@ struct AddAffirmationView: View {
                     categorySection
 
                     scheduleSection
+
+                    // 自分の声を録音 (ユーザー要望: 一覧編集や新規時に録音可能)
+                    RecordingControl(fileName: $recordingFileName, affirmationId: pendingId)
 
                     HStack {
                         Spacer()
@@ -215,7 +221,7 @@ struct AddAffirmationView: View {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         let mode = selectedTemplate?.internalMode ?? "affirmation"
-        store.add(
+        let aff = store.add(
             text: trimmed,
             internalMode: mode,
             templateUsed: selectedTemplate?.id,
@@ -223,6 +229,17 @@ struct AddAffirmationView: View {
             morningEnabled: morningEnabled,
             eveningEnabled: eveningEnabled
         )
+        // 録音ファイルを Affirmation の id にリネーム (pendingId で先行録音した場合)
+        if let recName = recordingFileName, !recName.isEmpty {
+            let target = RecordingService.newFileName(for: aff.id)
+            let src = RecordingService.url(for: recName)
+            let dst = RecordingService.url(for: target)
+            if FileManager.default.fileExists(atPath: src.path), src != dst {
+                try? FileManager.default.removeItem(at: dst)
+                try? FileManager.default.moveItem(at: src, to: dst)
+            }
+            store.update(aff, recordingFileName: target)
+        }
         dismiss()
     }
 }

@@ -9,22 +9,51 @@ import AVFoundation
 import UIKit
 import Combine
 
-/// TTS イベントログ用 (シミュレータ音量問題切り分け)
+/// TTS イベントログ + AIモード時の自動進行通知
 @MainActor
 final class TTSLogger: NSObject, AVSpeechSynthesizerDelegate, ObservableObject {
     static let shared = TTSLogger()
     @Published var lastEvent: String = "idle"
-    func speechSynthesizer(_ s: AVSpeechSynthesizer, didStart u: AVSpeechUtterance) {
+    /// 完了時のコールバック (ReadAloud から登録、AIモードで次へ進む)
+    var onFinish: (() -> Void)?
+
+    nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didStart u: AVSpeechUtterance) {
         print("[TTS] didStart len=\(u.speechString.count)")
-        lastEvent = "didStart \(u.speechString.count)文字"
+        Task { @MainActor in self.lastEvent = "didStart \(u.speechString.count)文字" }
     }
-    func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish u: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish u: AVSpeechUtterance) {
         print("[TTS] didFinish")
-        lastEvent = "didFinish"
+        Task { @MainActor in
+            self.lastEvent = "didFinish"
+            self.onFinish?()
+        }
     }
-    func speechSynthesizer(_ s: AVSpeechSynthesizer, didCancel u: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didCancel u: AVSpeechUtterance) {
         print("[TTS] didCancel")
-        lastEvent = "didCancel"
+        Task { @MainActor in self.lastEvent = "didCancel" }
+    }
+}
+
+/// 3つの再生モード (ユーザー要望)
+enum ReadPlaybackMode: String, CaseIterable, Identifiable {
+    case selfRead   // 自分で読み上げる (音声なし、UIで促進、「読みました」で進行)
+    case ai         // AIで再生 (TTS) — 自動進行
+    case recorded   // 録音再生 — 自動進行
+
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .selfRead: "自分で読む"
+        case .ai: "AIで再生"
+        case .recorded: "録音で再生"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .selfRead: "person.fill"
+        case .ai: "speaker.wave.2.fill"
+        case .recorded: "waveform"
+        }
     }
 }
 
@@ -40,6 +69,9 @@ struct ReadAloudView: View {
     @State private var result: ReadCompletionResult?
     @State private var ttsSpeaking = false
     @State private var synthesizer = AVSpeechSynthesizer()
+    @State private var playbackMode: ReadPlaybackMode = .selfRead
+    @StateObject private var rec = RecordingService.shared
+    @State private var autoPlayInProgress = false
 
     var body: some View {
         ZStack {
@@ -111,12 +143,34 @@ struct ReadAloudView: View {
             }
 
             VStack(spacing: AppSpacing.md) {
-                // 「読みました」を主役の大型ボタンに (ユーザー要望: 読み上げボタンもっと大きく)
-                Button(action: advance) {
+                // 3 モード選択 (ユーザー要望: ワンタップで切替、途中でも切替可能)
+                HStack(spacing: AppSpacing.xs) {
+                    ForEach(ReadPlaybackMode.allCases) { mode in
+                        Button {
+                            switchMode(to: mode)
+                        } label: {
+                            VStack(spacing: 2) {
+                                Image(systemName: mode.icon)
+                                    .font(.system(size: 18, weight: .medium))
+                                Text(mode.label)
+                                    .appFont(.micro)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .foregroundStyle(playbackMode == mode ? Color.bgPrimary : Color.textSecondary)
+                            .background(playbackMode == mode ? Color.brandPrimary : Color.bgSecondary)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                        }
+                        .disabled(mode == .recorded && !canPlayRecording)
+                        .opacity(mode == .recorded && !canPlayRecording ? 0.4 : 1)
+                    }
+                }
+
+                // 主役: 「読みました」(self) または「次へ」(AI/録音 自動進行中)
+                Button(action: primaryAction) {
                     HStack(spacing: AppSpacing.sm) {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: primaryButtonIcon)
                             .font(.system(size: 24, weight: .semibold))
-                        Text("read.done")
+                        Text(primaryButtonLabel)
                             .appFont(.h3)
                     }
                     .foregroundStyle(Color.bgPrimary)
@@ -125,24 +179,13 @@ struct ReadAloudView: View {
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.button, style: .continuous))
                 }
 
-                HStack(spacing: AppSpacing.md) {
-                    Button(action: speakTTS) {
-                        Label("read.tts", systemImage: ttsSpeaking ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .appFont(.body)
-                            .foregroundStyle(ttsSpeaking ? Color.brandPrimary : Color.textSecondary)
-                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
-                            .background(Color.bgSecondary)
-                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
-                    }
-
-                    Button(action: skip) {
-                        Label("read.skip", systemImage: "forward")
-                            .appFont(.body)
-                            .foregroundStyle(Color.textSecondary)
-                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
-                            .background(Color.bgSecondary)
-                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
-                    }
+                Button(action: skip) {
+                    Label("read.skip", systemImage: "forward")
+                        .appFont(.body)
+                        .foregroundStyle(Color.textSecondary)
+                        .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                        .background(Color.bgSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                 }
             }
             .padding(.horizontal, AppSpacing.screenEdge)
@@ -155,9 +198,70 @@ struct ReadAloudView: View {
         return "\(prefix) (\(index + 1)/\(items.count))"
     }
 
+    /// 現在のアファメに録音があるか
+    private var canPlayRecording: Bool {
+        guard items.indices.contains(index),
+              let fn = items[index].recordingFileName else { return false }
+        return rec.hasRecording(fileName: fn)
+    }
+
+    private var primaryButtonIcon: String {
+        switch playbackMode {
+        case .selfRead: "checkmark.circle.fill"
+        case .ai: ttsSpeaking ? "stop.circle.fill" : "play.fill"
+        case .recorded: rec.isPlaying ? "stop.circle.fill" : "play.fill"
+        }
+    }
+
+    private var primaryButtonLabel: LocalizedStringKey {
+        switch playbackMode {
+        case .selfRead: "read.done"   // 「読みました」
+        case .ai: ttsSpeaking ? "停止" : "AIで再生"
+        case .recorded: rec.isPlaying ? "停止" : "録音を再生"
+        }
+    }
+
+    private func primaryAction() {
+        switch playbackMode {
+        case .selfRead:
+            advance()
+        case .ai:
+            if ttsSpeaking {
+                synthesizer.stopSpeaking(at: .immediate)
+                ttsSpeaking = false
+            } else {
+                speakTTS()
+            }
+        case .recorded:
+            if rec.isPlaying {
+                rec.stopPlaying()
+            } else {
+                playRecording()
+            }
+        }
+    }
+
+    private func switchMode(to mode: ReadPlaybackMode) {
+        // 現在の再生を中断してモード切替
+        synthesizer.stopSpeaking(at: .immediate)
+        rec.stopPlaying()
+        ttsSpeaking = false
+        playbackMode = mode
+    }
+
     private func advance() {
+        synthesizer.stopSpeaking(at: .immediate)
+        rec.stopPlaying()
+        ttsSpeaking = false
+
         if index + 1 < items.count {
             index += 1
+            // AI/録音モードなら次の項目を自動再生
+            if playbackMode == .ai {
+                speakTTS()
+            } else if playbackMode == .recorded {
+                playRecording()
+            }
         } else {
             // 完了処理
             let r = store.recordRead(slot: slot)
@@ -167,6 +271,22 @@ struct ReadAloudView: View {
 
     private func skip() {
         advance()
+    }
+
+    private func playRecording() {
+        guard items.indices.contains(index),
+              let fn = items[index].recordingFileName,
+              rec.hasRecording(fileName: fn) else { return }
+        do {
+            try rec.play(fileName: fn) { _ in
+                // 録音モードで再生完了 → 自動進行
+                Task { @MainActor in
+                    if playbackMode == .recorded { advance() }
+                }
+            }
+        } catch {
+            print("[Recording] play failed: \(error)")
+        }
     }
 
     /// TTSバグ修正: AVAudioSession の playback カテゴリ設定 + トグル動作
@@ -197,8 +317,14 @@ struct ReadAloudView: View {
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
 
-        // delegate を装着 (didStart/didFinish/didCancel をログ + UI 反映)
+        // delegate を装着 + AIモードで完了時に自動進行
         synthesizer.delegate = TTSLogger.shared
+        TTSLogger.shared.onFinish = { [self] in
+            self.ttsSpeaking = false
+            if self.playbackMode == .ai {
+                self.advance()
+            }
+        }
 
         ttsSpeaking = true
         synthesizer.speak(utterance)

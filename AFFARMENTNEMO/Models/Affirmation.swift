@@ -40,6 +40,13 @@ final class Affirmation {
     var orderIndex: Int
     var isActive: Bool
 
+    // 録音 (ユーザー要望: 自分の声で再生)
+    /// Documents/recordings/ 配下のファイル名 (m4a)。nil = 未録音。
+    var recordingFileName: String?
+
+    // ホームのルーティンに含めるか (\u30db\u30fc\u30e0\u8aad\u307f\u4e0a\u3052\u30bb\u30c3\u30c8 \u30aa\u30f3/\u30aa\u30d5)
+    var includeInRoutine: Bool = true
+
     init(
         text: String,
         internalMode: String = "affirmation",

@@ -219,6 +219,8 @@ struct EditAffirmationView: View {
     @State private var category: AffirmationCategoryKind
     @State private var morningEnabled: Bool
     @State private var eveningEnabled: Bool
+    @State private var includeInRoutine: Bool
+    @State private var recordingFileName: String?
 
     init(affirmation: Affirmation) {
         self.affirmation = affirmation
@@ -226,6 +228,8 @@ struct EditAffirmationView: View {
         _category = State(initialValue: AffirmationCategoryKind(rawValue: affirmation.category) ?? .custom)
         _morningEnabled = State(initialValue: affirmation.morningEnabled)
         _eveningEnabled = State(initialValue: affirmation.eveningEnabled)
+        _includeInRoutine = State(initialValue: affirmation.includeInRoutine)
+        _recordingFileName = State(initialValue: affirmation.recordingFileName)
     }
 
     var body: some View {
@@ -246,6 +250,10 @@ struct EditAffirmationView: View {
                 Section(header: Text("add.schedule")) {
                     Toggle(isOn: $morningEnabled) { Text("notif.slot.morning") }
                     Toggle(isOn: $eveningEnabled) { Text("notif.slot.evening") }
+                    Toggle(isOn: $includeInRoutine) { Text("ホームの読み上げセットに含める") }
+                }
+                Section(header: Text("自分の声")) {
+                    RecordingControl(fileName: $recordingFileName, affirmationId: affirmation.id)
                 }
             }
             .navigationTitle(Text("edit.title"))
@@ -261,7 +269,9 @@ struct EditAffirmationView: View {
                                      text: trimmed,
                                      category: category,
                                      morningEnabled: morningEnabled,
-                                     eveningEnabled: eveningEnabled)
+                                     eveningEnabled: eveningEnabled,
+                                     recordingFileName: .some(recordingFileName),
+                                     includeInRoutine: includeInRoutine)
                         dismiss()
                     } label: { Text("common.save") }
                 }

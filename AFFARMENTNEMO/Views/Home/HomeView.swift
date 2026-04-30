@@ -9,6 +9,10 @@ import SwiftData
 
 struct HomeView: View {
     @Environment(AffirmationStore.self) private var store
+    /// ホーム読み上げセット (順序保持・includeInRoutine=true のみ)
+    @Query(filter: #Predicate<Affirmation> { $0.isActive && $0.includeInRoutine },
+           sort: [SortDescriptor(\.orderIndex)])
+    private var routineItems: [Affirmation]
     @State private var showAdd = false
     @State private var showReadAloud = false
     @State private var showHelp = false
@@ -16,11 +20,13 @@ struct HomeView: View {
     @State private var dismissedTipToday = false
     @State private var navigateToTemplateForTip: AffirmationTemplate?
     @State private var firstReadPromptShown = false
+    @State private var showRoutineEditor = false
 
     var body: some View {
         let stats = store.userStats()
-        let morning = store.morningSet()
-        let evening = store.eveningSet()
+        // ルーティン (順序付き) を主データソースに変更
+        let morning: [Affirmation] = routineItems
+        let evening: [Affirmation] = []
 
         NavigationStack {
             ScrollView {
@@ -76,8 +82,11 @@ struct HomeView: View {
                 AddAffirmationView(initialTemplate: navigateToTemplateForTip)
                     .onDisappear { navigateToTemplateForTip = nil }
             }
+            .sheet(isPresented: $showRoutineEditor) {
+                RoutineEditorView()
+            }
             .fullScreenCover(isPresented: $showReadAloud) {
-                ReadAloudView(items: morning.isEmpty ? evening : morning, slot: morning.isEmpty ? "evening" : "morning")
+                ReadAloudView(items: routineItems, slot: "routine")
             }
             .sheet(isPresented: $showHelp) {
                 HelpView()
@@ -152,10 +161,18 @@ struct HomeView: View {
                     Text("home.todaysSet")
                         .appFont(.h3)
                         .foregroundStyle(Color.textPrimary)
-                    Spacer()
                     Text("(\(items.count))")
                         .appFont(.caption)
                         .foregroundStyle(Color.textSecondary)
+                    Spacer()
+                    // ユーザー要望: ホームから編集 (順序・追加・削除)
+                    Button {
+                        showRoutineEditor = true
+                    } label: {
+                        Label("編集", systemImage: "slider.horizontal.3")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.brandSecondary)
+                    }
                 }
 
                 // RPA風ステップ表示 (上から順に①②③)

@@ -61,6 +61,10 @@
 	<key>NSUserTrackingUsageDescription</key>
 	<string>あなたの興味に近い広告を表示するため、識別子の使用許可をお願いします。広告は無料運営のためのみに使われます。</string>
 
+	<!-- Microphone (自分の声で録音→再生 機能) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>自分の言葉を自分の声で録音し、毎日聴き返すために使います。録音は端末ローカルにのみ保存され、外部送信されません。</string>
+
 	<!-- AdMob SKAdNetwork (Google公式 2024-04 版) -->
 	<key>SKAdNetworkItems</key>
 	<array>

@@ -81,12 +81,25 @@ final class AffirmationStore {
                 text: String? = nil,
                 category: AffirmationCategoryKind? = nil,
                 morningEnabled: Bool? = nil,
-                eveningEnabled: Bool? = nil) {
+                eveningEnabled: Bool? = nil,
+                recordingFileName: String?? = nil,
+                includeInRoutine: Bool? = nil) {
         if let text { aff.text = text }
         if let category { aff.category = category.rawValue }
         if let morningEnabled { aff.morningEnabled = morningEnabled }
         if let eveningEnabled { aff.eveningEnabled = eveningEnabled }
+        if let recordingFileName { aff.recordingFileName = recordingFileName }
+        if let includeInRoutine { aff.includeInRoutine = includeInRoutine }
         aff.updatedAt = Date()
+        try? context.save()
+    }
+
+    /// ホームのルーティン順序を保存 (新しい配列の orderIndex を 0...N で振り直す)
+    func updateRoutineOrder(_ ordered: [Affirmation]) {
+        for (i, a) in ordered.enumerated() {
+            a.orderIndex = i
+            a.updatedAt = Date()
+        }
         try? context.save()
     }
 
