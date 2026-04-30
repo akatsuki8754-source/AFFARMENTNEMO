@@ -23,6 +23,9 @@ struct AFFARMENTNEMOApp: App {
     @State private var attInProgress = false
 
     init() {
+        // 言語オーバーライド (アプリ内言語切替)
+        LocalizationOverride.install()
+
         // Firebase 初期化
         #if canImport(FirebaseCore)
         FirebaseApp.configure()

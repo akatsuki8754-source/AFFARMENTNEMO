@@ -27,7 +27,7 @@ enum KnowledgeMap {
         children: [achievement, improvement, balance]
     )
 
-    // MARK: - 達成型 (受験/仕事/目標)
+    // MARK: - 達成型 (受験/仕事/目標) — 各ノードに 6+ の選択肢を持たせ、同階層内で3択ずつ循環できるように
     static let achievement: WishMapNode = WishMapNode(
         id: "achievement",
         title: "達成したい",
@@ -37,21 +37,47 @@ enum KnowledgeMap {
                 WishMapNode(id: "ach.exam.1m", title: "1ヶ月以内", prompt: "deadline_1m", children: []),
                 WishMapNode(id: "ach.exam.3m", title: "3ヶ月以内", prompt: "deadline_3m", children: []),
                 WishMapNode(id: "ach.exam.1y", title: "今年中", prompt: "deadline_1y", children: []),
+                WishMapNode(id: "ach.exam.langtoeic", title: "TOEIC・語学試験", prompt: "exam_lang", children: []),
+                WishMapNode(id: "ach.exam.licence", title: "国家資格", prompt: "exam_license", children: []),
+                WishMapNode(id: "ach.exam.entrance", title: "受験 (高校/大学/院)", prompt: "exam_entrance", children: []),
             ]),
             WishMapNode(id: "ach.career", title: "仕事で結果を出す", prompt: "career_success", children: [
                 WishMapNode(id: "ach.career.sales", title: "営業成績", prompt: "career_sales", children: []),
                 WishMapNode(id: "ach.career.promo", title: "昇進・昇格", prompt: "career_promotion", children: []),
                 WishMapNode(id: "ach.career.skill", title: "スキル習得", prompt: "career_skill", children: []),
+                WishMapNode(id: "ach.career.transfer", title: "転職を成功させる", prompt: "career_transfer", children: []),
+                WishMapNode(id: "ach.career.team", title: "チームをまとめる", prompt: "career_team", children: []),
+                WishMapNode(id: "ach.career.salary", title: "年収を上げる", prompt: "career_salary", children: []),
             ]),
             WishMapNode(id: "ach.dream", title: "夢を実現する", prompt: "dream", children: [
                 WishMapNode(id: "ach.dream.startup", title: "起業・独立", prompt: "dream_startup", children: []),
                 WishMapNode(id: "ach.dream.travel", title: "旅行・海外移住", prompt: "dream_travel", children: []),
                 WishMapNode(id: "ach.dream.art", title: "創作・表現", prompt: "dream_art", children: []),
+                WishMapNode(id: "ach.dream.contest", title: "大会で優勝・入賞", prompt: "dream_contest", children: []),
+                WishMapNode(id: "ach.dream.book", title: "本を書く・出版", prompt: "dream_book", children: []),
+                WishMapNode(id: "ach.dream.audition", title: "オーディション・コンペ", prompt: "dream_audition", children: []),
+            ]),
+            // 達成型ルート直下にも追加サブカテゴリ (「その他」で循環するため)
+            WishMapNode(id: "ach.money", title: "お金を増やす", prompt: "money", children: [
+                WishMapNode(id: "ach.money.save", title: "貯金を増やす", prompt: "money_save", children: []),
+                WishMapNode(id: "ach.money.invest", title: "投資で増やす", prompt: "money_invest", children: []),
+                WishMapNode(id: "ach.money.side", title: "副業を成功させる", prompt: "money_side", children: []),
+                WishMapNode(id: "ach.money.debt", title: "借金を返す", prompt: "money_debt", children: []),
+                WishMapNode(id: "ach.money.house", title: "マイホームを買う", prompt: "money_house", children: []),
+                WishMapNode(id: "ach.money.car", title: "欲しい物を買う", prompt: "money_car", children: []),
+            ]),
+            WishMapNode(id: "ach.romance", title: "恋愛・結婚", prompt: "romance", children: [
+                WishMapNode(id: "ach.romance.partner", title: "素敵な人と出会う", prompt: "romance_meet", children: []),
+                WishMapNode(id: "ach.romance.confess", title: "告白を成功させる", prompt: "romance_confess", children: []),
+                WishMapNode(id: "ach.romance.long", title: "長く幸せに過ごす", prompt: "romance_long", children: []),
+                WishMapNode(id: "ach.romance.marriage", title: "結婚する", prompt: "romance_marriage", children: []),
+                WishMapNode(id: "ach.romance.child", title: "子どもを授かる", prompt: "romance_child", children: []),
+                WishMapNode(id: "ach.romance.recover", title: "元のような関係に戻る", prompt: "romance_recover", children: []),
             ]),
         ]
     )
 
-    // MARK: - 改善型 (健康/ダイエット/習慣)
+    // MARK: - 改善型
     static let improvement: WishMapNode = WishMapNode(
         id: "improvement",
         title: "改善したい",
@@ -61,21 +87,38 @@ enum KnowledgeMap {
                 WishMapNode(id: "imp.health.weight", title: "ダイエット", prompt: "health_diet", children: []),
                 WishMapNode(id: "imp.health.exercise", title: "運動習慣", prompt: "health_exercise", children: []),
                 WishMapNode(id: "imp.health.sleep", title: "睡眠改善", prompt: "health_sleep", children: []),
+                WishMapNode(id: "imp.health.muscle", title: "筋トレ・体力UP", prompt: "health_muscle", children: []),
+                WishMapNode(id: "imp.health.diet", title: "食生活を整える", prompt: "health_food", children: []),
+                WishMapNode(id: "imp.health.recovery", title: "病気を治す・回復", prompt: "health_recovery", children: []),
             ]),
             WishMapNode(id: "imp.habit", title: "習慣を変える", prompt: "habit", children: [
                 WishMapNode(id: "imp.habit.quit", title: "やめたい習慣", prompt: "habit_quit", children: []),
                 WishMapNode(id: "imp.habit.start", title: "始めたい習慣", prompt: "habit_start", children: []),
-                WishMapNode(id: "imp.habit.morning", title: "朝活・モーニングルーティン", prompt: "habit_morning", children: []),
+                WishMapNode(id: "imp.habit.morning", title: "朝活・モーニング", prompt: "habit_morning", children: []),
+                WishMapNode(id: "imp.habit.read", title: "読書習慣", prompt: "habit_read", children: []),
+                WishMapNode(id: "imp.habit.write", title: "日記・ジャーナリング", prompt: "habit_write", children: []),
+                WishMapNode(id: "imp.habit.smart", title: "スマホ依存を減らす", prompt: "habit_smart", children: []),
             ]),
             WishMapNode(id: "imp.relation", title: "人間関係を改善", prompt: "relationship", children: [
                 WishMapNode(id: "imp.relation.family", title: "家族との関係", prompt: "rel_family", children: []),
                 WishMapNode(id: "imp.relation.partner", title: "パートナー・恋愛", prompt: "rel_partner", children: []),
                 WishMapNode(id: "imp.relation.colleague", title: "職場・友人", prompt: "rel_colleague", children: []),
+                WishMapNode(id: "imp.relation.parent", title: "親への感謝・理解", prompt: "rel_parent", children: []),
+                WishMapNode(id: "imp.relation.child", title: "子育て", prompt: "rel_child", children: []),
+                WishMapNode(id: "imp.relation.boss", title: "上司・部下", prompt: "rel_boss", children: []),
+            ]),
+            WishMapNode(id: "imp.skill", title: "スキルを伸ばす", prompt: "skill", children: [
+                WishMapNode(id: "imp.skill.lang", title: "語学", prompt: "skill_lang", children: []),
+                WishMapNode(id: "imp.skill.it", title: "プログラミング・IT", prompt: "skill_it", children: []),
+                WishMapNode(id: "imp.skill.com", title: "コミュニケーション力", prompt: "skill_com", children: []),
+                WishMapNode(id: "imp.skill.lead", title: "リーダーシップ", prompt: "skill_lead", children: []),
+                WishMapNode(id: "imp.skill.creative", title: "クリエイティブ・芸術", prompt: "skill_creative", children: []),
+                WishMapNode(id: "imp.skill.body", title: "スポーツ・体技", prompt: "skill_body", children: []),
             ]),
         ]
     )
 
-    // MARK: - 整える型 (メンタル/価値観/感謝)
+    // MARK: - 整える型
     static let balance: WishMapNode = WishMapNode(
         id: "balance",
         title: "心を整えたい",
@@ -85,16 +128,33 @@ enum KnowledgeMap {
                 WishMapNode(id: "bal.mental.anxiety", title: "不安・心配を手放す", prompt: "mental_anxiety", children: []),
                 WishMapNode(id: "bal.mental.confidence", title: "自信を持つ", prompt: "mental_confidence", children: []),
                 WishMapNode(id: "bal.mental.calm", title: "穏やかさを保つ", prompt: "mental_calm", children: []),
+                WishMapNode(id: "bal.mental.angry", title: "怒りをコントロール", prompt: "mental_angry", children: []),
+                WishMapNode(id: "bal.mental.lonely", title: "孤独感を癒す", prompt: "mental_lonely", children: []),
+                WishMapNode(id: "bal.mental.depression", title: "気分の落ち込みを和らげる", prompt: "mental_depression", children: []),
             ]),
             WishMapNode(id: "bal.value", title: "価値観を確認", prompt: "value", children: [
                 WishMapNode(id: "bal.value.family", title: "家族を大切にする", prompt: "value_family", children: []),
                 WishMapNode(id: "bal.value.growth", title: "成長を続ける", prompt: "value_growth", children: []),
                 WishMapNode(id: "bal.value.contribution", title: "誰かの役に立つ", prompt: "value_contribution", children: []),
+                WishMapNode(id: "bal.value.honesty", title: "誠実に生きる", prompt: "value_honesty", children: []),
+                WishMapNode(id: "bal.value.creativity", title: "創造的に生きる", prompt: "value_creativity", children: []),
+                WishMapNode(id: "bal.value.freedom", title: "自由を大切にする", prompt: "value_freedom", children: []),
             ]),
             WishMapNode(id: "bal.gratitude", title: "感謝・幸せを感じる", prompt: "gratitude", children: [
                 WishMapNode(id: "bal.gratitude.daily", title: "日常の小さな幸せ", prompt: "gratitude_daily", children: []),
                 WishMapNode(id: "bal.gratitude.people", title: "周りの人への感謝", prompt: "gratitude_people", children: []),
                 WishMapNode(id: "bal.gratitude.self", title: "自分自身を認める", prompt: "gratitude_self", children: []),
+                WishMapNode(id: "bal.gratitude.nature", title: "自然・季節を感じる", prompt: "gratitude_nature", children: []),
+                WishMapNode(id: "bal.gratitude.past", title: "過去の自分にありがとう", prompt: "gratitude_past", children: []),
+                WishMapNode(id: "bal.gratitude.body", title: "自分の体に感謝する", prompt: "gratitude_body", children: []),
+            ]),
+            WishMapNode(id: "bal.spirit", title: "スピリチュアル・本質", prompt: "spirit", children: [
+                WishMapNode(id: "bal.spirit.purpose", title: "人生の目的を見つける", prompt: "spirit_purpose", children: []),
+                WishMapNode(id: "bal.spirit.meditate", title: "瞑想・マインドフルネス", prompt: "spirit_meditate", children: []),
+                WishMapNode(id: "bal.spirit.energy", title: "波動・エネルギーを整える", prompt: "spirit_energy", children: []),
+                WishMapNode(id: "bal.spirit.intuition", title: "直感を信じる", prompt: "spirit_intuition", children: []),
+                WishMapNode(id: "bal.spirit.deathlife", title: "生き方を見つめる", prompt: "spirit_deathlife", children: []),
+                WishMapNode(id: "bal.spirit.universe", title: "大いなるものを信頼する", prompt: "spirit_universe", children: []),
             ]),
         ]
     )

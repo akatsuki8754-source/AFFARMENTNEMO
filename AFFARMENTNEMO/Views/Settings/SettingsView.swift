@@ -28,6 +28,10 @@ struct SettingsView: View {
     @StateObject private var ttsPrefs = TTSPreferences.shared
     @StateObject private var perms = PermissionDiagnostics.shared
     @AppStorage("kotodama.appLanguage") private var appLanguage: String = "system"
+    @AppStorage("kotodama.screenshot.mode") private var screenshotMode: Bool = false
+    /// 隠しコマンド: バージョン情報を5回タップで表示
+    @State private var versionTapCount = 0
+    @State private var showDebugSection = false
 
     var body: some View {
         NavigationStack {
@@ -179,6 +183,26 @@ struct SettingsView: View {
                         Spacer()
                         Text(versionString)
                             .foregroundStyle(Color.textSecondary)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        versionTapCount += 1
+                        if versionTapCount >= 5 {
+                            showDebugSection = true
+                        }
+                    }
+                }
+
+                if showDebugSection {
+                    Section(header: Text("デベロッパー")) {
+                        Toggle(isOn: $screenshotMode) {
+                            VStack(alignment: .leading) {
+                                Text("スクショモード")
+                                Text("AdMobバナーを非表示にする")
+                                    .appFont(.micro)
+                                    .foregroundStyle(Color.textSecondary)
+                            }
+                        }
                     }
                 }
 

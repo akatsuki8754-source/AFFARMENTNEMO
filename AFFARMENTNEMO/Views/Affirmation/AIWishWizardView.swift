@@ -16,6 +16,8 @@ struct AIWishWizardView: View {
     @State private var editedText: String = ""
     @State private var step: WizardStep = .selectingPath
     @State private var generating: Bool = false
+    /// 各階層で「その他」を押した回数 (3択ローテーションのため)
+    @State private var rotationOffsetByLevel: [Int: Int] = [:]
 
     enum WizardStep {
         case selectingPath  // 知識マップ進行中
@@ -34,11 +36,33 @@ struct AIWishWizardView: View {
         !currentChildren.isEmpty
     }
 
-    private var currentChildren: [WishMapNode] {
+    /// 現在の階層の全子ノード (rotation 適用前)
+    private var allChildrenAtCurrentLevel: [WishMapNode] {
         if path.isEmpty {
             return KnowledgeMap.root.children
         }
         return path.last?.children ?? []
+    }
+
+    /// 現在表示すべき 3 件 (rotation offset を適用)
+    /// ユーザー要望: 2問目以降「その他」で同階層の別3件を表示
+    private var currentChildren: [WishMapNode] {
+        let all = allChildrenAtCurrentLevel
+        guard all.count > 3 else { return all }
+        let offset = rotationOffsetByLevel[path.count] ?? 0
+        let start = (offset * 3) % all.count
+        var result: [WishMapNode] = []
+        for i in 0..<3 {
+            result.append(all[(start + i) % all.count])
+        }
+        return result
+    }
+
+    /// 「その他」ボタンを表示するか (4件以上選択肢があり、ルートでない時)
+    private var hasMoreOptions: Bool {
+        // 1問目 (root) には「その他」を出さない (基本3カテゴリ)
+        guard !path.isEmpty else { return false }
+        return allChildrenAtCurrentLevel.count > 3
     }
 
     var body: some View {
@@ -130,6 +154,29 @@ struct AIWishWizardView: View {
                             .padding(.vertical, AppSpacing.md)
                             .background(Color.bgSecondary)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+                        }
+                    }
+
+                    // ユーザー要望: 「その他」で同階層の別3件にローテ
+                    if hasMoreOptions {
+                        Button {
+                            rotateOptions()
+                        } label: {
+                            HStack {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .foregroundStyle(Color.brandSecondary)
+                                Text("その他の選択肢を見る")
+                                    .appFont(.body)
+                                    .foregroundStyle(Color.brandSecondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, AppSpacing.md)
+                            .padding(.vertical, AppSpacing.sm)
+                            .background(Color.bgPrimary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppRadius.card)
+                                    .stroke(Color.brandSecondary.opacity(0.4), lineWidth: 1)
+                            )
                         }
                     }
                 }
@@ -272,9 +319,14 @@ struct AIWishWizardView: View {
     private func select(_ node: WishMapNode) {
         path.append(node)
         if node.children.isEmpty {
-            // 末端ノード → 生成へ
             generate()
         }
+    }
+
+    private func rotateOptions() {
+        let level = path.count
+        let current = rotationOffsetByLevel[level] ?? 0
+        rotationOffsetByLevel[level] = current + 1
     }
 
     private func generate() {
