@@ -72,6 +72,8 @@ struct ReadAloudView: View {
     @State private var playbackMode: ReadPlaybackMode = .selfRead
     @StateObject private var rec = RecordingService.shared
     @State private var autoPlayInProgress = false
+    @AppStorage("kotodama.autoplay.mode") private var autoplayMode: String = "self"
+    @AppStorage("kotodama.autoplay.enabled") private var autoplayEnabled: Bool = false
 
     var body: some View {
         ZStack {
@@ -86,6 +88,22 @@ struct ReadAloudView: View {
             } else {
                 readingScreen
                     .responsivePage()
+            }
+        }
+        .onAppear {
+            // 起動時自動再生モードがあれば適用
+            if slot == "autoplay" && autoplayEnabled {
+                switch autoplayMode {
+                case "ai": playbackMode = .ai
+                case "recorded": playbackMode = .recorded
+                default: playbackMode = .selfRead
+                }
+                // 自動的に最初の項目を再生
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.5))
+                    if playbackMode == .ai { speakTTS() }
+                    else if playbackMode == .recorded { playRecording() }
+                }
             }
         }
         .onDisappear {
@@ -326,7 +344,7 @@ struct ReadAloudView: View {
 
         let utterance = AVSpeechUtterance(string: withPauses)
         let preferred = Locale.preferredLanguages.first ?? "ja-JP"
-        utterance.voice = AVSpeechSynthesisVoice(language: preferred)
+        utterance.voice = TTSPreferences.shared.resolvedVoice(for: preferred)
                           ?? AVSpeechSynthesisVoice(language: "ja-JP")
         // AVSpeechUtteranceDefaultSpeechRate ≈ 0.5。人の話す速度 ≈ 0.45 (やや遅め)
         utterance.rate = 0.46

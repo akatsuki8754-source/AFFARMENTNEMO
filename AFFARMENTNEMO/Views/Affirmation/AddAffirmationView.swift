@@ -18,22 +18,34 @@ struct AddAffirmationView: View {
     @State private var templateExpanded: Bool = false
     @State private var hint: SmartHint?
     @State private var hintDismissedThisSession: Bool = false
-    /// 新規追加時の録音 (保存時にAffirmationにリネーム移動)
     @State private var recordingFileName: String?
     @State private var pendingId: UUID = UUID()
+    /// ユーザー要望: キャンセル時に下書き保存確認ダイアログ
+    @AppStorage("kotodama.draft.text") private var draftText: String = ""
+    @State private var initialText: String = ""
+    @State private var showCancelConfirm: Bool = false
 
     @FocusState private var focused: Bool
     private let maxLen = 200
 
     init(initialTemplate: AffirmationTemplate? = nil) {
-        if let tpl = initialTemplate {
+        // 下書きが保存されていればそれを優先
+        let draft = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
+        if !draft.isEmpty {
+            _text = State(initialValue: draft)
+            _selectedTemplate = State(initialValue: nil)
+            _category = State(initialValue: .custom)
+            _initialText = State(initialValue: draft)
+        } else if let tpl = initialTemplate {
             _text = State(initialValue: tpl.placeholderText)
             _selectedTemplate = State(initialValue: tpl)
             _category = State(initialValue: tpl.category)
+            _initialText = State(initialValue: tpl.placeholderText)
         } else {
             _text = State(initialValue: "")
             _selectedTemplate = State(initialValue: nil)
             _category = State(initialValue: .custom)
+            _initialText = State(initialValue: "")
         }
     }
 
@@ -83,7 +95,14 @@ struct AddAffirmationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .cancel) { dismiss() } label: { Text("common.cancel") }
+                    Button(role: .cancel) {
+                        // 内容が変更されていれば保存確認、そうでなければ破棄
+                        if text != initialText && !text.trimmingCharacters(in: .whitespaces).isEmpty {
+                            showCancelConfirm = true
+                        } else {
+                            dismiss()
+                        }
+                    } label: { Text("common.cancel") }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
@@ -97,6 +116,19 @@ struct AddAffirmationView: View {
                 hint = SmartHintEngine.evaluate(text)
             }
             .onAppear { focused = true }
+            .confirmationDialog("変更があります", isPresented: $showCancelConfirm, titleVisibility: .visible) {
+                Button("下書きを保存して閉じる") {
+                    draftText = text
+                    dismiss()
+                }
+                Button("保存せず閉じる", role: .destructive) {
+                    draftText = ""
+                    dismiss()
+                }
+                Button("入力を続ける", role: .cancel) {}
+            } message: {
+                Text("入力中の内容を下書きとして保存しますか?")
+            }
         }
     }
 
@@ -240,6 +272,8 @@ struct AddAffirmationView: View {
             }
             store.update(aff, recordingFileName: target)
         }
+        // 保存完了 → 下書きクリア
+        draftText = ""
         dismiss()
     }
 }

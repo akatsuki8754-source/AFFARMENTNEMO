@@ -300,6 +300,8 @@ private struct AffirmationRow: View {
 
 // MARK: - Edit
 
+private let weekdayLabels = ["日", "月", "火", "水", "木", "金", "土"]
+
 struct EditAffirmationView: View {
     @Environment(AffirmationStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -312,6 +314,12 @@ struct EditAffirmationView: View {
     @State private var eveningEnabled: Bool
     @State private var includeInRoutine: Bool
     @State private var recordingFileName: String?
+    // 期限・曜日 (Phase 2)
+    @State private var hasStartDate: Bool
+    @State private var startDate: Date
+    @State private var hasEndDate: Bool
+    @State private var endDate: Date
+    @State private var weekdayMask: Int
 
     init(affirmation: Affirmation) {
         self.affirmation = affirmation
@@ -322,6 +330,36 @@ struct EditAffirmationView: View {
         _eveningEnabled = State(initialValue: affirmation.eveningEnabled)
         _includeInRoutine = State(initialValue: affirmation.includeInRoutine)
         _recordingFileName = State(initialValue: affirmation.recordingFileName)
+        _hasStartDate = State(initialValue: affirmation.startDate != nil)
+        _startDate = State(initialValue: affirmation.startDate ?? Date())
+        _hasEndDate = State(initialValue: affirmation.endDate != nil)
+        _endDate = State(initialValue: affirmation.endDate ?? Date().addingTimeInterval(7 * 24 * 3600))
+        _weekdayMask = State(initialValue: affirmation.weekdayMask)
+    }
+
+    @ViewBuilder
+    private var weekdayPicker: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<7, id: \.self) { i in
+                let bit = 1 << i
+                let on = (weekdayMask & bit) != 0
+                Button {
+                    if on {
+                        weekdayMask &= ~bit
+                    } else {
+                        weekdayMask |= bit
+                    }
+                } label: {
+                    Text(weekdayLabels[i])
+                        .appFont(.caption)
+                        .frame(width: 36, height: 36)
+                        .background(on ? Color.brandPrimary : Color.bgSecondary)
+                        .foregroundStyle(on ? Color.bgPrimary : Color.textSecondary)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     var body: some View {
@@ -348,6 +386,21 @@ struct EditAffirmationView: View {
                     Toggle(isOn: $eveningEnabled) { Text("notif.slot.evening") }
                     Toggle(isOn: $includeInRoutine) { Text("ホームの読み上げセットに含める") }
                 }
+                Section(header: Text("期間 (任意)")) {
+                    Toggle("開始日を設定する", isOn: $hasStartDate)
+                    if hasStartDate {
+                        DatePicker("開始日", selection: $startDate, displayedComponents: .date)
+                    }
+                    Toggle("終了日を設定する (期限切れ後はホームから自動除外)", isOn: $hasEndDate)
+                    if hasEndDate {
+                        DatePicker("終了日", selection: $endDate, displayedComponents: .date)
+                    }
+                }
+
+                Section(header: Text("読み上げる曜日")) {
+                    weekdayPicker
+                }
+
                 Section(header: Text("自分の声")) {
                     RecordingControl(fileName: $recordingFileName, affirmationId: affirmation.id)
                 }
@@ -361,13 +414,16 @@ struct EditAffirmationView: View {
                     Button {
                         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !trimmed.isEmpty else { return }
-                        // カスタム名は category=custom の時のみ有効化
                         if category == .custom {
                             affirmation.customCategoryName = customCategoryName.trimmingCharacters(in: .whitespaces).isEmpty
                                 ? nil : customCategoryName
                         } else {
                             affirmation.customCategoryName = nil
                         }
+                        // 期限・曜日反映
+                        affirmation.startDate = hasStartDate ? startDate : nil
+                        affirmation.endDate = hasEndDate ? endDate : nil
+                        affirmation.weekdayMask = weekdayMask == 0 ? 127 : weekdayMask
                         store.update(affirmation,
                                      text: trimmed,
                                      category: category,

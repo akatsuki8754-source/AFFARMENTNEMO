@@ -9,10 +9,15 @@ import SwiftData
 
 struct HomeView: View {
     @Environment(AffirmationStore.self) private var store
-    /// ホーム読み上げセット (順序保持・includeInRoutine=true のみ)
+    /// ホーム読み上げセット候補 (期限・曜日は実行時にフィルタ)
     @Query(filter: #Predicate<Affirmation> { $0.isActive && $0.includeInRoutine },
            sort: [SortDescriptor(\.orderIndex)])
-    private var routineItems: [Affirmation]
+    private var allRoutineCandidates: [Affirmation]
+
+    /// 期限 + 曜日でフィルタした実際の routineItems
+    private var routineItems: [Affirmation] {
+        allRoutineCandidates.filter { $0.isAvailableNow() }
+    }
     @State private var showAdd = false
     @State private var showReadAloud = false
     @State private var showHelp = false

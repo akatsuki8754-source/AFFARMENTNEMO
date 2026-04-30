@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @Environment(AffirmationStore.self) private var store
@@ -24,6 +25,8 @@ struct SettingsView: View {
     @State private var showBlockList = false
     @State private var showEULA = false
     @State private var showContact = false
+    @StateObject private var ttsPrefs = TTSPreferences.shared
+    @StateObject private var perms = PermissionDiagnostics.shared
 
     var body: some View {
         NavigationStack {
@@ -47,6 +50,59 @@ struct SettingsView: View {
                         applyNotificationSettings()
                     } label: {
                         Text("settings.notif.apply")
+                    }
+                }
+
+                // ユーザー要望: AI音声を選べるように + 試聴ボタン
+                Section(header: Text("AI音声 (TTS)")) {
+                    let voices = ttsPrefs.availableVoices()
+                    Picker("声", selection: Binding(
+                        get: { ttsPrefs.selectedVoiceId ?? "" },
+                        set: { ttsPrefs.selectedVoiceId = $0.isEmpty ? nil : $0 }
+                    )) {
+                        Text("自動 (端末の言語)").tag("")
+                        ForEach(voices) { v in
+                            Text("\(v.language) / \(v.name) (\(v.gender) ・\(v.quality))")
+                                .tag(v.id)
+                        }
+                    }
+                    Button {
+                        ttsPrefs.preview(voiceId: ttsPrefs.selectedVoiceId)
+                    } label: {
+                        Label("試しに再生", systemImage: "play.circle")
+                    }
+                }
+
+                // ユーザー要望: アプリ起動時に自動で読み上げる
+                Section(header: Text("起動時の自動再生")) {
+                    Toggle(isOn: $ttsPrefs.autoplayOnLaunch) {
+                        Text("アプリ起動時に音読を自動再生")
+                    }
+                    if ttsPrefs.autoplayOnLaunch {
+                        Picker("再生方法", selection: $ttsPrefs.autoplayMode) {
+                            Text("自分で読む").tag("self")
+                            Text("AIで再生").tag("ai")
+                            Text("録音で再生").tag("recorded")
+                        }
+                    }
+                }
+
+                // ユーザー要望: 権限の現状を可視化 (シミュリセット問題確認用)
+                Section(header: Text("権限ステータス (端末設定)")) {
+                    LabeledContent("広告トラッキング", value: perms.attStatusText)
+                    LabeledContent("通知", value: perms.notificationStatusText)
+                    LabeledContent("マイク", value: perms.microphoneStatusText)
+                    Button {
+                        Task { await perms.refresh() }
+                    } label: {
+                        Label("再確認", systemImage: "arrow.clockwise")
+                    }
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        Label("システム設定を開く", systemImage: "gearshape.2")
                     }
                 }
 
@@ -141,7 +197,10 @@ struct SettingsView: View {
             } message: {
                 Text("settings.account.delete.confirm.body")
             }
-            .onAppear { loadTimes() }
+            .onAppear {
+                loadTimes()
+                Task { await perms.refresh() }
+            }
         }
     }
 

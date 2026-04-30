@@ -47,6 +47,39 @@ final class Affirmation {
     // ホームのルーティンに含めるか (\u30db\u30fc\u30e0\u8aad\u307f\u4e0a\u3052\u30bb\u30c3\u30c8 \u30aa\u30f3/\u30aa\u30d5)
     var includeInRoutine: Bool = true
 
+    // \u8a00\u8449\u306e\u671f\u9650 (Phase 2): \u671f\u9593\u3092\u8a2d\u5b9a\u3057\u3066\u8d85\u3048\u305f\u3089\u81ea\u52d5\u3067\u30eb\u30fc\u30c6\u30a3\u30f3\u9664\u5916
+    var startDate: Date?
+    var endDate: Date?
+    /// \u66dc\u65e5\u30d3\u30c3\u30c8\u30de\u30b9\u30af (\u65e5=1, \u6708=2, \u706b=4, \u6c34=8, \u6728=16, \u91d1=32, \u571f=64) \u30c7\u30d5\u30a9\u30eb\u30c8 127 (\u5168\u66dc\u65e5)
+    var weekdayMask: Int = 127
+
+    /// \u73fe\u5728\u8aad\u307f\u4e0a\u3052\u5bfe\u8c61\u304b? (\u671f\u9650 + \u66dc\u65e5\u8003\u616e)
+    func isAvailableNow(_ now: Date = Date()) -> Bool {
+        if let s = startDate, now < s { return false }
+        if let e = endDate, now > e { return false }
+        let weekday = Calendar.current.component(.weekday, from: now) // 1=Sun
+        let mask = 1 << (weekday - 1)
+        return (weekdayMask & mask) != 0
+    }
+
+    /// \u30eb\u30fc\u30c6\u30a3\u30f3\u304b\u3089\u9664\u5916\u3055\u308c\u3066\u3044\u308b\u7406\u7531
+    enum ExclusionReason {
+        case included        // \u542b\u307e\u308c\u308b
+        case excludedManually
+        case beforeStart
+        case afterEnd
+        case wrongWeekday
+    }
+
+    func exclusionReason(_ now: Date = Date()) -> ExclusionReason {
+        if !includeInRoutine { return .excludedManually }
+        if let s = startDate, now < s { return .beforeStart }
+        if let e = endDate, now > e { return .afterEnd }
+        let weekday = Calendar.current.component(.weekday, from: now)
+        if (weekdayMask & (1 << (weekday - 1))) == 0 { return .wrongWeekday }
+        return .included
+    }
+
     init(
         text: String,
         internalMode: String = "affirmation",
