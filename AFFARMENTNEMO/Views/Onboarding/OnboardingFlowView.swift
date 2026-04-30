@@ -214,17 +214,17 @@ private struct FirstAffirmationStep: View {
 
     @FocusState private var focused: Bool
     @State private var insertionFeedback: String? = nil
-    /// テンプレ加算用 Undo / Redo 履歴 (ユーザー要望: 戻る/進む/リセット)
     @State private var history: [String] = [""]
     @State private var historyIndex: Int = 0
+    @State private var showAIWizard: Bool = false
     private let maxLen = 200
 
     var body: some View {
         firstContent
             .responsivePage()
-            .onChange(of: text) { _, _ in
-                // text が外部編集された場合 (キーボード入力) も history を最新値で update
-                // ただし undo/redo 中は触らない
+            .onChange(of: text) { _, _ in }
+            .sheet(isPresented: $showAIWizard) {
+                AIWishWizardView()
             }
     }
 
@@ -275,6 +275,28 @@ private struct FirstAffirmationStep: View {
             }
 
             Divider().padding(.vertical, AppSpacing.xs)
+
+            // ユーザー要望: オンボーディングに AI 言葉作成のエントリ追加
+            Button {
+                showAIWizard = true
+            } label: {
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 22))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("AIに3択で考えてもらう")
+                            .appFont(.bodyEmphasis)
+                        Text("迷ったらこれ。3つ選ぶだけで言葉ができる")
+                            .appFont(.micro)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .foregroundStyle(Color.brandPrimary)
+                .padding(AppSpacing.md)
+                .background(Color.brandAccent.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+            }
 
             Text("first.template.hint")
                 .appFont(.caption)

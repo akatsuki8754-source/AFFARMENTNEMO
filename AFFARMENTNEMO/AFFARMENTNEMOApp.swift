@@ -43,27 +43,45 @@ struct AFFARMENTNEMOApp: App {
         }
     }
 
+    @AppStorage("kotodama.onboarding.completed") private var onboardingCompleted: Bool = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(AffirmationStore(context: modelContainer.mainContext))
                 .onAppear {
-                    requestATTAndStartAdsIfNeeded()
+                    // オンボ未完了 → ATT は出さず AdMob だけ起動 (バナーは出るが個別化なし)
+                    // オンボ完了 → ATT 要求して AdMob 起動 (個別化広告で収益最適化)
+                    if onboardingCompleted {
+                        requestATTAndStartAdsIfNeeded()
+                    } else {
+                        // ATT は出さず AdMob のみ起動 (オンボ中は集中させる)
+                        AdMobService.shared.start()
+                    }
                 }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active {
+            if phase == .active && onboardingCompleted {
                 requestATTAndStartAdsIfNeeded()
+            }
+        }
+        // ユーザー要望: オンボ完了したら必要なタイミングでATT
+        .onChange(of: onboardingCompleted) { _, done in
+            if done {
+                // オンボ完了直後にATT要求 (ホーム到達時に AdMob バナーが出る前)
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(1.5))
+                    requestATTAndStartAdsIfNeeded()
+                }
             }
         }
     }
 
-    /// 1度だけATT要求 → AdMob起動。永続化フラグで scene 再アクティブ時の重複ダイアログを防ぐ
+    /// 1度だけATT要求 → AdMob起動。オンボ完了後にしか呼ばれない
     @MainActor
     private func requestATTAndStartAdsIfNeeded() {
         guard !didRequestATTPersisted, !attInProgress else {
-            // すでに要求済みなら AdMob のみ起動 (毎回起動はOK・冪等)
             AdMobService.shared.start()
             return
         }

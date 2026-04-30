@@ -20,10 +20,10 @@ struct AddAffirmationView: View {
     @State private var hintDismissedThisSession: Bool = false
     @State private var recordingFileName: String?
     @State private var pendingId: UUID = UUID()
-    /// ユーザー要望: キャンセル時に下書き保存確認ダイアログ
     @AppStorage("kotodama.draft.text") private var draftText: String = ""
     @State private var initialText: String = ""
     @State private var showCancelConfirm: Bool = false
+    @State private var showAIWizard: Bool = false
 
     @FocusState private var focused: Bool
     private let maxLen = 200
@@ -53,6 +53,23 @@ struct AddAffirmationView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    // AI ウィザード入口 (ユーザー要望: 願い事登録のところに追加)
+                    Button {
+                        showAIWizard = true
+                    } label: {
+                        HStack(spacing: AppSpacing.sm) {
+                            Image(systemName: "sparkles").font(.system(size: 20))
+                            Text("AIに3択で考えてもらう")
+                                .appFont(.bodyEmphasis)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                        }
+                        .foregroundStyle(Color.brandPrimary)
+                        .padding(AppSpacing.md)
+                        .background(Color.brandAccent.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+                    }
+
                     textInputArea
 
                     if let hint, !hintDismissedThisSession {
@@ -116,6 +133,7 @@ struct AddAffirmationView: View {
                 hint = SmartHintEngine.evaluate(text)
             }
             .onAppear { focused = true }
+            .sheet(isPresented: $showAIWizard) { AIWishWizardView() }
             .confirmationDialog("変更があります", isPresented: $showCancelConfirm, titleVisibility: .visible) {
                 Button("下書きを保存して閉じる") {
                     draftText = text

@@ -171,6 +171,17 @@ struct RoutineEditorView: View {
                             .appFont(.micro)
                             .foregroundStyle(Color.brandSecondary)
                     }
+                    // ユーザー要望: 期限切れ等の理由バッジ表示
+                    let reason = aff.exclusionReason()
+                    if reason != .included {
+                        Text(exclusionLabel(reason))
+                            .appFont(.micro)
+                            .foregroundStyle(Color.semanticError)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 1)
+                            .background(Color.semanticError.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
                 }
             }
             Spacer()
@@ -227,5 +238,15 @@ struct RoutineEditorView: View {
 
     private func save() {
         store.updateRoutineOrder(working)
+    }
+
+    private func exclusionLabel(_ reason: Affirmation.ExclusionReason) -> String {
+        switch reason {
+        case .included: return ""
+        case .excludedManually: return "手動で除外"
+        case .beforeStart: return "開始前"
+        case .afterEnd: return "期限切れ"
+        case .wrongWeekday: return "対象曜日外"
+        }
     }
 }

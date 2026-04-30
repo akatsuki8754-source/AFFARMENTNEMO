@@ -27,6 +27,7 @@ struct SettingsView: View {
     @State private var showContact = false
     @StateObject private var ttsPrefs = TTSPreferences.shared
     @StateObject private var perms = PermissionDiagnostics.shared
+    @AppStorage("kotodama.appLanguage") private var appLanguage: String = "system"
 
     var body: some View {
         NavigationStack {
@@ -53,7 +54,21 @@ struct SettingsView: View {
                     }
                 }
 
-                // ユーザー要望: AI音声を選べるように + 試聴ボタン
+                // ユーザー要望: アプリ内言語切替
+                Section(header: Text("言語")) {
+                    Picker("アプリの言語", selection: $appLanguage) {
+                        Text("システム言語に従う").tag("system")
+                        Text("日本語").tag("ja")
+                        Text("English").tag("en")
+                        Text("中文 (简)").tag("zh-Hans")
+                        Text("中文 (繁)").tag("zh-Hant")
+                        Text("한국어").tag("ko")
+                    }
+                    Text("変更後はアプリを再起動すると反映されます")
+                        .appFont(.caption)
+                        .foregroundStyle(Color.textSecondary)
+                }
+
                 Section(header: Text("AI音声 (TTS)")) {
                     let voices = ttsPrefs.availableVoices()
                     Picker("声", selection: Binding(

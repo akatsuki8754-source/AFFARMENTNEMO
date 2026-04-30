@@ -60,11 +60,26 @@ final class AdMobService: NSObject {
 // MARK: - SwiftUI Banner
 
 struct AdBannerView: UIViewRepresentable {
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator {
+        var refreshTimer: Timer?
+        deinit { refreshTimer?.invalidate() }
+    }
+
     func makeUIView(context: Context) -> BannerView {
         let banner = BannerView(adSize: AdSizeBanner)
         banner.adUnitID = AdMobConfig.bannerUnitID
         banner.rootViewController = Self.topViewController()
         banner.load(Request())
+        // ユーザー要望: 30秒ごとに更新 (AdMob 推奨値、収益最適化)
+        context.coordinator.refreshTimer = Timer.scheduledTimer(
+            withTimeInterval: 30, repeats: true
+        ) { [weak banner] _ in
+            DispatchQueue.main.async {
+                banner?.load(Request())
+            }
+        }
         return banner
     }
 
@@ -105,9 +120,18 @@ struct AdBannerView: View {
 // MARK: - 高さ予約付きバナーラッパー (SDKの有無を問わずレイアウトジャンプ防止)
 
 struct AdBannerSlot: View {
+    /// スクショ撮影モード: UserDefaults `kotodama.screenshot.mode` = true で AdMob バナーを完全非表示
+    private var screenshotMode: Bool {
+        UserDefaults.standard.bool(forKey: "kotodama.screenshot.mode")
+    }
     var body: some View {
-        AdBannerView()
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
+        if screenshotMode {
+            // スクショ用にバナー領域を消す
+            EmptyView()
+        } else {
+            AdBannerView()
+                .frame(height: 50)
+                .frame(maxWidth: .infinity)
+        }
     }
 }
