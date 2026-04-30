@@ -14,6 +14,8 @@ final class RecordingService: NSObject, ObservableObject {
     @Published var isRecording: Bool = false
     @Published var isPlaying: Bool = false
     @Published var currentLevel: Float = 0  // 録音中の音量メータ (0-1)
+    @Published var recordingElapsed: TimeInterval = 0  // 録音中の経過秒数
+    @Published var playbackProgress: Double = 0       // 再生中の進捗 (0-1)
 
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
@@ -74,14 +76,16 @@ final class RecordingService: NSObject, ObservableObject {
         recorder?.record()
         isRecording = true
 
-        // 音量メータ更新
+        // 音量メータ + 経過時間更新
+        recordingElapsed = 0
         levelTimer?.invalidate()
         levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.recorder?.updateMeters()
-                let avg = self?.recorder?.averagePower(forChannel: 0) ?? -160
-                let normalized = max(0, min(1, (avg + 60) / 60))
-                self?.currentLevel = normalized
+                guard let self else { return }
+                self.recorder?.updateMeters()
+                let avg = self.recorder?.averagePower(forChannel: 0) ?? -160
+                self.currentLevel = max(0, min(1, (avg + 60) / 60))
+                self.recordingElapsed = self.recorder?.currentTime ?? 0
             }
         }
     }
@@ -114,19 +118,46 @@ final class RecordingService: NSObject, ObservableObject {
         player = try AVAudioPlayer(contentsOf: url)
         player?.delegate = PlayerDelegateBridge(onFinish: { [weak self] success in
             Task { @MainActor in
-                self?.isPlaying = false
+                self?.stopPlayingInternal()
                 onFinish(success)
             }
         })
         player?.prepareToPlay()
         player?.play()
         isPlaying = true
+
+        // 進捗タイマー (UI に再生中バーを出すため)
+        playbackProgress = 0
+        levelTimer?.invalidate()
+        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, let p = self.player, p.duration > 0 else { return }
+                self.playbackProgress = p.currentTime / p.duration
+            }
+        }
     }
 
     func stopPlaying() {
         player?.stop()
+        stopPlayingInternal()
+    }
+
+    private func stopPlayingInternal() {
         player = nil
         isPlaying = false
+        levelTimer?.invalidate()
+        levelTimer = nil
+        playbackProgress = 0
+    }
+
+    /// 既存ファイルの再生時間 (秒)
+    func duration(of fileName: String) -> TimeInterval {
+        let url = Self.url(for: fileName)
+        guard FileManager.default.fileExists(atPath: url.path) else { return 0 }
+        if let p = try? AVAudioPlayer(contentsOf: url) {
+            return p.duration
+        }
+        return 0
     }
 
     // MARK: - File ops

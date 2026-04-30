@@ -1,88 +1,143 @@
 //
 //  RecordingControl.swift
 //  Add/Edit 共通の「自分の声を録音/再生/削除」コンポーネント
+//  ユーザー要望: 録音後に再生マーク・削除マーク・録音時間を明確に表示
 //
 
 import SwiftUI
 
 struct RecordingControl: View {
-    /// 既存の録音ファイル名 (なければ nil)。録音/削除に応じて binding 経由で更新する。
     @Binding var fileName: String?
-    /// 関連 Affirmation の id (新ファイル名生成用)
     let affirmationId: UUID
 
     @StateObject private var rec = RecordingService.shared
     @State private var error: String?
+    @State private var savedDuration: TimeInterval = 0
+
+    private var hasRecording: Bool {
+        rec.hasRecording(fileName: fileName)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            // ヘッダー: タイトル + 状態バッジ
             HStack {
                 Image(systemName: "mic.fill").foregroundStyle(Color.brandPrimary)
                 Text("自分の声で録音 (任意)")
                     .appFont(.bodyEmphasis)
                 Spacer()
-                if rec.hasRecording(fileName: fileName) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(Color.semanticSuccess)
-                        .accessibilityLabel(Text("録音済み"))
+                if hasRecording {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(Color.semanticSuccess)
+                        Text("\(formatDuration(savedDuration))")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.semanticSuccess)
+                    }
                 }
             }
 
-            HStack(spacing: AppSpacing.sm) {
-                // 録音 ↔ 停止
-                Button {
-                    if rec.isRecording {
-                        rec.stopRecording()
-                    } else {
-                        Task { await startRecording() }
+            // 録音中: 経過時間 + 音量メータ
+            if rec.isRecording {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Circle()
+                            .fill(Color.semanticError)
+                            .frame(width: 10, height: 10)
+                            .opacity(0.6 + Double(rec.currentLevel) * 0.4)
+                        Text("録音中… \(formatDuration(rec.recordingElapsed))")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.semanticError)
                     }
-                } label: {
-                    Label(rec.isRecording ? "停止" : (rec.hasRecording(fileName: fileName) ? "録音し直す" : "録音"),
-                          systemImage: rec.isRecording ? "stop.circle.fill" : "record.circle")
-                        .appFont(.body)
-                        .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
-                        .background(rec.isRecording ? Color.semanticError.opacity(0.15) : Color.bgSecondary)
-                        .foregroundStyle(rec.isRecording ? Color.semanticError : Color.brandPrimary)
-                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                    ProgressView(value: Double(rec.currentLevel))
+                        .tint(Color.semanticError)
                 }
+            }
 
-                // 再生 (ファイルあり時のみ)
-                if let fn = fileName, rec.hasRecording(fileName: fn) {
+            // 再生中: 進捗バー
+            if rec.isPlaying {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .foregroundStyle(Color.brandPrimary)
+                        Text("再生中…")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.brandPrimary)
+                    }
+                    ProgressView(value: rec.playbackProgress)
+                        .tint(Color.brandPrimary)
+                }
+            }
+
+            // ボタン群
+            HStack(spacing: AppSpacing.sm) {
+                if !hasRecording && !rec.isRecording {
+                    // 初回録音
                     Button {
-                        play(fileName: fn)
+                        Task { await startRecording() }
+                    } label: {
+                        Label("録音する", systemImage: "record.circle.fill")
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.bgPrimary)
+                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                            .background(Color.brandPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                    }
+                } else if rec.isRecording {
+                    // 録音停止
+                    Button {
+                        rec.stopRecording()
+                        if let fn = fileName {
+                            savedDuration = rec.duration(of: fn)
+                        }
+                    } label: {
+                        Label("録音を保存", systemImage: "stop.circle.fill")
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.bgPrimary)
+                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                            .background(Color.semanticError)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                    }
+                } else {
+                    // 再生 / 録音し直す / 削除
+                    Button {
+                        play()
                     } label: {
                         Label(rec.isPlaying ? "停止" : "再生",
                               systemImage: rec.isPlaying ? "stop.fill" : "play.fill")
-                            .appFont(.body)
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.brandPrimary)
                             .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
                             .background(Color.bgSecondary)
-                            .foregroundStyle(Color.textPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
-                }
-
-                // 削除
-                if let fn = fileName, rec.hasRecording(fileName: fn) {
-                    Button(role: .destructive) {
-                        rec.deleteRecording(fileName: fn)
-                        fileName = nil
+                    Button {
+                        Task { await startRecording() }
                     } label: {
-                        Image(systemName: "trash")
+                        Image(systemName: "arrow.clockwise.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(Color.brandSecondary)
+                            .frame(width: AppTouchTarget.buttonHeight, height: AppTouchTarget.buttonHeight)
+                            .background(Color.bgSecondary)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                    }
+                    .accessibilityLabel(Text("録音し直す"))
+                    Button(role: .destructive) {
+                        if let fn = fileName {
+                            rec.deleteRecording(fileName: fn)
+                            fileName = nil
+                            savedDuration = 0
+                        }
+                    } label: {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Color.semanticError)
                             .frame(width: AppTouchTarget.buttonHeight, height: AppTouchTarget.buttonHeight)
                             .background(Color.bgSecondary)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
                     .accessibilityLabel(Text("録音を削除"))
                 }
-            }
-
-            // 録音中の音量メータ
-            if rec.isRecording {
-                ProgressView(value: Double(rec.currentLevel))
-                    .tint(Color.brandAccent)
-                Text("録音中… 言葉を声に出してみてください")
-                    .appFont(.caption)
-                    .foregroundStyle(Color.textSecondary)
             }
 
             if let error {
@@ -94,6 +149,11 @@ struct RecordingControl: View {
         .padding(AppSpacing.sm)
         .background(Color.bgPrimary)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+        .onAppear {
+            if let fn = fileName, rec.hasRecording(fileName: fn) {
+                savedDuration = rec.duration(of: fn)
+            }
+        }
     }
 
     private func startRecording() async {
@@ -107,13 +167,19 @@ struct RecordingControl: View {
         }
     }
 
-    private func play(fileName fn: String) {
+    private func play() {
         if rec.isPlaying { rec.stopPlaying(); return }
+        guard let fn = fileName else { return }
         do {
             try rec.play(fileName: fn) { _ in }
             error = nil
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    private func formatDuration(_ secs: TimeInterval) -> String {
+        let total = Int(secs.rounded())
+        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }

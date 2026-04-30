@@ -214,17 +214,18 @@ struct HomeView: View {
                 Button {
                     showReadAloud = true
                 } label: {
-                    HStack {
-                        Image(systemName: "play.fill")
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: "play.circle.fill")
+                            .font(.system(size: 26))
                         Text("home.set.read")
+                            .appFont(.h3)
                     }
-                    .appFont(.bodyEmphasis)
                     .foregroundStyle(Color.bgPrimary)
-                    .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                    .frame(maxWidth: .infinity, minHeight: 64)
                     .background(Color.brandPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
                 }
-                .padding(.top, AppSpacing.xs)
+                .padding(.top, AppSpacing.sm)
             }
         }
     }
@@ -264,17 +265,18 @@ struct HomeView: View {
                 Button {
                     showReadAloud = true
                 } label: {
-                    HStack {
-                        Image(systemName: "play.fill")
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: "play.circle.fill")
+                            .font(.system(size: 26))
                         Text("home.set.read")
+                            .appFont(.h3)
                     }
-                    .appFont(.bodyEmphasis)
                     .foregroundStyle(Color.bgPrimary)
-                    .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                    .frame(maxWidth: .infinity, minHeight: 64)
                     .background(Color.brandPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
                 }
-                .padding(.top, AppSpacing.xs)
+                .padding(.top, AppSpacing.sm)
             }
         }
     }
@@ -315,30 +317,59 @@ struct HomeView: View {
 
 // MARK: - Streak Header
 
+/// ユーザー要望: 「ストリーク」が馴染みない、炎アイコンがダサい
+/// → 「習慣レベル」「継続日数」表記 + 月+葉アイコンのフレッシュデザイン
 struct StreakHeader: View {
     let stats: UserStats
+
+    private var habitLevelLabel: String {
+        switch stats.currentStreak {
+        case 0: return "今日からスタート"
+        case 1...2: return "始まりの段階"
+        case 3...6: return "目覚め段階"
+        case 7...13: return "習慣化レベル 1"
+        case 14...20: return "習慣化レベル 2"
+        case 21...29: return "習慣化レベル 3"
+        case 30...59: return "習慣化レベル 4"
+        case 60...99: return "習慣化レベル 5"
+        default: return "習慣マスター"
+        }
+    }
+
+    private var streakIcon: String {
+        switch stats.currentStreak {
+        case 0: return "leaf"
+        case 1...6: return "leaf.fill"
+        case 7...20: return "tree"
+        case 21...59: return "tree.fill"
+        default: return "crown.fill"
+        }
+    }
 
     var body: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack {
-                    Image(systemName: "flame.fill")
-                        .foregroundStyle(Color.brandAccent)
-                    Text("home.streak.\(stats.currentStreak)")
-                        .appFont(.bodyEmphasis)
-                        .foregroundStyle(Color.textPrimary)
-                    if stats.currentStreak >= 7 {
-                        Text("✨")
+                HStack(alignment: .center, spacing: AppSpacing.sm) {
+                    Image(systemName: streakIcon)
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.brandSecondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(habitLevelLabel)
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.textPrimary)
+                        Text("\(stats.currentStreak) 日継続")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
                     }
                     Spacer()
-                }
-                HStack {
-                    Text("home.level.\(stats.level)")
-                        .appFont(.caption)
-                        .foregroundStyle(Color.textSecondary)
-                    Text("XP \(stats.xp)/\(stats.xpForNextLevel())")
-                        .appFont(.caption)
-                        .foregroundStyle(Color.textSecondary)
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Lv \(stats.level)")
+                            .appFont(.bodyEmphasis)
+                            .foregroundStyle(Color.brandPrimary)
+                        Text("\(stats.xp) / \(stats.xpForNextLevel())")
+                            .appFont(.micro)
+                            .foregroundStyle(Color.textSecondary)
+                    }
                 }
                 ProgressView(value: stats.levelProgress)
                     .tint(Color.brandSecondary)

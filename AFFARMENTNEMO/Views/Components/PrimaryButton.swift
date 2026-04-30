@@ -13,9 +13,9 @@ struct PrimaryButton: View {
     var body: some View {
         Button(action: action) {
             Text(titleKey)
-                .appFont(.bodyEmphasis)
+                .appFont(.h3)
                 .lineLimit(1)
-                .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                .frame(maxWidth: .infinity, minHeight: 56)
                 .padding(.horizontal, AppSpacing.md)
                 .background(isEnabled ? Color.brandPrimary : Color.textDisabled)
                 .foregroundStyle(Color.bgPrimary)

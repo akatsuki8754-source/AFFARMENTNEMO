@@ -6,6 +6,24 @@
 import SwiftUI
 import SwiftData
 
+enum LibrarySortMode: String, CaseIterable, Identifiable {
+    case orderIndex = "order"
+    case createdAtDesc = "created_desc"
+    case createdAtAsc = "created_asc"
+    case lastReadDesc = "lastread_desc"
+    case readCountDesc = "readcount_desc"
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .orderIndex: return "並び順 (デフォルト)"
+        case .createdAtDesc: return "作成日 (新しい順)"
+        case .createdAtAsc: return "作成日 (古い順)"
+        case .lastReadDesc: return "最後に読んだ順"
+        case .readCountDesc: return "読み上げ回数順"
+        }
+    }
+}
+
 struct LibraryView: View {
     @Environment(AffirmationStore.self) private var store
     /// SwiftData @Query で SwiftData の変更を即時購読 (バグ修正: 追加が一覧に反映されない)
@@ -16,10 +34,35 @@ struct LibraryView: View {
     @State private var pendingUndo: Affirmation?
     @State private var undoTask: Task<Void, Never>?
     @State private var showAdd = false
+    // ユーザー要望: 検索 + フィルター
+    @State private var searchText: String = ""
+    @State private var filterCategory: AffirmationCategoryKind?
+    @State private var sortMode: LibrarySortMode = .orderIndex
+
+    private var filteredItems: [Affirmation] {
+        var result = items
+        if let cat = filterCategory {
+            result = result.filter { $0.category == cat.rawValue }
+        }
+        if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            let q = searchText.lowercased()
+            result = result.filter { $0.text.lowercased().contains(q) }
+        }
+        switch sortMode {
+        case .orderIndex: result.sort { $0.orderIndex < $1.orderIndex }
+        case .createdAtDesc: result.sort { $0.createdAt > $1.createdAt }
+        case .createdAtAsc: result.sort { $0.createdAt < $1.createdAt }
+        case .lastReadDesc: result.sort { ($0.lastReadAt ?? .distantPast) > ($1.lastReadAt ?? .distantPast) }
+        case .readCountDesc: result.sort { $0.readCount > $1.readCount }
+        }
+        return result
+    }
 
     var body: some View {
         NavigationStack {
-            mainContent(items: items).responsivePage(maxWidth: 720)
+            mainContent(items: filteredItems)
+                .searchable(text: $searchText, prompt: "言葉を検索")
+                .responsivePage(maxWidth: 720)
         }
     }
 
@@ -68,6 +111,48 @@ struct LibraryView: View {
             .background(Color.bgPrimary)
             .navigationTitle(Text("library.title"))
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        // カテゴリ絞り込み
+                        Section("カテゴリで絞り込む") {
+                            Button {
+                                filterCategory = nil
+                            } label: {
+                                HStack {
+                                    Text("すべて")
+                                    if filterCategory == nil { Image(systemName: "checkmark") }
+                                }
+                            }
+                            ForEach(AffirmationCategoryKind.allCases) { cat in
+                                Button {
+                                    filterCategory = (filterCategory == cat) ? nil : cat
+                                } label: {
+                                    HStack {
+                                        Text(LocalizedStringKey(cat.localizedKey))
+                                        if filterCategory == cat { Image(systemName: "checkmark") }
+                                    }
+                                }
+                            }
+                        }
+                        // 並び替え
+                        Section("並び替え") {
+                            ForEach(LibrarySortMode.allCases) { mode in
+                                Button {
+                                    sortMode = mode
+                                } label: {
+                                    HStack {
+                                        Text(mode.label)
+                                        if sortMode == mode { Image(systemName: "checkmark") }
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: filterCategory == nil ? "line.3.horizontal.decrease" : "line.3.horizontal.decrease.circle.fill")
+                            .foregroundStyle(filterCategory == nil ? Color.textPrimary : Color.brandPrimary)
+                    }
+                    .accessibilityLabel(Text("フィルター"))
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAdd = true } label: {
                         Image(systemName: "plus")
@@ -183,15 +268,20 @@ private struct AffirmationRow: View {
     }
 
     private func categoryBadge(_ kind: AffirmationCategoryKind) -> some View {
-        HStack(spacing: 2) {
-            Text(LocalizedStringKey(kind.localizedKey))
-        }
-        .appFont(.micro)
-        .foregroundStyle(Color.brandPrimary)
-        .padding(.horizontal, AppSpacing.xs + 2)
-        .padding(.vertical, 2)
-        .background(Color.brandAccent.opacity(0.2))
-        .clipShape(Capsule())
+        // custom かつ カスタム名がある場合はそれを表示
+        let label: String = {
+            if kind == .custom, let name = affirmation.customCategoryName, !name.isEmpty {
+                return name
+            }
+            return NSLocalizedString(kind.localizedKey, comment: "")
+        }()
+        return Text(label)
+            .appFont(.micro)
+            .foregroundStyle(Color.brandPrimary)
+            .padding(.horizontal, AppSpacing.xs + 2)
+            .padding(.vertical, 2)
+            .background(Color.brandAccent.opacity(0.2))
+            .clipShape(Capsule())
     }
 
     private func badge(systemImage: String, textKey: LocalizedStringKey) -> some View {
@@ -217,6 +307,7 @@ struct EditAffirmationView: View {
 
     @State private var text: String
     @State private var category: AffirmationCategoryKind
+    @State private var customCategoryName: String
     @State private var morningEnabled: Bool
     @State private var eveningEnabled: Bool
     @State private var includeInRoutine: Bool
@@ -226,6 +317,7 @@ struct EditAffirmationView: View {
         self.affirmation = affirmation
         _text = State(initialValue: affirmation.text)
         _category = State(initialValue: AffirmationCategoryKind(rawValue: affirmation.category) ?? .custom)
+        _customCategoryName = State(initialValue: affirmation.customCategoryName ?? "")
         _morningEnabled = State(initialValue: affirmation.morningEnabled)
         _eveningEnabled = State(initialValue: affirmation.eveningEnabled)
         _includeInRoutine = State(initialValue: affirmation.includeInRoutine)
@@ -246,6 +338,10 @@ struct EditAffirmationView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    if category == .custom {
+                        TextField("カテゴリ名 (例: 健康習慣)", text: $customCategoryName)
+                            .textInputAutocapitalization(.never)
+                    }
                 }
                 Section(header: Text("add.schedule")) {
                     Toggle(isOn: $morningEnabled) { Text("notif.slot.morning") }
@@ -265,6 +361,13 @@ struct EditAffirmationView: View {
                     Button {
                         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !trimmed.isEmpty else { return }
+                        // カスタム名は category=custom の時のみ有効化
+                        if category == .custom {
+                            affirmation.customCategoryName = customCategoryName.trimmingCharacters(in: .whitespaces).isEmpty
+                                ? nil : customCategoryName
+                        } else {
+                            affirmation.customCategoryName = nil
+                        }
                         store.update(affirmation,
                                      text: trimmed,
                                      category: category,

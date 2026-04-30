@@ -256,14 +256,19 @@ struct ReadAloudView: View {
 
         if index + 1 < items.count {
             index += 1
-            // AI/録音モードなら次の項目を自動再生
+            // ユーザー要望: AI/録音 自動切替時に1秒間を空ける (連続で繋がって聞こえる問題対策)
             if playbackMode == .ai {
-                speakTTS()
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(1.0))
+                    if playbackMode == .ai { speakTTS() }
+                }
             } else if playbackMode == .recorded {
-                playRecording()
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(1.0))
+                    if playbackMode == .recorded { playRecording() }
+                }
             }
         } else {
-            // 完了処理
             let r = store.recordRead(slot: slot)
             withAnimation { result = r; completed = true }
         }
@@ -308,14 +313,28 @@ struct ReadAloudView: View {
             print("[TTS] AudioSession failed: \(error)")
         }
 
-        let utterance = AVSpeechUtterance(string: items[index].text)
-        // 日本語UI想定 (Localeがja-JPでなくてもja-JPの音声を選ぶ)
+        // ユーザー要望: AI音声のタイミング自然化
+        // 「、」「。」「,」「.」「!」「?」で一拍空ける + 速度を人の話す速度(150 wpm 相当)に調整
+        let raw = items[index].text
+        let withPauses = raw
+            .replacingOccurrences(of: "、", with: "、 ")
+            .replacingOccurrences(of: "。", with: "。 ")
+            .replacingOccurrences(of: "！", with: "！ ")
+            .replacingOccurrences(of: "？", with: "？ ")
+            .replacingOccurrences(of: ", ", with: ",  ")
+            .replacingOccurrences(of: ". ", with: ".  ")
+
+        let utterance = AVSpeechUtterance(string: withPauses)
         let preferred = Locale.preferredLanguages.first ?? "ja-JP"
         utterance.voice = AVSpeechSynthesisVoice(language: preferred)
                           ?? AVSpeechSynthesisVoice(language: "ja-JP")
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
+        // AVSpeechUtteranceDefaultSpeechRate ≈ 0.5。人の話す速度 ≈ 0.45 (やや遅め)
+        utterance.rate = 0.46
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
+        // 文の前後にも 0.4秒の余韻
+        utterance.preUtteranceDelay = 0.3
+        utterance.postUtteranceDelay = 0.4
 
         // delegate を装着 + AIモードで完了時に自動進行
         synthesizer.delegate = TTSLogger.shared

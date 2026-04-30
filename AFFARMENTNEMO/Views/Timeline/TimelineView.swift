@@ -26,11 +26,17 @@ struct TimelineView: View {
     @State private var listener: ListenerRegistration?
     #endif
 
-    /// ローカルでブロック / 隠したユーザーの投稿を除外
+    /// 擬似サンプル投稿 (リアル投稿数に応じて自動生成、運用無料)
+    private var sampleFiller: [TimelinePost] {
+        SakuraTemplateProvider.samples(for: room, realPostCount: posts.count)
+    }
+
+    /// 表示順: リアル投稿 + サンプル を createdAt 降順で混合
     private var visiblePosts: [TimelinePost] {
-        posts.filter { p in
-            !blocks.isBlocked(p.authorUid) && !locallyHiddenPostIds.contains(p.id)
-        }
+        let combined = posts + sampleFiller
+        return combined
+            .filter { !blocks.isBlocked($0.authorUid) && !locallyHiddenPostIds.contains($0.id) }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
     var body: some View {
@@ -235,31 +241,34 @@ struct TimelineView: View {
                 }
                 Spacer()
                 Menu {
-                    Button("timeline.copy") {
-                        UIPasteboard.general.string = post.text
-                    }
                     if isMyPost {
+                        // 自分の投稿のみコピー可 (\u4ed6\u4eba\u306e\u30b3\u30d4\u30fc\u306f\u8155\u632f\u308a\u8868\u793a\u3092\u606f\u8a18 - \u30e6\u30fc\u30b6\u30fc\u8981\u671b)
+                        Button("timeline.copy") {
+                            UIPasteboard.general.string = post.text
+                        }
                         Button("common.delete", role: .destructive) {
                             Task {
                                 try? await TimelineService.shared.deleteOwnPost(
                                     postId: post.id, room: post.languageRoom)
-                                locallyHiddenPostIds.insert(post.id) // 即時非表示
+                                locallyHiddenPostIds.insert(post.id)
                             }
                         }
                     } else {
                         Button("timeline.hide") {
-                            // 自分のフィードからのみ即時除外 (Apple Guideline 1.2)
                             locallyHiddenPostIds.insert(post.id)
                         }
-                        Button("timeline.report", role: .destructive) {
-                            Task {
-                                try? await TimelineService.shared.report(
-                                    postId: post.id, room: post.languageRoom, reason: "user-reported")
-                                locallyHiddenPostIds.insert(post.id)
+                        // \u30b5\u30f3\u30d7\u30eb\u6295\u7a3f\u306f\u5831\u544a\u30fb\u30d6\u30ed\u30c3\u30af\u4e0d\u8981
+                        if !SakuraTemplateProvider.isSample(post) {
+                            Button("timeline.report", role: .destructive) {
+                                Task {
+                                    try? await TimelineService.shared.report(
+                                        postId: post.id, room: post.languageRoom, reason: "user-reported")
+                                    locallyHiddenPostIds.insert(post.id)
+                                }
                             }
-                        }
-                        Button("timeline.block", role: .destructive) {
-                            blocks.block(post.authorUid)
+                            Button("timeline.block", role: .destructive) {
+                                blocks.block(post.authorUid)
+                            }
                         }
                     }
                 } label: {
@@ -278,33 +287,35 @@ struct TimelineView: View {
         .padding(AppSpacing.md)
         .background(Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
-        // ユーザー要望: 投稿長押しでブロック等のメニュー直接表示
         .contextMenu {
             if !isMyPost {
-                Button(role: .destructive) {
-                    blocks.block(post.authorUid)
-                } label: {
-                    Label("このユーザーをブロック", systemImage: "person.crop.circle.badge.xmark")
-                }
                 Button {
                     locallyHiddenPostIds.insert(post.id)
                 } label: {
                     Label("このフィードから隠す", systemImage: "eye.slash")
                 }
-                Button(role: .destructive) {
-                    Task {
-                        try? await TimelineService.shared.report(
-                            postId: post.id, room: post.languageRoom, reason: "long-press-report")
-                        locallyHiddenPostIds.insert(post.id)
+                if !SakuraTemplateProvider.isSample(post) {
+                    Button(role: .destructive) {
+                        blocks.block(post.authorUid)
+                    } label: {
+                        Label("このユーザーをブロック", systemImage: "person.crop.circle.badge.xmark")
                     }
-                } label: {
-                    Label("報告する", systemImage: "exclamationmark.triangle")
+                    Button(role: .destructive) {
+                        Task {
+                            try? await TimelineService.shared.report(
+                                postId: post.id, room: post.languageRoom, reason: "long-press-report")
+                            locallyHiddenPostIds.insert(post.id)
+                        }
+                    } label: {
+                        Label("報告する", systemImage: "exclamationmark.triangle")
+                    }
                 }
-            }
-            Button {
-                UIPasteboard.general.string = post.text
-            } label: {
-                Label("コピー", systemImage: "doc.on.doc")
+            } else {
+                Button {
+                    UIPasteboard.general.string = post.text
+                } label: {
+                    Label("コピー", systemImage: "doc.on.doc")
+                }
             }
         }
     }

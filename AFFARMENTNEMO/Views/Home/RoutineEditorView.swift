@@ -1,7 +1,12 @@
 //
 //  RoutineEditorView.swift
-//  ホームの読み上げセット (ルーティン) を編集: 順序入れ替え + 含める/除外
-//  ユーザー要望: 「自分の言葉から順番や追加削除を編集できるように」
+//  ホーム読み上げセット (ルーティン) 編集
+//  ユーザー要望:
+//   - 「含めない」表現が分かりづらい → 「セットに入れる」「セットから外す」を明確化
+//   - 長押しで削除メニュー
+//   - 文字大きく
+//   - 検索機能
+//   - ボタンを大きく
 //
 
 import SwiftUI
@@ -16,37 +21,101 @@ struct RoutineEditorView: View {
     private var allActive: [Affirmation]
 
     @State private var working: [Affirmation] = []
+    @State private var searchText: String = ""
+    @State private var pendingDelete: Affirmation?
+    @State private var showAdd = false
+
+    private var inSetItems: [Affirmation] {
+        let q = searchText.lowercased()
+        return working.filter {
+            q.isEmpty || $0.text.lowercased().contains(q)
+        }
+    }
+    private var notInSetItems: [Affirmation] {
+        let q = searchText.lowercased()
+        return allActive.filter { !$0.includeInRoutine }
+            .filter { q.isEmpty || $0.text.lowercased().contains(q) }
+    }
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Text("タップで含める/外す。長押しでドラッグして順序を入れ替え。")
+                    Text("読み上げの順番に並べたり、含めるかどうかを切り替えられます。")
                         .appFont(.caption)
                         .foregroundStyle(Color.textSecondary)
+                } header: {
+                    Text("使い方")
                 }
-                Section(header: Text("読み上げセット (順番にこの順で読み上げ)")) {
-                    if working.isEmpty {
-                        Text("まだ含まれている言葉がありません。下から追加してください。")
-                            .appFont(.caption)
+
+                Section {
+                    if inSetItems.isEmpty {
+                        Text("まだ含めている言葉がありません。下のリストから選んで「セットに入れる」をタップしてください。")
+                            .appFont(.body)
                             .foregroundStyle(Color.textSecondary)
+                            .padding(.vertical, AppSpacing.sm)
                     } else {
-                        ForEach(working) { aff in
+                        ForEach(inSetItems) { aff in
                             row(aff: aff, included: true)
                         }
                         .onMove(perform: move)
                     }
+                } header: {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.brandPrimary)
+                        Text("読み上げセットに入っている言葉")
+                            .appFont(.bodyEmphasis)
+                        Spacer()
+                        Text("\(inSetItems.count) 件")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
+                    }
                 }
-                Section(header: Text("含めない")) {
-                    ForEach(allActive.filter { !$0.includeInRoutine }) { aff in
-                        row(aff: aff, included: false)
+
+                Section {
+                    if notInSetItems.isEmpty {
+                        Text("すべての言葉がセットに入っています。")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
+                            .padding(.vertical, AppSpacing.sm)
+                    } else {
+                        ForEach(notInSetItems) { aff in
+                            row(aff: aff, included: false)
+                        }
+                    }
+                } header: {
+                    HStack {
+                        Image(systemName: "circle.dashed")
+                            .foregroundStyle(Color.textSecondary)
+                        Text("セットに入っていない言葉")
+                            .appFont(.bodyEmphasis)
+                        Spacer()
+                        Text("\(notInSetItems.count) 件")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                }
+
+                Section {
+                    Button {
+                        showAdd = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.brandPrimary)
+                            Text("新しい言葉を追加")
+                                .appFont(.bodyEmphasis)
+                                .foregroundStyle(Color.brandPrimary)
+                        }
                     }
                 }
             }
             .listStyle(.insetGrouped)
+            .searchable(text: $searchText, prompt: "言葉を検索")
             .navigationTitle(Text("読み上げセットを編集"))
             .navigationBarTitleDisplayMode(.inline)
-            .environment(\.editMode, .constant(.active))  // 常時 onMove 可能
+            .environment(\.editMode, .constant(.active))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完了") {
@@ -55,6 +124,19 @@ struct RoutineEditorView: View {
                     }
                     .fontWeight(.semibold)
                 }
+            }
+            .sheet(isPresented: $showAdd) {
+                AddAffirmationView()
+            }
+            .alert("この言葉を削除しますか?", isPresented: .constant(pendingDelete != nil), presenting: pendingDelete) { aff in
+                Button("キャンセル", role: .cancel) { pendingDelete = nil }
+                Button("削除する", role: .destructive) {
+                    store.softDelete(aff)
+                    pendingDelete = nil
+                    rebuildWorking()
+                }
+            } message: { aff in
+                Text("「\(aff.text.prefix(40))」")
             }
             .onAppear { rebuildWorking() }
             .onChange(of: allActive.map(\.id)) { _, _ in rebuildWorking() }
@@ -68,7 +150,7 @@ struct RoutineEditorView: View {
                 toggle(aff)
             } label: {
                 Image(systemName: included ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
+                    .font(.system(size: 26))
                     .foregroundStyle(included ? Color.brandPrimary : Color.textSecondary)
             }
             .buttonStyle(.plain)
@@ -78,11 +160,51 @@ struct RoutineEditorView: View {
                     .appFont(.body)
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(2)
-                if let fn = aff.recordingFileName, RecordingService.shared.hasRecording(fileName: fn) {
-                    Label("録音あり", systemImage: "waveform")
-                        .appFont(.micro)
-                        .foregroundStyle(Color.brandSecondary)
+                HStack(spacing: AppSpacing.xs) {
+                    if let cat = AffirmationCategoryKind(rawValue: aff.category) {
+                        Text(LocalizedStringKey(cat.localizedKey))
+                            .appFont(.micro)
+                            .foregroundStyle(Color.brandSecondary)
+                    }
+                    if let fn = aff.recordingFileName, RecordingService.shared.hasRecording(fileName: fn) {
+                        Label("録音あり", systemImage: "waveform")
+                            .appFont(.micro)
+                            .foregroundStyle(Color.brandSecondary)
+                    }
                 }
+            }
+            Spacer()
+            Button {
+                toggle(aff)
+            } label: {
+                Text(included ? "外す" : "入れる")
+                    .appFont(.caption)
+                    .foregroundStyle(included ? Color.semanticError : Color.brandPrimary)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, 6)
+                    .background(included ? Color.semanticError.opacity(0.1) : Color.brandPrimary.opacity(0.1))
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .contextMenu {
+            Button(role: .destructive) {
+                pendingDelete = aff
+            } label: {
+                Label("この言葉を削除", systemImage: "trash")
+            }
+            Button {
+                toggle(aff)
+            } label: {
+                Label(included ? "セットから外す" : "セットに入れる",
+                      systemImage: included ? "minus.circle" : "plus.circle")
+            }
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                pendingDelete = aff
+            } label: {
+                Label("削除", systemImage: "trash")
             }
         }
     }
@@ -104,7 +226,6 @@ struct RoutineEditorView: View {
     }
 
     private func save() {
-        // 順序のみ反映 (ON/OFF はトグルで保存済み)
         store.updateRoutineOrder(working)
     }
 }
