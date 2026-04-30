@@ -20,23 +20,40 @@ final class AdRewardGate {
 
     private let dailyFreeKey = "kotodama.aiGen.dailyFreeUsed"
     private let dailyDateKey = "kotodama.aiGen.dailyDate"
+    private let onboardingFreeKey = "kotodama.aiGen.onboardingFreeUsed"
 
-    /// 1日1回まで無料 → それ以降はリワード必須
-    func presentBeforeAIGeneration(completion: @escaping (Bool) -> Void) {
+    /// オンボ初回 AI 利用は完全無料 (広告ゲートなし)
+    /// それ以外は 1日1回まで無料、以降リワード必須
+    /// - Parameters:
+    ///   - isOnboardingFirstUse: true なら広告ゲートなし (Onboarding 1ページ目の AI 利用)
+    func presentBeforeAIGeneration(isOnboardingFirstUse: Bool = false,
+                                    completion: @escaping (Bool) -> Void) {
+        if isOnboardingFirstUse {
+            if UserDefaults.standard.bool(forKey: onboardingFreeKey) == false {
+                UserDefaults.standard.set(true, forKey: onboardingFreeKey)
+                NSLog("[AdRewardGate] onboarding first use, one-time bypass")
+                completion(true)
+                return
+            }
+        }
         rotateIfNewDay()
         let used = UserDefaults.standard.integer(forKey: dailyFreeKey)
         if used < 1 {
             // 無料枠
             UserDefaults.standard.set(used + 1, forKey: dailyFreeKey)
+            NSLog("[AdRewardGate] daily free use (count: %d)", used + 1)
             completion(true)
             return
         }
         // リワード広告必須
         guard let vc = topViewController() else {
-            completion(true)  // VC 取得失敗は無料パス
+            NSLog("[AdRewardGate] VC not found, deny to avoid ad-gate bypass")
+            completion(false)
             return
         }
+        NSLog("[AdRewardGate] presenting rewarded ad")
         AdMobService.shared.presentRewarded(from: vc) { earned in
+            NSLog("[AdRewardGate] rewarded result: earned=%@", String(earned))
             completion(earned)
         }
     }

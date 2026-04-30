@@ -18,6 +18,14 @@ struct RecordingControl: View {
         rec.hasRecording(fileName: fileName)
     }
 
+    private var isRecordingThisFile: Bool {
+        rec.isRecording && rec.activeRecordingFileName == fileName
+    }
+
+    private var isPlayingThisFile: Bool {
+        rec.isPlaying && rec.activePlayingFileName == fileName
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             // ヘッダー: タイトル + 状態バッジ
@@ -38,7 +46,7 @@ struct RecordingControl: View {
             }
 
             // 録音中: 経過時間 + 音量メータ
-            if rec.isRecording {
+            if isRecordingThisFile {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Circle()
@@ -55,7 +63,7 @@ struct RecordingControl: View {
             }
 
             // 再生中: 進捗バー
-            if rec.isPlaying {
+            if isPlayingThisFile {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Image(systemName: "speaker.wave.2.fill")
@@ -71,7 +79,7 @@ struct RecordingControl: View {
 
             // ボタン群
             HStack(spacing: AppSpacing.sm) {
-                if !hasRecording && !rec.isRecording {
+                if !hasRecording && !isRecordingThisFile {
                     // 初回録音
                     Button {
                         Task { await startRecording() }
@@ -84,7 +92,7 @@ struct RecordingControl: View {
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
                     .buttonStyle(.plain)
-                } else if rec.isRecording {
+                } else if isRecordingThisFile {
                     // 録音停止
                     Button {
                         rec.stopRecording()
@@ -105,8 +113,8 @@ struct RecordingControl: View {
                     Button {
                         play()
                     } label: {
-                        Label(rec.isPlaying ? "停止" : "再生",
-                              systemImage: rec.isPlaying ? "stop.fill" : "play.fill")
+                        Label(isPlayingThisFile ? "停止" : "再生",
+                              systemImage: isPlayingThisFile ? "stop.fill" : "play.fill")
                             .appFont(.bodyEmphasis)
                             .foregroundStyle(Color.brandPrimary)
                             .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
@@ -175,7 +183,7 @@ struct RecordingControl: View {
     }
 
     private func play() {
-        if rec.isPlaying { rec.stopPlaying(); return }
+        if isPlayingThisFile { rec.stopPlaying(); return }
         guard let fn = fileName else { return }
         do {
             try rec.play(fileName: fn) { _ in }

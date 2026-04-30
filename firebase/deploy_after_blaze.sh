@@ -51,6 +51,7 @@ AI_MAX_USER_DAILY=5
 AI_MAX_GLOBAL_DAILY=800
 AI_MAX_GLOBAL_PER_MINUTE=25
 AI_GEMINI_MODEL=gemini-2.5-flash-lite
+ALLOW_MISSING_APP_CHECK=false
 POST_MAX_USER_DAILY=30
 POST_MAX_GLOBAL_DAILY=1000
 REACTION_MAX_USER_DAILY=200
@@ -74,8 +75,9 @@ unset TOKEN
 echo "   ✅ aiRuntime.clientEnabled = true"
 
 echo ""
-echo "🎉 完了。アプリ側で AI 短冊ウィザードを起動すると Gemini Flash-Lite が呼ばれます。"
-echo "   ・1日の上限: ユーザー5回 / グローバル800回 (Gemini無料枠1500RPDの半分)"
+echo "🎉 完了。アプリ側で AI ウィザードを起動すると Gemini Flash-Lite が呼ばれます。"
+echo "   ・無料プラン運用は禁止: Blaze + Secret Manager + 予算停止フラグが揃った時だけ有効化"
+echo "   ・1日の上限: ユーザー5回 / グローバル800回"
 echo "   ・分間レート: API側で30RPM (Cloud Functions maxInstances=3 × concurrency=10)"
 echo "   ・予算: \$5/月 (アラート 50%/90%/100%/150%)"
 echo "   ・緊急停止: system/aiBudgetAlert.monthlyEmergencyStop = true で即停止"

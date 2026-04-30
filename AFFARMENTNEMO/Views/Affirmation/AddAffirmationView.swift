@@ -41,7 +41,7 @@ struct AddAffirmationView: View {
         if !draft.isEmpty {
             _text = State(initialValue: draft)
             _selectedTemplate = State(initialValue: nil)
-            _category = State(initialValue: .custom)
+            _category = State(initialValue: .wish)
             _initialText = State(initialValue: draft)
         } else if let tpl = initialTemplate {
             _text = State(initialValue: tpl.placeholderText)
@@ -51,7 +51,7 @@ struct AddAffirmationView: View {
         } else {
             _text = State(initialValue: "")
             _selectedTemplate = State(initialValue: nil)
-            _category = State(initialValue: .custom)
+            _category = State(initialValue: .wish)
             _initialText = State(initialValue: "")
         }
     }
@@ -83,19 +83,7 @@ struct AddAffirmationView: View {
                         hintCard(hint)
                     }
 
-                    DisclosureGroup(isExpanded: $templateExpanded) {
-                        templateList
-                    } label: {
-                        HStack {
-                            Image(systemName: "doc.text")
-                            Text("add.template.toggle")
-                                .appFont(.bodyEmphasis)
-                            Spacer()
-                        }
-                        .foregroundStyle(Color.textPrimary)
-                        .padding(.vertical, AppSpacing.xs)
-                    }
-
+                    // テンプレート機能は AI ウィザードに統合のため hide
                     categorySection
 
                     routineSection
@@ -177,7 +165,9 @@ struct AddAffirmationView: View {
     }
 
     private var canSave: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasCustomName = !customCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return hasText && (category != .custom || hasCustomName)
     }
 
     private var textInputArea: some View {
@@ -263,10 +253,11 @@ struct AddAffirmationView: View {
             .tint(Color.brandSecondary)
 
             if category == .custom {
-                TextField("カテゴリ名を入力", text: $customCategoryName)
+                TextField("カテゴリ名を入力して追加", text: $customCategoryName)
                     .textInputAutocapitalization(.never)
                     .appFont(.body)
                     .padding(AppSpacing.sm)
+                    .frame(minHeight: AppTouchTarget.buttonHeight)
                     .background(Color.bgSecondary)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
             }

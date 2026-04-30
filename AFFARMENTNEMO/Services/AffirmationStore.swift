@@ -239,19 +239,27 @@ final class AffirmationStore {
         (.values, "健康", "私は自分の体を愛し、尊敬している", false),
     ]
 
-    /// デフォルト affirmation を一括 seed (オンボーディング完了直後に呼ぶ)
+    /// デフォルト affirmation を seed (オンボーディング完了直後に呼ぶ)
     /// 既に seed 済 (UserDefaults: kotodama.defaultsSeeded.v1=true) ならスキップ
+    /// ユーザーがオンボで作成した affirmation は orderIndex=0 で残し、
+    /// デフォルト 20 件を orderIndex=1..20 で後ろに追加する。
     func seedDefaultAffirmationsIfNeeded() {
         let key = "kotodama.defaultsSeeded.v1"
         if UserDefaults.standard.bool(forKey: key) { return }
 
-        // 既に何か登録されている場合はスキップ (ユーザー追加と衝突しないため)
-        if !allAffirmations(activeOnly: false).isEmpty {
-            UserDefaults.standard.set(true, forKey: key)
-            return
+        // 既存 affirmation (オンボで作成) を 0 番に固定するため、orderIndex を再採番
+        let existing = allAffirmations(activeOnly: false)
+        var nextOrder = 0
+        for aff in existing.sorted(by: { $0.orderIndex < $1.orderIndex }) {
+            aff.orderIndex = nextOrder
+            nextOrder += 1
         }
 
-        for (i, item) in Self.defaultSeedAffirmations.enumerated() {
+        // デフォルト 20 件を順次追加 (重複検知: 同じ text があればスキップ)
+        let existingTexts = Set(existing.map { $0.text })
+        var added = 0
+        for item in Self.defaultSeedAffirmations {
+            if existingTexts.contains(item.text) { continue }
             let aff = Affirmation(
                 text: item.text,
                 internalMode: "affirmation",
@@ -262,14 +270,16 @@ final class AffirmationStore {
                 thenAction: nil,
                 morningEnabled: item.includeInRoutine,
                 eveningEnabled: false,
-                orderIndex: i
+                orderIndex: nextOrder
             )
             aff.includeInRoutine = item.includeInRoutine
             context.insert(aff)
+            nextOrder += 1
+            added += 1
         }
         try? context.save()
         UserDefaults.standard.set(true, forKey: key)
-        NSLog("[AffirmationStore] seeded %d default affirmations", Self.defaultSeedAffirmations.count)
+        NSLog("[AffirmationStore] seeded %d default affirmations (existing user: %d kept at top)", added, existing.count)
     }
 }
 

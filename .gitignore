@@ -30,3 +30,17 @@ fastlane/test_output
 
 # Firebase secrets (committed to local backup only, never push)
 AFFARMENTNEMO/GoogleService-Info.plist
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+android/app/release/
+**/*.jks
+**/*.keystore
+
+# Firebase tools
+firebase/.firebase/
+firebase/public/

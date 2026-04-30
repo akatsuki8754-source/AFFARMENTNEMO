@@ -16,9 +16,8 @@
  *   firebase functions:config:set ai.enabled=true ではなく、v2 param AI_GENERATION_ENABLED=true を使う
  *
  * 注意:
- *   このファイルは Phase 3 デプロイ用のスタブ。
- *   Blaze プラン未契約のため、現状はクライアント側 (KnowledgeMap.swift) で
- *   静的サンプルを返している。
+ *   Gemini は Blaze + Secret Manager + App Check + quota + budget stop が揃った
+ *   本番運用時だけ有効にする。無料プラン前提の稼働は禁止。
  */
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
@@ -40,6 +39,7 @@ const maxPostUserDaily = defineInt('POST_MAX_USER_DAILY', { default: 30 });
 const maxPostGlobalDaily = defineInt('POST_MAX_GLOBAL_DAILY', { default: 1000 });
 const maxReactionUserDaily = defineInt('REACTION_MAX_USER_DAILY', { default: 200 });
 const maxReportUserDaily = defineInt('REPORT_MAX_USER_DAILY', { default: 30 });
+const allowMissingAppCheck = defineString('ALLOW_MISSING_APP_CHECK', { default: 'false' });
 
 const LANGUAGE_OPTIONS = [
   { locale: 'ja', room: 'ja_JP', instruction: '日本語' },
@@ -144,8 +144,6 @@ exports.aiGenerateWish = onCall(
         mode: isFamousQuoteMode ? 'famous_quote' : 'affirmation',
         quotaRemaining: reservation.userRemaining,
         fallback: false,
-        // DEBUG: クライアント側で実際の prompt を確認できるように (本番でも安全)
-        debugPromptPreview: prompt.slice(0, 200),
       };
     } catch (err) {
       console.error('Gemini error:', err);
@@ -240,10 +238,12 @@ async function checkBudgetAndAuth(request) {
 }
 
 function requireAppCheck(request) {
-  // DEBUG: 一時的に App Check を緩和 (iOS Debug Provider トークン未配布対策)
-  // 本番ビルド (TestFlight 経由) で AppAttest が動作するようになったら再度厳格化
   if (!request.app?.appId) {
-    console.warn('[requireAppCheck] App Check missing, allowing (debug)');
+    if (allowMissingAppCheck.value() === 'true') {
+      console.warn('[requireAppCheck] App Check missing, allowed by ALLOW_MISSING_APP_CHECK');
+      return;
+    }
+    throw new HttpsError('failed-precondition', 'App Check required');
   }
 }
 
@@ -464,12 +464,12 @@ ${titleList}
 
 出力言語: ${language}
 
-上記の最終テーマ「${lastTitle}」に最も合う、3つの実在する名言を選んでください。
-- 著作権切れ または広く流通する古典的引用に限る
+上記の最終テーマ「${lastTitle}」に最も合う、3つの名言を選んでください。
+- 古典・著作権切れ・作者没後十分に時間が経った引用に限る
 - 出典 (発言者名) を必ず付けること
 - 翻訳が複数あるものは最も一般的な日本語訳
-- 偉人(哲学者・科学者・作家・歴史的指導者・スポーツ選手など)を中心に
-- 現存している有名人の最近の発言は避ける
+- 哲学者・古典作家・歴史的人物を中心に
+- 現存人物、近現代広告コピー、商標化されたスローガン、真偽不明のネット名言は避ける
 
 出力形式: JSONのみ。コードブロックや説明文は不要。
 {
@@ -488,24 +488,29 @@ ${titleList}
 
 出力言語: ${language}
 
-【重要な指示】
-- 上記階層を全て踏まえて、最終テーマ「${lastTitle}」に最も適した文を作る
-- 単なる一般論ではなく、上記の文脈 (例: 「達成したい > 資格・試験 > 1ヶ月以内」) に具体的に対応した内容
-- 計画系 (期限・目標) なら「いつまでに」「何を」「どう動くか」を明示
-- 価値観系なら「○○です」「○○である」と断定する形
+【絶対遵守: 自然な日本語ルール】
+- 必ず文法的に正しい完全な日本語で、句点「。」で終わる完成文
+- 「〜です。」「〜します。」「〜信じます。」「〜たい。」など自然な語尾で終わる
+- 禁止: 「ですしたい」「ますしたい」「であるしたい」「人間ですしたい」などの語尾の二重・連結
+- 一文で完結。複文の場合は読点「、」で繋げて1文にまとめる
 
-3つの異なるアプローチで、それぞれ100文字以内の言葉を1つずつ作ってください。
-すべて、その言語で自然な「I want to / I wish to / 〜したい」に相当する願い形で統一。
-1. 自己肯定型 (Self-Affirmation): 価値観を肯定する文
-2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯する」の具体行動
-3. 価値観型 (Mental Contrasting): 障害を予期しつつ前向きに進む文
+【内容の指示】
+- 上記階層を全て踏まえ、最終テーマ「${lastTitle}」に具体的に対応した文
+- 一般論ではなく、文脈 (例: 「達成したい > 資格・試験 > 1ヶ月以内」) に密着
+- 計画系 (期限・目標) なら「いつまでに」「何を」「どう動くか」を含める
+- 価値観系なら「私は○○である。」「○○を大切にする。」と断定形
+
+3つの異なるアプローチで、それぞれ100文字以内 (1〜2文)。
+1. 自己肯定型 (Self-Affirmation): 価値観・存在を肯定 → 例: 「私は計画的に進められる人だ。」
+2. If-Thenプラン型 (Implementation Intentions): 具体的トリガー+行動 → 例: 「もし朝7時に目覚めたら、すぐに30分英語の勉強を始める。」
+3. 価値観・展望型 (Mental Contrasting): 障害を認めつつ前向きに → 例: 「集中力が途切れる日もあるが、5分休憩で立て直し、毎日学び続ける。」
 
 出力形式: JSONのみ。コードブロックや説明文は不要。
 {
   "candidates": [
-    {"type": "self_affirmation", "text": "<100文字以内>"},
-    {"type": "if_then", "text": "<100文字以内>"},
-    {"type": "values", "text": "<100文字以内>"}
+    {"type": "self_affirmation", "text": "<完全な1〜2文・自然な語尾で終わる>"},
+    {"type": "if_then", "text": "<完全な1〜2文・自然な語尾で終わる>"},
+    {"type": "values", "text": "<完全な1〜2文・自然な語尾で終わる>"}
   ]
 }`;
 }
@@ -567,23 +572,23 @@ function fallbackCandidates(path, locale = 'ja') {
   // 名言モード: 偉人の実際の言葉 (著作権切れ・古典)
   if (/quote_business/.test(prompts)) {
     return [
-      '「成功とは、失敗から失敗へと熱意を失わずに進んでいくことだ」 — ウィンストン・チャーチル',
-      '「最大の栄光は決して倒れないことではなく、倒れるたびに起き上がることにある」 — ネルソン・マンデラ',
-      '「Stay hungry, stay foolish. (ハングリーであれ、愚か者であれ)」 — スティーブ・ジョブズ',
+      '「よく為すは、よく語るに勝る。」 — ベンジャミン・フランクリン',
+      '「千里の道も一歩から。」 — 老子',
+      '「自分自身を知れ。」 — ソクラテス',
     ];
   }
   if (/quote_life/.test(prompts)) {
     return [
-      '「なぜ生きるかを知っている者は、どのように生きることにも耐える」 — フリードリヒ・ニーチェ',
-      '「人生において重要なのは、生きることそのものではなく、よく生きることである」 — ソクラテス',
-      '「何事も、過ぎ去ってしまえば一つの懐かしい思い出となる」 — アレクサンドル・プーシキン',
+      '「人生において大切なのは、ただ生きることではなく、よく生きることだ。」 — ソクラテス',
+      '「幸福は、私たち自身にかかっている。」 — アリストテレス',
+      '「今日という日は、残りの人生の最初の日である。」 — 古い格言',
     ];
   }
   if (/quote_sport|famous_quotes/.test(prompts)) {
     return [
-      '「99%の努力と1%のひらめき」 — トーマス・エジソン',
-      '「壁というのは、できる人にしかやってこない」 — イチロー',
-      '「Just do it. (ただやるんだ)」 — Nike (ダン・ワイデン)',
+      '「困難は、人を強くする。」 — セネカ',
+      '「耐え忍ぶ者は、望むものを得る。」 — 古い格言',
+      '「よく為すは、よく語るに勝る。」 — ベンジャミン・フランクリン',
     ];
   }
   // 通常モード
@@ -602,20 +607,36 @@ function padCandidates(arr) {
 }
 
 function normalizeCandidate(raw, locale = 'ja') {
-  const trimmed = raw.trim().replace(/^["'「『]|["'」』]$/g, '').slice(0, 120);
+  let trimmed = raw.trim().replace(/^["'「『]|["'」』]$/g, '').slice(0, 120);
   if (!trimmed) return '';
+
   if (!isJapaneseLocale(locale)) {
     return /[.!?。！？]$/.test(trimmed) ? trimmed : `${trimmed}.`;
   }
-  // 日本語: 既に自然な語尾で終わってれば触らない (句点だけ補完)
-  // Gemini は様々な自然な日本語語尾を返す: ます/です/する/ある/いる/思う/たい/なりたい等
-  // 「〜したい」を強制すると「思いますしたい」のような文法破壊が起きる
-  const naturalEnding = /(したい|でいたい|になりたい|たい|ます|です|する|ある|いる|思う|信じる|なる|できる|得る|歩む|変わる|積む|続ける|生きる|楽しむ|大切に[しさ]|よう)[。.!！]?$/;
-  if (naturalEnding.test(trimmed)) {
-    return /[。.!！]$/.test(trimmed) ? trimmed : `${trimmed}。`;
-  }
-  // 名詞や中途半端な語尾の場合のみ「したい」で補完 (rare)
-  return `${trimmed.replace(/[。.!！]+$/, '')}したい。`;
+
+  // ━━ 「したい」強制連結を完全削除する 後処理 ━━━━━━━━━━━━━━
+  // パターン1: 自然な日本語語尾 + したい → 自然な語尾だけ残す
+  // 例: 「ですしたい」「ますしたい」「であるしたい」「人間ですしたい」「学んでいるしたい」
+  trimmed = trimmed.replace(/(です|ます|である|だ)\s*したい\s*[。.!！]?$/g, '$1。');
+  trimmed = trimmed.replace(/(ある|いる)\s*したい\s*[。.!！]?$/g, '$1。');
+  trimmed = trimmed.replace(/(する|なる|できる|得る|歩む|変わる|積む|続ける|生きる|楽しむ|愛する|尊敬する|信じる|思う|感じる)\s*したい\s*[。.!！]?$/g, '$1。');
+
+  // パターン2: 末尾が「したい」だが、その直前が「し」「いし」「をし」など二重連結
+  trimmed = trimmed.replace(/(し|いし|をし)したい[。.!！]?$/g, '$1たい。');
+
+  // パターン3: 「思いますしたい」のような完全に重複した結合パターン
+  trimmed = trimmed.replace(/思いますしたい/g, '思います');
+  trimmed = trimmed.replace(/信じますしたい/g, '信じます');
+  trimmed = trimmed.replace(/できますしたい/g, 'できます');
+
+  // 句点を必ず1つにまとめる
+  trimmed = trimmed.replace(/[。.!！]+$/, '');
+
+  // 末尾が空白なら削除
+  trimmed = trimmed.trim();
+
+  // 「したい」を勝手に追加しない方針: 句点だけ補完
+  return `${trimmed}。`;
 }
 
 function validatePath(path) {

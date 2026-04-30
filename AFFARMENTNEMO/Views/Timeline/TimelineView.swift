@@ -17,7 +17,7 @@ private enum TimelineReaction: String, CaseIterable {
         switch self {
         case .like: "hand.thumbsup.fill"
         case .heart: "heart.fill"
-        case .peace: "hand.peace.fill"
+        case .peace: "sparkles"      // 「祈り・応援」のキラキラ (peace アイコン未表示問題対策で sparkles に変更)
         }
     }
 
@@ -25,7 +25,7 @@ private enum TimelineReaction: String, CaseIterable {
         switch self {
         case .like: "いいね"
         case .heart: "ハート"
-        case .peace: "ピース"
+        case .peace: "応援"
         }
     }
 }
@@ -43,6 +43,7 @@ struct TimelineView: View {
     @State private var showContact = false
     @StateObject private var blocks = UserBlockStore.shared
     @State private var locallyHiddenPostIds: Set<String> = []
+    @State private var sampleReactions: [String: String] = [:]
     @State private var refreshNonce = UUID()
     @State private var subscribeTask: Task<Void, Never>?
     #if canImport(FirebaseFirestore)
@@ -377,7 +378,7 @@ struct TimelineView: View {
 
     private func selectedReaction(for post: TimelinePost) -> String? {
         if SakuraTemplateProvider.isSample(post) {
-            return UserDefaults.standard.string(forKey: sampleReactionKey(post.id))
+            return sampleReactions[post.id]
         }
         return post.myReaction
     }
@@ -398,11 +399,10 @@ struct TimelineView: View {
 
     private func toggleReaction(_ post: TimelinePost, reaction: TimelineReaction) async {
         if SakuraTemplateProvider.isSample(post) {
-            let key = sampleReactionKey(post.id)
-            if UserDefaults.standard.string(forKey: key) == reaction.rawValue {
-                UserDefaults.standard.removeObject(forKey: key)
+            if sampleReactions[post.id] == reaction.rawValue {
+                sampleReactions.removeValue(forKey: post.id)
             } else {
-                UserDefaults.standard.set(reaction.rawValue, forKey: key)
+                sampleReactions[post.id] = reaction.rawValue
             }
             refreshNonce = UUID()
             return
@@ -413,10 +413,6 @@ struct TimelineView: View {
         } catch {
             print("[Timeline] reaction failed: \(error)")
         }
-    }
-
-    private func sampleReactionKey(_ postId: String) -> String {
-        "kotodama.timeline.sampleReaction.\(postId)"
     }
 
     private var supportedRooms: [LanguageOption] { LanguageCatalog.timelineRooms }
@@ -431,6 +427,7 @@ struct TimelineView: View {
     private func resubscribe() {
         unsubscribe()
         posts = []
+        sampleReactions.removeAll()
         subscribe()
     }
 

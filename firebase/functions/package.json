@@ -2,7 +2,7 @@
   "name": "kotodama-functions",
   "description": "Cloud Functions for コトダマ (Phase 3)",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {

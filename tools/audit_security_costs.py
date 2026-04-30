@@ -140,13 +140,15 @@ for fn in d.get("functions", []):
     fname = fn["name"].split("/")[-1]
     found.add(fname)
     state = fn.get("state")
+    runtime = fn.get("buildConfig", {}).get("runtime")
     sc = fn.get("serviceConfig", {})
     max_inst = sc.get("maxInstanceCount")
     mem = sc.get("availableMemory")
     conc = sc.get("maxInstanceRequestConcurrency", "?")
     timeout_s = sc.get("timeoutSeconds")
     secrets = [s.get("key") for s in sc.get("secretEnvironmentVariables", [])]
-    print(f"  {PASS if state == 'ACTIVE' else FAIL} {fname}: state={state}")
+    runtime_ok = runtime == "nodejs22"
+    print(f"  {PASS if state == 'ACTIVE' and runtime_ok else FAIL} {fname}: state={state}, runtime={runtime}")
     print(f"     maxInstances={max_inst}, concurrency={conc}, memory={mem}, timeout={timeout_s}s, secrets={secrets}")
 
 missing = expected - found
@@ -181,6 +183,10 @@ if firestore_release:
 else:
     print(f"  {FAIL} Firestore rules がデプロイされていない！")
 
+s, d = req("GET", f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/collectionGroups/posts/fields/expireAt")
+ttl_state = d.get("ttlConfig", {}).get("state")
+print(f"  {PASS if ttl_state in ['ACTIVE', 'CREATING'] else FAIL} TTL expireAt: {ttl_state or 'NOT CONFIGURED'}")
+
 
 # ─── 7. Pub/Sub IAM ───
 print("\n[7] Pub/Sub Topic IAM ━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -209,6 +215,10 @@ for svc in ["firestore.googleapis.com", "firebasestorage.googleapis.com", "ident
     s, d = req("GET", f"https://firebaseappcheck.googleapis.com/v1/projects/{PROJECT}/services/{svc}")
     mode = d.get("enforcementMode", "(none)")
     print(f"  {svc}: enforcementMode={mode}")
+
+src = Path("firebase/functions/index.js").read_text() if Path("firebase/functions/index.js").exists() else ""
+strict_app_check = "throw new HttpsError('failed-precondition', 'App Check required')" in src
+print(f"  {PASS if strict_app_check else FAIL} callable manual App Check guard is strict")
 
 
 # ─── 9. system/aiRuntime + aiBudgetAlert 状態 ───

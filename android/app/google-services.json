@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "286965080942",
+    "project_id": "kotodama-86a14",
+    "storage_bucket": "kotodama-86a14.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286965080942:android:0d41b9a1db5ab8cdfa577f",
+        "android_client_info": {
+          "package_name": "com.mendoi.kotodama"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACnzA4BF7DYNtflRTHpayQUCOSLIflG2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

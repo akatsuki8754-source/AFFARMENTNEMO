@@ -13,6 +13,8 @@ final class RecordingService: NSObject, ObservableObject {
 
     @Published var isRecording: Bool = false
     @Published var isPlaying: Bool = false
+    @Published private(set) var activeRecordingFileName: String?
+    @Published private(set) var activePlayingFileName: String?
     @Published var currentLevel: Float = 0  // 録音中の音量メータ (0-1)
     @Published var recordingElapsed: TimeInterval = 0  // 録音中の経過秒数
     @Published var playbackProgress: Double = 0       // 再生中の進捗 (0-1)
@@ -61,7 +63,7 @@ final class RecordingService: NSObject, ObservableObject {
         }
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try session.setActive(true, options: [])
 
         let url = Self.url(for: fileName)
@@ -76,17 +78,14 @@ final class RecordingService: NSObject, ObservableObject {
         recorder?.isMeteringEnabled = true
         recorder?.record()
         isRecording = true
+        activeRecordingFileName = fileName
 
         // 音量メータ + 経過時間更新
         recordingElapsed = 0
         levelTimer?.invalidate()
         levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                self.recorder?.updateMeters()
-                let avg = self.recorder?.averagePower(forChannel: 0) ?? -160
-                self.currentLevel = max(0, min(1, (avg + 60) / 60))
-                self.recordingElapsed = self.recorder?.currentTime ?? 0
+            Task { @MainActor [weak self] in
+                self?.updateRecordingMeter()
             }
         }
     }
@@ -98,6 +97,7 @@ final class RecordingService: NSObject, ObservableObject {
         levelTimer = nil
         currentLevel = 0
         isRecording = false
+        activeRecordingFileName = nil
     }
 
     // MARK: - Play
@@ -128,16 +128,28 @@ final class RecordingService: NSObject, ObservableObject {
         player?.prepareToPlay()
         player?.play()
         isPlaying = true
+        activePlayingFileName = fileName
 
         // 進捗タイマー (UI に再生中バーを出すため)
         playbackProgress = 0
         levelTimer?.invalidate()
         levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self, let p = self.player, p.duration > 0 else { return }
-                self.playbackProgress = p.currentTime / p.duration
+            Task { @MainActor [weak self] in
+                self?.updatePlaybackProgress()
             }
         }
+    }
+
+    private func updateRecordingMeter() {
+        recorder?.updateMeters()
+        let avg = recorder?.averagePower(forChannel: 0) ?? -160
+        currentLevel = max(0, min(1, (avg + 60) / 60))
+        recordingElapsed = recorder?.currentTime ?? 0
+    }
+
+    private func updatePlaybackProgress() {
+        guard let player, player.duration > 0 else { return }
+        playbackProgress = player.currentTime / player.duration
     }
 
     func stopPlaying() {
@@ -149,6 +161,7 @@ final class RecordingService: NSObject, ObservableObject {
         player = nil
         playerDelegate = nil
         isPlaying = false
+        activePlayingFileName = nil
         levelTimer?.invalidate()
         levelTimer = nil
         playbackProgress = 0
@@ -171,6 +184,8 @@ final class RecordingService: NSObject, ObservableObject {
     }
 
     func deleteRecording(fileName: String) {
+        if activePlayingFileName == fileName { stopPlaying() }
+        if activeRecordingFileName == fileName { stopRecording() }
         try? FileManager.default.removeItem(at: Self.url(for: fileName))
     }
 }
@@ -179,6 +194,7 @@ extension RecordingService: AVAudioRecorderDelegate {
     nonisolated func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         Task { @MainActor in
             self.isRecording = false
+            self.activeRecordingFileName = nil
             self.levelTimer?.invalidate()
             self.levelTimer = nil
         }

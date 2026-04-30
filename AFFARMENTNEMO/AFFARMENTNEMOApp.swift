@@ -35,7 +35,7 @@ struct AFFARMENTNEMOApp: App {
             "kotodama.autoplay.enabled": true,
             "kotodama.autoplay.mode": "ai",
             "kotodama.tts.voiceGender": "female",
-            "kotodama.tts.backgroundAIPlayback": false,
+            "kotodama.tts.backgroundAIPlayback": true,  // 審査通過後は常時 ON
         ])
 
         #if DEBUG

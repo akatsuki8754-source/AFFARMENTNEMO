@@ -129,14 +129,11 @@ final class AIWishGenerationService {
             }
             return "\(trimmed)."
         }
-        // 〜したい / 〜でいたい / 〜になりたい で終わる文は補正不要
-        if trimmed.hasSuffix("したい。") ||
-           trimmed.hasSuffix("いたい。") ||
-           trimmed.hasSuffix("なりたい。") ||
-           trimmed.hasSuffix("たい。") {
-            return trimmed
-        }
-        let dropped = trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "。.!！"))
-        return "\(dropped)したい。"
+        let cleaned = trimmed
+            .replacingOccurrences(of: "ですしたい", with: "です")
+            .replacingOccurrences(of: "ますしたい", with: "ます")
+            .replacingOccurrences(of: "であるしたい", with: "である")
+            .trimmingCharacters(in: CharacterSet(charactersIn: "。.!！？"))
+        return "\(cleaned)。"
     }
 }

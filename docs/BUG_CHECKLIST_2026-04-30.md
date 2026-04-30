@@ -29,13 +29,13 @@
   - 修正: deploy後に有効化する `firebase/deploy_after_blaze.sh` を更新。iOSはlocale付きで `aiGenerateWish` を呼ぶ。
 - [x] App Check
   - 問題: iOSはAppCheck providerを設定していたが、App Attest entitlementsがなかった。Functions側も `enforceAppCheck=false` だった。
-  - 修正: App Attest production entitlementを追加し、user-facing callable functionsでApp Check必須チェックを追加。
-  - 確認: App Attest設定、debug token登録、App Checkなしの直叩き拒否、debug token登録後のシミュレーター投稿成功を確認。
+  - 修正: App Attest production entitlementを追加し、user-facing callable functionsでApp Check必須チェックを追加。`ALLOW_MISSING_APP_CHECK=false` をdeploy時の環境に固定。
+  - 確認: App Attest設定、App Checkなしの直叩き拒否、debug token登録後のシミュレーター投稿成功を確認。
 - [x] 費用増・古いデータ残り
   - 修正: 期限切れposts削除に加え、rate limit / quota / usage logの古い運用doc削除を追加。
   - 修正: 言語ルーム追加後も削除漏れが出ないよう、期限切れposts削除の対象roomを共通許可リストから生成。
-  - 残確認: Firestore TTL policyを本番Console側でも `expireAt` に設定できるなら追加。
-  - 残課題: Cloud Functions Node.js 20 runtimeが2026-10-30に廃止予定。Node.js 22への移行が必要。
+  - 修正: Firestore TTL policyを本番 `posts.expireAt` に設定済み。
+  - 修正: Cloud Functions runtimeをNode.js 22へ移行済み。
 
 ## P1: AIウィザード
 
@@ -49,8 +49,9 @@
   - 修正: iOSからアプリ内言語設定を優先したlocaleを送信し、Functions prompt側で出力言語を指定。
 - [x] 日本語以外で候補末尾に「したい」が付く
   - 修正: iOS/Functions双方のnormalizeで日本語以外は日本語語尾を付けない。
-- [ ] 名言候補の権利・正確性
-  - 残課題: 現在のfallbackには近現代引用が混ざる。審査・権利面では古典/著作権切れ中心に再整理した方が安全。
+- [x] 名言候補の権利・正確性
+  - 修正: Gemini promptで現存人物の最近の発言、広告スローガン、商標スローガン、不確実なネット引用を避ける条件を追加。
+  - 修正: fallbackを古典・ことわざ中心へ差し替え、近現代の権利/真正性リスクが高い引用を除外。
 
 ## P1: ローカライズ
 
@@ -59,10 +60,12 @@
   - 修正: Functionsの投稿room許可とGemini出力言語も同じ言語セットへ拡張。
 - [x] 設定に中国語/韓国語があるのにString Catalogが英日だけ
   - 修正: `zh-Hans` / `zh-Hant` / `ko` を `CFBundleLocalizations` とString Catalog全キーへ追加。
+- [x] 翻訳キー欠落
+  - 修正: `en` / `ja` / `zh-Hans` / `zh-Hant` / `ko` / `es` / `fr` / `de` / `pt-BR` / `id` / `vi` / `th` / `hi` / `ar` の全String Catalogキー欠落を0件にした。
 - [ ] 翻訳品質
-  - 残課題: 追加localeは全キーが欠落しない状態にした段階。自然な翻訳としては人手/翻訳APIでレビューが必要。
+  - 残課題: 追加localeは欠落防止を優先し、一部は英語fallback相当。自然な翻訳としては人手/翻訳APIレビューが必要。
 - [ ] ハードコード文言
-  - 残課題: SwiftUI内に日本語直書きが残っている。次工程で `LocalizedStringKey` / String Catalogへ移す。
+  - 残課題: SwiftUI内に日本語直書きが残っている。主要導線は維持しているが、全画面の完全String Catalog化は別工程。
 
 ## P1: タイムラインUX
 
@@ -74,18 +77,20 @@
 - [x] 反応数が0に見える可能性
   - 問題: Firestore numericが `NSNumber/Int64` で返る場合に `as? Int` が落ちる可能性。
   - 修正: numeric decode helperを追加。
+- [x] さくら投稿の反応が再表示時に残る
+  - 修正: 擬似投稿へのユーザー反応をUserDefaults保存から画面内一時状態へ変更し、再購読/ルーム変更時にリセット。
 
 ## P2: 既存機能の確認観点
 
-- [ ] ホーム: 起動時自動再生ON、AI再生default、通知タップ導線
-- [ ] 読み上げ: AI音声/録音/自分で読むの選択、音声変更後に即終了しないか
-- [ ] 録音: 再生・削除・カードtapで録音開始しないか
-- [ ] 言葉追加/編集: 通知設定重複削除、下部登録ボタン、入力欄高さ、カテゴリカスタム入力
-- [ ] 言葉一覧: フィルタ後全選択、一括削除、長押し複数選択
-- [ ] 読み上げセット: 対象曜日外除外、録音欠落時の自動fallback、長押し編集
-- [ ] オンボーディング: 投稿数増加演出、再表示ボタン
-- [ ] 設定: 閉じるボタン不要化、バックグラウンドAI音声トグルの権限/制約説明
-- [ ] App Store / Google Play metadata: `app-ads.txt`、privacy、review notes、Android移植時のFirebase App Check Play Integrity
+- [x] ホーム: 起動時自動再生ON、AI再生default、通知タップ導線
+- [x] 読み上げ: AI音声/録音/自分で読むの選択、音声変更後に即終了しないか
+- [x] 録音: 再生・削除・カードtapで録音開始しないか
+- [x] 言葉追加/編集: 通知設定重複削除、下部登録ボタン、入力欄高さ、カテゴリカスタム入力
+- [x] 言葉一覧: フィルタ後全選択、一括削除、長押し複数選択
+- [x] 読み上げセット: 対象曜日外除外、録音欠落時の自動fallback、長押し編集
+- [x] オンボーディング: 投稿数増加演出、再表示ボタン
+- [x] 設定: 閉じるボタン不要化、バックグラウンドAI音声トグルの権限/制約説明
+- [x] App Store / Google Play metadata: `app-ads.txt`、privacy、review notes、Android移植時のFirebase App Check Play Integrity
 
 ## 検証コマンド
 
@@ -95,3 +100,4 @@
 - `firebase deploy --only firestore:rules,firestore:indexes --project kotodama-86a14`
 - `firebase deploy --only functions --project kotodama-86a14`
 - `xcodebuild -project AFFARMENTNEMO.xcodeproj -scheme AFFARMENTNEMO -destination 'generic/platform=iOS Simulator' build`
+- `python3 tools/audit_security_costs.py`

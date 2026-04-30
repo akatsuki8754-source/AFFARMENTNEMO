@@ -11,7 +11,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     @AppStorage("kotodama.notif.morningEnabled") private var morningEnabled: Bool = true
-    @AppStorage("kotodama.notif.eveningEnabled") private var eveningEnabled: Bool = false
+    @AppStorage("kotodama.notif.eveningEnabled") private var eveningEnabled: Bool = true
     @AppStorage("kotodama.notif.morningHour") private var morningHour: Int = 7
     @AppStorage("kotodama.notif.morningMinute") private var morningMinute: Int = 0
     @AppStorage("kotodama.notif.eveningHour") private var eveningHour: Int = 22
@@ -100,7 +100,12 @@ struct SettingsView: View {
                         }
                     }
                     Toggle(isOn: $ttsPrefs.backgroundAIPlaybackEnabled) {
-                        Text("バックグラウンドでAI音声を流す")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("バックグラウンドでAI音声を流す")
+                            Text("ONにすると起動時再生もAIに揃えます")
+                                .appFont(.micro)
+                                .foregroundStyle(Color.textSecondary)
+                        }
                     }
                 }
 
@@ -143,6 +148,35 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "book")
                             Text("settings.help.tips")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                    }
+                    .foregroundStyle(Color.textPrimary)
+
+                    // 共有導線 (App Store URL)
+                    ShareLink(
+                        item: URL(string: "https://apps.apple.com/jp/app/id6764454663")!,
+                        message: Text("毎日の言葉でなりたい自分へ — 「コトダマ」")
+                    ) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("友達にこのアプリを教える")
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
+                        }
+                        .foregroundStyle(Color.textPrimary)
+                    }
+
+                    // App Store レビューを書く
+                    Button {
+                        if let url = URL(string: "https://apps.apple.com/jp/app/id6764454663?action=write-review") {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "star.bubble")
+                            Text("App Store でレビューを書く")
                             Spacer()
                             Image(systemName: "chevron.right").foregroundStyle(Color.textSecondary)
                         }

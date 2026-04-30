@@ -20,6 +20,13 @@ struct AIWishWizardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AffirmationStore.self) private var store
 
+    /// オンボーディング 1 ページ目から呼ばれた場合 true (リワード広告ゲートをスキップ)
+    let isOnboardingFirstUse: Bool
+
+    init(isOnboardingFirstUse: Bool = false) {
+        self.isOnboardingFirstUse = isOnboardingFirstUse
+    }
+
     @State private var path: [WishMapNode] = []
     @State private var candidates: [String] = []
     @State private var liveEnabledHint: Bool? = nil  // 起動時 prefetch、UI でバッジ表示
@@ -282,13 +289,13 @@ struct AIWishWizardView: View {
         var icon: String {
             switch self {
             case .checking, .localOnly: return "sparkles"
-            case .askingAI: return "brain.head.profile"
+            case .askingAI: return "wand.and.stars"
             }
         }
         var title: String {
             switch self {
             case .checking:   return "準備中…"
-            case .askingAI:   return "🤖 AI が回答中…"
+            case .askingAI:   return "✨ AI が言葉を編んでいます…"
             case .localOnly:  return "📚 候補を準備中…"
             }
         }
@@ -562,22 +569,24 @@ struct AIWishWizardView: View {
                 return
             }
 
-            // ── 2. リワード広告ゲート (1日1回無料、それ以降は動画視聴) ──
-            // DEBUG ビルド & autoGenerateAI フラグ ON 時はゲートをスキップ
+            // ── 2. リワード広告ゲート ──
+            // - DEBUG: autoGenerateAI フラグ ON 時はスキップ
+            // - オンボ初回 (isOnboardingFirstUse=true): スキップ (体験を阻害しない)
+            // - それ以外: 1日1回無料、以降リワード必須
             let granted: Bool
             #if DEBUG
             if UserDefaults.standard.bool(forKey: "kotodama.debug.autoGenerateAI") {
-                granted = true  // テスト用に広告スキップ
+                granted = true
             } else {
                 granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-                    AdRewardGate.shared.presentBeforeAIGeneration { g in
+                    AdRewardGate.shared.presentBeforeAIGeneration(isOnboardingFirstUse: isOnboardingFirstUse) { g in
                         cont.resume(returning: g)
                     }
                 }
             }
             #else
             granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-                AdRewardGate.shared.presentBeforeAIGeneration { g in
+                AdRewardGate.shared.presentBeforeAIGeneration(isOnboardingFirstUse: isOnboardingFirstUse) { g in
                     cont.resume(returning: g)
                 }
             }

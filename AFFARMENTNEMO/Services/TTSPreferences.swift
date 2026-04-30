@@ -68,7 +68,7 @@ final class TTSPreferences: ObservableObject {
 
         let sampleJa = "自分の言葉を、声に出して読みましょう。今日もよくやった。"
         let sampleEn = "Read your words out loud. Well done today."
-        let preferred = Locale.preferredLanguages.first ?? "ja-JP"
+        let preferred = Self.effectiveSpeechLanguage()
         let voice = resolvedVoice(for: preferred)
         let text: String
         text = (voice?.language ?? preferred).lowercased().hasPrefix("ja") ? sampleJa : sampleEn
@@ -82,8 +82,14 @@ final class TTSPreferences: ObservableObject {
 
     func resolvedVoice(for fallbackLanguage: String) -> AVSpeechSynthesisVoice? {
         let normalized = normalizeLanguage(fallbackLanguage)
-        let voices = AVSpeechSynthesisVoice.speechVoices()
+        let requestedFamily = languageFamily(normalized)
+        var voices = AVSpeechSynthesisVoice.speechVoices()
             .filter { normalizeLanguage($0.language) == normalized }
+        if voices.isEmpty {
+            voices = AVSpeechSynthesisVoice.speechVoices()
+                .filter { languageFamily($0.language) == requestedFamily }
+        }
+        voices = voices
             .sorted { lhs, rhs in
                 if lhs.quality != rhs.quality { return lhs.quality.rawValue > rhs.quality.rawValue }
                 return lhs.name < rhs.name
@@ -117,6 +123,12 @@ final class TTSPreferences: ObservableObject {
             return first
         }
         return AVSpeechSynthesisVoice(language: normalized)
+    }
+
+    static func effectiveSpeechLanguage() -> String {
+        let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
+        let effective = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
+        return effective == "system" ? (Locale.preferredLanguages.first ?? "ja-JP") : effective
     }
 
     /// voice 名から性別を推論してスコア化 (target に合致するほど高スコア)
@@ -162,6 +174,23 @@ final class TTSPreferences: ObservableObject {
         if lower.hasPrefix("zh-hant") || lower.contains("-tw") || lower.contains("-hk") { return "zh-TW" }
         if lower.hasPrefix("zh") { return "zh-CN" }
         if lower.hasPrefix("en") { return "en-US" }
+        if lower.hasPrefix("es") { return "es-ES" }
+        if lower.hasPrefix("fr") { return "fr-FR" }
+        if lower.hasPrefix("de") { return "de-DE" }
+        if lower.hasPrefix("pt") { return "pt-BR" }
+        if lower.hasPrefix("id") { return "id-ID" }
+        if lower.hasPrefix("vi") { return "vi-VN" }
+        if lower.hasPrefix("th") { return "th-TH" }
+        if lower.hasPrefix("hi") { return "hi-IN" }
+        if lower.hasPrefix("ar") { return "ar-SA" }
         return raw
+    }
+
+    private func languageFamily(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "_", with: "-")
+            .split(separator: "-")
+            .first
+            .map(String.init)?
+            .lowercased() ?? raw.lowercased()
     }
 }

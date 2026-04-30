@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>13</string>
+	<string>18</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -27,6 +27,15 @@
 		<string>zh-Hans</string>
 		<string>zh-Hant</string>
 		<string>ko</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>de</string>
+		<string>pt-BR</string>
+		<string>id</string>
+		<string>vi</string>
+		<string>th</string>
+		<string>hi</string>
+		<string>ar</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

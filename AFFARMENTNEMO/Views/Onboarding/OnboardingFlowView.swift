@@ -13,8 +13,8 @@ struct OnboardingFlowView: View {
     @State private var step: Int = 0  // 0=splash, 1=welcome, 2=first, 3=notif
     @State private var firstText: String = ""
     @State private var selectedTemplate: AffirmationTemplate?
-    @State private var morningEnabled: Bool = true   // UX §2.4: 朝のみON
-    @State private var eveningEnabled: Bool = false
+    @State private var morningEnabled: Bool = true   // 朝・夜どちらもデフォルト ON
+    @State private var eveningEnabled: Bool = true
     @State private var morningTime: Date = Self.defaultMorning
     @State private var eveningTime: Date = Self.defaultEvening
 
@@ -280,7 +280,7 @@ private struct FirstAffirmationStep: View {
         }
         .onChange(of: text) { _, _ in }
         .sheet(isPresented: $showAIWizard) {
-            AIWishWizardView()
+            AIWishWizardView(isOnboardingFirstUse: true)  // オンボ初回は広告ゲートなし
         }
         .onChange(of: showAIWizard) { _, isShown in
             guard !isShown else { return }
@@ -363,12 +363,7 @@ private struct FirstAffirmationStep: View {
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
             }
 
-            Text("first.template.hint")
-                .appFont(.caption)
-                .foregroundStyle(Color.textSecondary)
-
-            templateGrid
-
+            // テンプレートは AI ウィザードに統合のため非表示 (ユーザー要望)
             writingTips
 
             // Undo/Redo/Reset コントロール (ユーザー要望)

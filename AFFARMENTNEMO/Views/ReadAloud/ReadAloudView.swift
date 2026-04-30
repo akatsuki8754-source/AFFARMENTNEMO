@@ -18,8 +18,9 @@ final class TTSLogger: NSObject, AVSpeechSynthesizerDelegate, ObservableObject {
     var onFinish: (() -> Void)?
 
     nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didStart u: AVSpeechUtterance) {
-        print("[TTS] didStart len=\(u.speechString.count)")
-        Task { @MainActor in self.lastEvent = "didStart \(u.speechString.count)文字" }
+        let characterCount = u.speechString.count
+        print("[TTS] didStart len=\(characterCount)")
+        Task { @MainActor in self.lastEvent = "didStart \(characterCount)文字" }
     }
     nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish u: AVSpeechUtterance) {
         print("[TTS] didFinish")
@@ -382,7 +383,7 @@ struct ReadAloudView: View {
             .replacingOccurrences(of: ". ", with: ".  ")
 
         let utterance = AVSpeechUtterance(string: withPauses)
-        let preferred = Locale.preferredLanguages.first ?? "ja-JP"
+        let preferred = TTSPreferences.effectiveSpeechLanguage()
         utterance.voice = TTSPreferences.shared.resolvedVoice(for: preferred)
                           ?? AVSpeechSynthesisVoice(language: "ja-JP")
         // AVSpeechUtteranceDefaultSpeechRate ≈ 0.5。人の話す速度 ≈ 0.45 (やや遅め)
