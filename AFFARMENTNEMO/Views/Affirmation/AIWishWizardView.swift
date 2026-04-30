@@ -22,6 +22,7 @@ struct AIWishWizardView: View {
 
     @State private var path: [WishMapNode] = []
     @State private var candidates: [String] = []
+    @State private var liveEnabledHint: Bool? = nil  // 起動時 prefetch、UI でバッジ表示
     @State private var selectedTexts: Set<String> = []
     @State private var step: WizardStep = .selectingPath
     @State private var generationTask: Task<Void, Never>?
@@ -105,6 +106,14 @@ struct AIWishWizardView: View {
                 }
             }
             .navigationTitle(navigationTitle)
+            .task {
+                // 起動時に liveGenerationEnabled を prefetch (auth + Firestore 読み)
+                // ユーザーが path 選択中に並列で済ませる → generate() 時には判定済
+                if liveEnabledHint == nil {
+                    let live = await AIWishGenerationService.shared.liveGenerationEnabled()
+                    await MainActor.run { liveEnabledHint = live }
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -161,9 +170,29 @@ struct AIWishWizardView: View {
                     .foregroundStyle(Color.textPrimary)
                     .padding(.horizontal, AppSpacing.screenEdge)
 
-                    Text("3つから選んでみてね")
-                    .appFont(.caption)
-                    .foregroundStyle(Color.textSecondary)
+                    HStack(spacing: AppSpacing.xs) {
+                        Text("3つから選んでみてね")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
+                        Spacer()
+                        // AI 利用可否バッジ (起動時 prefetch 済)
+                        if let live = liveEnabledHint {
+                            HStack(spacing: 2) {
+                                Image(systemName: live ? "sparkles" : "doc.text")
+                                Text(live ? "AI 生成 ON" : "ローカル候補")
+                                    .appFont(.micro)
+                            }
+                            .foregroundStyle(live ? Color.brandPrimary : Color.textSecondary)
+                            .padding(.horizontal, AppSpacing.xs)
+                            .padding(.vertical, 2)
+                            .background(
+                                live
+                                    ? Color.brandAccent.opacity(0.18)
+                                    : Color.bgSecondary
+                            )
+                            .clipShape(Capsule())
+                        }
+                    }
                     .padding(.horizontal, AppSpacing.screenEdge)
 
                 // 3択ボタン

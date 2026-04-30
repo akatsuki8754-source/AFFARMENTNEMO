@@ -33,16 +33,30 @@ final class AIWishGenerationService {
     private init() {}
 
     /// Firestore aiRuntime.clientEnabled をチェック (Phase 3 の有効化フラグ)
+    /// 注意: 認証が必須 (rules で authed() && docId == 'aiRuntime' の read 許可)
+    /// 認証未完了時は signInAnonymouslyIfNeeded で完了を待つ
     /// オフライン or エラー時は false (静的フォールバック)
     func liveGenerationEnabled() async -> Bool {
+        #if canImport(FirebaseAuth)
+        // 必ず認証完了を待つ — 未認証で Firestore 読むと permission denied
+        await AuthService.shared.signInAnonymouslyIfNeeded()
+        guard Auth.auth().currentUser != nil else {
+            print("[AIWishGen] liveGenerationEnabled: not signed in")
+            return false
+        }
+        #endif
+
         #if canImport(FirebaseFirestore)
         do {
             let snapshot = try await Firestore.firestore()
                 .collection("system")
                 .document("aiRuntime")
                 .getDocument()
-            return snapshot.data()?["clientEnabled"] as? Bool == true
+            let enabled = snapshot.data()?["clientEnabled"] as? Bool == true
+            print("[AIWishGen] liveGenerationEnabled: \(enabled)")
+            return enabled
         } catch {
+            print("[AIWishGen] liveGenerationEnabled error: \(error)")
             return false
         }
         #else

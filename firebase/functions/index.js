@@ -91,10 +91,14 @@ exports.aiGenerateWish = onCall(
       });
       const result = await model.generateContent(prompt);
       const text = result.response.text();
-      const candidates = parseCandidates(text);
+      const isFamousQuoteMode = /famous_quotes|quote_business|quote_life|quote_sport/.test(
+        path.map(p => p.prompt || '').join(' ')
+      );
+      const candidates = parseCandidates(text, isFamousQuoteMode);
       await logAIUsage(uid, path, candidates, false);
       return {
         candidates,
+        mode: isFamousQuoteMode ? 'famous_quote' : 'affirmation',
         quotaRemaining: reservation.userRemaining,
         fallback: false,
       };
@@ -322,12 +326,38 @@ exports.submitTimelinePost = onCall(
 
 function buildPrompt(path) {
   const titles = path.map(p => p.title).join(' > ');
+  const prompts = path.map(p => p.prompt || '').join(' ');
+  // 名言モード判定 (path に famous_quotes / quote_xxx が入っている)
+  const isFamousQuoteMode =
+    /famous_quotes|quote_business|quote_life|quote_sport/.test(prompts) ||
+    /有名人|名言|偉人|哲学者/.test(titles);
+
+  if (isFamousQuoteMode) {
+    return `あなたは世界の偉人・哲学者・歴史的人物の名言を案内するアシスタントです。
+ユーザーの状況: ${titles}
+
+以下のテーマに合う、3つの実在する名言を選んでください。
+- 著作権切れ (1923年以前公開) または広く流通する古典的引用に限る
+- 出典 (発言者名) を必ず付けること
+- 翻訳が複数あるものは最も一般的な日本語訳
+- 偉人(哲学者・科学者・作家・歴史的指導者・スポーツ選手など)を中心に
+- 現存している有名人の最近の発言は避ける (引用範囲が不明確なため)
+
+出力形式: JSONのみ。コードブロックや説明文は不要。各 text は「『名言の本文』 — 発言者名」形式。
+{
+  "candidates": [
+    {"type": "classic", "text": "『言葉の本文』 — 発言者名"},
+    {"type": "modern_classic", "text": "『言葉の本文』 — 発言者名"},
+    {"type": "another", "text": "『言葉の本文』 — 発言者名"}
+  ]
+}`;
+  }
+
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
 ユーザーの状況: ${titles}
 
 以下の3つの異なるアプローチで、それぞれ80文字以内の言葉を1つずつ作ってください。
 すべて「〜したい」「〜でいたい」「〜になりたい」の願い形で統一してください。
-有名人や名言がテーマの場合も、既存の名言を引用せず、考え方だけを参考にしたオリジナル文にしてください。
 1. 自己肯定型 (Self-Affirmation Theory): 価値観を肯定する文
 2. If-Thenプラン型 (Implementation Intentions): 「もし◯◯したら、◯◯したい」の形
 3. 価値観型 (Mental Contrasting): 障害を予期しつつ前向きに進む文
@@ -343,18 +373,20 @@ JSONのみ。コードブロックや説明文は不要。
 }`;
 }
 
-function parseCandidates(text) {
+function parseCandidates(text, isFamousQuoteMode = false) {
   const cleaned = text
     .trim()
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/```$/i, '')
     .trim();
+  // 名言モードでは normalize 不要 (「〜したい」を強制すると引用が壊れる)
+  const norm = isFamousQuoteMode ? (s) => s.trim() : normalizeCandidate;
   try {
     const parsed = JSON.parse(cleaned);
     const items = Array.isArray(parsed.candidates) ? parsed.candidates : [];
     const candidates = items
-      .map(item => normalizeCandidate(String(item.text ?? item)))
+      .map(item => norm(String(item.text ?? item)))
       .filter(Boolean)
       .slice(0, 3);
     if (candidates.length === 3) return candidates;
@@ -365,13 +397,37 @@ function parseCandidates(text) {
   const candidates = lines
     .map(line => line.match(/^\d+[.)]\s*(.+)$/)?.[1])
     .filter(Boolean)
-    .map(normalizeCandidate)
+    .map(norm)
     .slice(0, 3);
   if (candidates.length === 3) return candidates;
   throw new Error(`AI response parse failed: ${cleaned.slice(0, 200)}`);
 }
 
 function fallbackCandidates(path) {
+  const prompts = path.map(p => p.prompt || '').join(' ');
+  // 名言モード: 偉人の実際の言葉 (著作権切れ・古典)
+  if (/quote_business/.test(prompts)) {
+    return [
+      '「成功とは、失敗から失敗へと熱意を失わずに進んでいくことだ」 — ウィンストン・チャーチル',
+      '「最大の栄光は決して倒れないことではなく、倒れるたびに起き上がることにある」 — ネルソン・マンデラ',
+      '「Stay hungry, stay foolish. (ハングリーであれ、愚か者であれ)」 — スティーブ・ジョブズ',
+    ];
+  }
+  if (/quote_life/.test(prompts)) {
+    return [
+      '「なぜ生きるかを知っている者は、どのように生きることにも耐える」 — フリードリヒ・ニーチェ',
+      '「人生において重要なのは、生きることそのものではなく、よく生きることである」 — ソクラテス',
+      '「何事も、過ぎ去ってしまえば一つの懐かしい思い出となる」 — アレクサンドル・プーシキン',
+    ];
+  }
+  if (/quote_sport|famous_quotes/.test(prompts)) {
+    return [
+      '「99%の努力と1%のひらめき」 — トーマス・エジソン',
+      '「壁というのは、できる人にしかやってこない」 — イチロー',
+      '「Just do it. (ただやるんだ)」 — Nike (ダン・ワイデン)',
+    ];
+  }
+  // 通常モード
   const selected = path.map(p => p.title).filter(Boolean).slice(-1)[0] || '今日の一歩';
   return [
     normalizeCandidate(`${selected}に向けて、今日も小さな一歩を踏み出したい。`),
