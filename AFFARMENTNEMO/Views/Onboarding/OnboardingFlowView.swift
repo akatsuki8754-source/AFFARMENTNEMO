@@ -204,23 +204,18 @@ private struct FirstAffirmationStep: View {
     let onSkip: () -> Void
 
     @FocusState private var focused: Bool
-    @State private var showReplaceConfirm: Bool = false
-    @State private var pendingTemplate: AffirmationTemplate?
     @State private var insertionFeedback: String? = nil
+    /// テンプレ加算用 Undo / Redo 履歴 (ユーザー要望: 戻る/進む/リセット)
+    @State private var history: [String] = [""]
+    @State private var historyIndex: Int = 0
     private let maxLen = 200
 
     var body: some View {
-        firstContent.responsivePage()
-            .alert("テンプレートを使う?", isPresented: $showReplaceConfirm, presenting: pendingTemplate) { tpl in
-                Button("キャンセル", role: .cancel) {
-                    pendingTemplate = nil
-                }
-                Button("置き換える", role: .destructive) {
-                    performInsert(tpl)
-                    pendingTemplate = nil
-                }
-            } message: { _ in
-                Text("入力中の文字はクリアされます。")
+        firstContent
+            .responsivePage()
+            .onChange(of: text) { _, _ in
+                // text が外部編集された場合 (キーボード入力) も history を最新値で update
+                // ただし undo/redo 中は触らない
             }
     }
 
@@ -277,6 +272,30 @@ private struct FirstAffirmationStep: View {
                 .foregroundStyle(Color.textSecondary)
 
             templateGrid
+
+            // Undo/Redo/Reset コントロール (ユーザー要望)
+            HStack(spacing: AppSpacing.md) {
+                Button { undo() } label: {
+                    Label("first.template.undo", systemImage: "arrow.uturn.backward")
+                        .appFont(.caption)
+                }
+                .disabled(historyIndex <= 0)
+
+                Button { redo() } label: {
+                    Label("first.template.redo", systemImage: "arrow.uturn.forward")
+                        .appFont(.caption)
+                }
+                .disabled(historyIndex >= history.count - 1)
+
+                Spacer()
+
+                Button(role: .destructive) { reset() } label: {
+                    Label("first.template.action.reset", systemImage: "trash")
+                        .appFont(.caption)
+                }
+                .disabled(text.isEmpty)
+            }
+            .padding(.top, AppSpacing.xs)
 
             if let feedback = insertionFeedback {
                 Label(feedback, systemImage: "checkmark.circle.fill")
@@ -338,38 +357,60 @@ private struct FirstAffirmationStep: View {
         }
     }
 
-    /// テンプレ選択 — 入力欄が空 → 即挿入 / 既に文字あり → 確認後置換
-    /// (Apple HIG: 破壊的操作は確認、空状態はワンタップで使えるように)
+    /// テンプレ選択 — タップごとに「加算」(末尾に追記)。Undo/Redoで戻せる
+    /// (ユーザー要望: 押すたびに文章を追加する形)
     private func insertTemplate(_ tpl: AffirmationTemplate) {
-        // 同じテンプレを2回タップ → 解除
-        if selectedTemplate?.id == tpl.id {
-            selectedTemplate = nil
-            withAnimation { insertionFeedback = nil }
-            return
-        }
-
-        selectedTemplate = tpl
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            performInsert(tpl)
-        } else if !tpl.placeholderText.isEmpty {
-            pendingTemplate = tpl
-            showReplaceConfirm = true
-        } else {
-            // ビジネスの計画など placeholder 空のテンプレ — 選択のみ
+        guard !tpl.placeholderText.isEmpty else {
+            selectedTemplate = tpl
             withAnimation { insertionFeedback = "テンプレートを選択しました" }
             scheduleFeedbackDismiss()
+            return
         }
+        selectedTemplate = tpl
+
+        // 加算挿入: 既存テキストの後ろに改行+テンプレ
+        let separator = text.isEmpty ? "" : "\n"
+        let appended = text + separator + tpl.placeholderText
+        // 200文字制限
+        let limited = String(appended.prefix(maxLen))
+
+        pushHistory(limited)
+        withAnimation { insertionFeedback = "テンプレを追加しました — [___] を埋めてみて" }
+        focused = true
+        scheduleFeedbackDismiss()
     }
 
-    private func performInsert(_ tpl: AffirmationTemplate) {
-        if !tpl.placeholderText.isEmpty {
-            text = tpl.placeholderText
-            withAnimation { insertionFeedback = "ひな型を挿入しました — 続きを入力してください" }
-        } else {
-            withAnimation { insertionFeedback = "テンプレートを選択しました" }
+    /// 履歴スタックに追加 (redo履歴は破棄)
+    private func pushHistory(_ newText: String) {
+        // historyIndexから先 (redo分) を切り詰め
+        if historyIndex < history.count - 1 {
+            history = Array(history.prefix(historyIndex + 1))
         }
-        focused = true
+        history.append(newText)
+        historyIndex = history.count - 1
+        text = newText
+    }
+
+    private func undo() {
+        guard historyIndex > 0 else { return }
+        historyIndex -= 1
+        text = history[historyIndex]
+        withAnimation { insertionFeedback = "戻しました" }
+        scheduleFeedbackDismiss()
+    }
+
+    private func redo() {
+        guard historyIndex < history.count - 1 else { return }
+        historyIndex += 1
+        text = history[historyIndex]
+        withAnimation { insertionFeedback = "進めました" }
+        scheduleFeedbackDismiss()
+    }
+
+    private func reset() {
+        pushHistory("")
+        selectedTemplate = nil
+        withAnimation { insertionFeedback = "リセットしました" }
         scheduleFeedbackDismiss()
     }
 

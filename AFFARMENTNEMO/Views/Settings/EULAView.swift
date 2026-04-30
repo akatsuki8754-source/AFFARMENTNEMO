@@ -57,7 +57,7 @@ struct EULAView: View {
 
                         Text("7. お問い合わせ・通報窓口")
                             .appFont(.bodyEmphasis)
-                        Text("akatsuki0207@hotmail.co.jp")
+                        Text("akatsuki8754@gmail.com")
                             .appFont(.body)
                             .foregroundStyle(Color.brandSecondary)
                     }

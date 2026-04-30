@@ -90,22 +90,38 @@ struct ReadAloudView: View {
                 }
             }
 
-            VStack(spacing: AppSpacing.sm) {
-                PrimaryButton(titleKey: "read.done", action: advance)
+            VStack(spacing: AppSpacing.md) {
+                // 「読みました」を主役の大型ボタンに (ユーザー要望: 読み上げボタンもっと大きく)
+                Button(action: advance) {
+                    HStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 24, weight: .semibold))
+                        Text("read.done")
+                            .appFont(.h3)
+                    }
+                    .foregroundStyle(Color.bgPrimary)
+                    .frame(maxWidth: .infinity, minHeight: 64)
+                    .background(Color.brandPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.button, style: .continuous))
+                }
 
                 HStack(spacing: AppSpacing.md) {
                     Button(action: speakTTS) {
                         Label("read.tts", systemImage: ttsSpeaking ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .appFont(.caption)
-                            .foregroundStyle(Color.textSecondary)
-                            .frame(minHeight: AppTouchTarget.minimum)
+                            .appFont(.body)
+                            .foregroundStyle(ttsSpeaking ? Color.brandPrimary : Color.textSecondary)
+                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                            .background(Color.bgSecondary)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
 
                     Button(action: skip) {
                         Label("read.skip", systemImage: "forward")
-                            .appFont(.caption)
+                            .appFont(.body)
                             .foregroundStyle(Color.textSecondary)
-                            .frame(minHeight: AppTouchTarget.minimum)
+                            .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                            .background(Color.bgSecondary)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
                     }
                 }
             }
@@ -133,17 +149,41 @@ struct ReadAloudView: View {
         advance()
     }
 
+    /// TTSバグ修正: AVAudioSession の playback カテゴリ設定 + トグル動作
     private func speakTTS() {
-        synthesizer.stopSpeaking(at: .immediate)
+        // 既に再生中ならトグルで停止
+        if ttsSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            ttsSpeaking = false
+            return
+        }
         guard items.indices.contains(index) else { return }
+
+        // ⚠️ 重要: 補助読み上げが流れないバグの主因 — AVAudioSession の設定不備
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .mixWithOthers])
+            try session.setActive(true, options: [])
+        } catch {
+            print("[TTS] AudioSession failed: \(error)")
+        }
+
         let utterance = AVSpeechUtterance(string: items[index].text)
-        utterance.voice = AVSpeechSynthesisVoice(language: Locale.preferredLanguages.first)
+        // 日本語UI想定 (Localeがja-JPでなくてもja-JPの音声を選ぶ)
+        let preferred = Locale.preferredLanguages.first ?? "ja-JP"
+        utterance.voice = AVSpeechSynthesisVoice(language: preferred)
+                          ?? AVSpeechSynthesisVoice(language: "ja-JP")
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
+        utterance.volume = 1.0
+        utterance.pitchMultiplier = 1.0
+
         ttsSpeaking = true
         synthesizer.speak(utterance)
-        // 簡易: 完了監視は省略 (UIスピナー的扱い)
-        Task {
-            try? await Task.sleep(for: .seconds(3))
+
+        // 文字数で簡易完了タイマー (1文字 ~150ms)
+        let estimatedDuration = max(2.0, Double(items[index].text.count) * 0.18)
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(estimatedDuration + 0.5))
             ttsSpeaking = false
         }
     }

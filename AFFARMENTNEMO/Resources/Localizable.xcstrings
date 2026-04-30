@@ -212,13 +212,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Write your words and revisit them every day. That's it."
+            "value": "Write your wishes and goals, revisit them daily. Get energy from others' words. That's what this app is."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分の言葉を書いて、毎日見返す。それだけのアプリです。"
+            "value": "自分の願いや目標を書いて、毎日見返す。みんなの願いや想いをみて元気をもらう。そんなアプリです。"
           }
         }
       }
@@ -620,13 +620,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get reminders via notification."
+            "value": "Reading morning and night helps habit formation (research shows). Just 2 minutes a day."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "通知でリマインドします。"
+            "value": "毎日朝と夜に読み上げると、習慣化と記憶定着の研究で効果が出ています。1日2分でOKです。"
           }
         }
       }
@@ -3660,6 +3660,159 @@
           "stringUnit": {
             "state": "translated",
             "value": "願い"
+          }
+        }
+      }
+    },
+    "home.todaysSet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's words"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日の言葉"
+          }
+        }
+      }
+    },
+    "home.morningSet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in morning"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朝に読む"
+          }
+        }
+      }
+    },
+    "home.eveningSet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read in evening"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜に読む"
+          }
+        }
+      }
+    },
+    "settings.contact.email": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "akatsuki8754@gmail.com"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "akatsuki8754@gmail.com"
+          }
+        }
+      }
+    },
+    "first.template.action.append": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Append"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加"
+          }
+        }
+      }
+    },
+    "first.template.action.replace": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置き換え"
+          }
+        }
+      }
+    },
+    "first.template.action.reset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リセット"
+          }
+        }
+      }
+    },
+    "first.template.undo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "戻る"
+          }
+        }
+      }
+    },
+    "first.template.redo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "進む"
           }
         }
       }

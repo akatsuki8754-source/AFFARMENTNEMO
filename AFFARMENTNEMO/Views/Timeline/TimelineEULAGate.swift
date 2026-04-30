@@ -69,7 +69,7 @@ struct TimelineEULAGate: View {
                                 "本規約は予告なく変更されることがあります。変更後の利用は変更後の規約への同意とみなされます。")
 
                         section("8. お問い合わせ・通報窓口",
-                                "akatsuki0207@hotmail.co.jp\n(24時間以内に応答)")
+                                "akatsuki8754@gmail.com\n(24時間以内に応答)")
                     }
                     .id("body-content")
 

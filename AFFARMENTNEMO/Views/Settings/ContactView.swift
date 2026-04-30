@@ -8,7 +8,7 @@ import SwiftUI
 struct ContactView: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let supportEmail = "akatsuki0207@hotmail.co.jp"
+    private let supportEmail = "akatsuki8754@gmail.com"
 
     var body: some View {
         NavigationStack {

@@ -18,7 +18,9 @@ import FirebaseAnalytics
 struct AFFARMENTNEMOApp: App {
     let modelContainer: ModelContainer
     @Environment(\.scenePhase) private var scenePhase
-    @State private var didRequestATT = false
+    /// 永続化: 過去にATT要求した記録を残し、scenePhase=.activeが再度来ても再呼び出ししない
+    @AppStorage("kotodama.att.requestedOnce") private var didRequestATTPersisted: Bool = false
+    @State private var attInProgress = false
 
     init() {
         // Firebase 初期化
@@ -57,13 +59,18 @@ struct AFFARMENTNEMOApp: App {
         }
     }
 
-    /// アクティブ scene が確実に存在する状態で ATT ダイアログ → AdMob 起動 (Apple Guideline 2.1 準拠)
+    /// 1度だけATT要求 → AdMob起動。永続化フラグで scene 再アクティブ時の重複ダイアログを防ぐ
     @MainActor
     private func requestATTAndStartAdsIfNeeded() {
-        guard !didRequestATT else { return }
-        didRequestATT = true
+        guard !didRequestATTPersisted, !attInProgress else {
+            // すでに要求済みなら AdMob のみ起動 (毎回起動はOK・冪等)
+            AdMobService.shared.start()
+            return
+        }
+        attInProgress = true
         ATTService.requestAuthorizationIfNeeded {
-            // 許可/拒否どちらでも AdMob は起動 (拒否時は IDFA を取らない非個別化広告)
+            self.didRequestATTPersisted = true
+            self.attInProgress = false
             AdMobService.shared.start()
         }
     }

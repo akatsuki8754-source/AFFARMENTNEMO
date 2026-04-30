@@ -4,17 +4,20 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LibraryView: View {
     @Environment(AffirmationStore.self) private var store
+    /// SwiftData @Query で SwiftData の変更を即時購読 (バグ修正: 追加が一覧に反映されない)
+    /// activeOnly=true 相当: isActive==true なものだけ orderIndex 順
+    @Query(filter: #Predicate<Affirmation> { $0.isActive }, sort: [SortDescriptor(\.orderIndex)])
+    private var items: [Affirmation]
     @State private var editingAffirmation: Affirmation?
     @State private var pendingUndo: Affirmation?
     @State private var undoTask: Task<Void, Never>?
     @State private var showAdd = false
 
     var body: some View {
-        let items = store.allAffirmations(activeOnly: true)
-
         NavigationStack {
             mainContent(items: items).responsivePage(maxWidth: 720)
         }
@@ -29,22 +32,28 @@ struct LibraryView: View {
                 } else {
                     List {
                         ForEach(items) { aff in
-                            AffirmationRow(affirmation: aff)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        softDelete(aff)
-                                    } label: {
-                                        Label("common.delete", systemImage: "trash")
-                                    }
+                            // バグ修正: タップで詳細/編集シートを開く (旧: 何も起きなかった)
+                            Button {
+                                editingAffirmation = aff
+                            } label: {
+                                AffirmationRow(affirmation: aff)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    softDelete(aff)
+                                } label: {
+                                    Label("common.delete", systemImage: "trash")
                                 }
-                                .swipeActions(edge: .leading) {
-                                    Button {
-                                        editingAffirmation = aff
-                                    } label: {
-                                        Label("common.edit", systemImage: "pencil")
-                                    }
-                                    .tint(Color.brandSecondary)
+                            }
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    editingAffirmation = aff
+                                } label: {
+                                    Label("common.edit", systemImage: "pencil")
                                 }
+                                .tint(Color.brandSecondary)
+                            }
                         }
                     }
                     .listStyle(.plain)
