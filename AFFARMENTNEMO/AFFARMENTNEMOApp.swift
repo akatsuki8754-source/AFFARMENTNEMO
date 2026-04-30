@@ -14,6 +14,14 @@ import FirebaseCore
 import FirebaseAnalytics
 #endif
 
+#if canImport(FirebaseAppCheck)
+import FirebaseAppCheck
+#endif
+
+#if canImport(FirebasePerformance)
+import FirebasePerformance
+#endif
+
 @main
 struct AFFARMENTNEMOApp: App {
     let modelContainer: ModelContainer
@@ -43,9 +51,25 @@ struct AFFARMENTNEMOApp: App {
         // 言語オーバーライド (アプリ内言語切替)
         LocalizationOverride.install()
 
+        // App Check Provider (Firebase 初期化前に必ず設定)
+        #if canImport(FirebaseAppCheck)
+        #if DEBUG
+        AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+        #else
+        // iOS 14+ 推奨 AppAttest、未対応端末は DeviceCheck フォールバック
+        AppCheck.setAppCheckProviderFactory(KotodamaAppCheckProviderFactory())
+        #endif
+        #endif
+
         // Firebase 初期化
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
+        #endif
+
+        // Firebase Performance Monitoring (FirebaseApp.configure() 後)
+        #if canImport(FirebasePerformance)
+        Performance.sharedInstance().isDataCollectionEnabled = true
+        Performance.sharedInstance().isInstrumentationEnabled = true
         #endif
 
         _ = NotificationService.shared

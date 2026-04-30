@@ -23,6 +23,7 @@
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { defineSecret, defineString, defineInt } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 
@@ -296,6 +297,68 @@ exports.cleanupExpiredPosts = onSchedule(
 // ─────────────────────────────────────────────
 // サクラ自動投稿 (Phase 3 拡張用、現状は無効化)
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 予算アラート Pub/Sub Subscriber
+//   Cloud Billing が "kotodama-budget-alerts" topic に予算情報を publish する。
+//   90% 到達時に system/aiBudgetAlert.monthlyEmergencyStop = true を立て、
+//   aiGenerateWish 全停止 (UX 影響なし、フォールバック静的サンプルが返る)
+// ─────────────────────────────────────────────
+exports.budgetAlert = onMessagePublished(
+  {
+    topic: 'kotodama-budget-alerts',
+    region: 'asia-northeast1',
+    memory: '256MiB',
+    timeoutSeconds: 30,
+    maxInstances: 1,
+  },
+  async (event) => {
+    let payload;
+    try {
+      payload = event.data.message.json;
+    } catch (e) {
+      // Cloud Billing は base64 JSON で送る — 自動 decode された場合と raw の場合あり
+      try {
+        const raw = Buffer.from(event.data.message.data, 'base64').toString('utf8');
+        payload = JSON.parse(raw);
+      } catch (err) {
+        console.error('budgetAlert: cannot parse payload', err);
+        return;
+      }
+    }
+    const costAmount = Number(payload?.costAmount || 0);
+    const budgetAmount = Number(payload?.budgetAmount || 1);
+    const ratio = budgetAmount > 0 ? costAmount / budgetAmount : 0;
+    const currency = payload?.currencyCode || 'JPY';
+    const budgetDisplayName = payload?.budgetDisplayName || 'unknown';
+
+    console.log(`[budgetAlert] ${budgetDisplayName}: ${costAmount}/${budgetAmount} ${currency} (${(ratio * 100).toFixed(1)}%)`);
+
+    // 90% 以上で緊急停止
+    if (ratio >= 0.9) {
+      await db.doc('system/aiBudgetAlert').set({
+        monthlyEmergencyStop: true,
+        currentMonthUSD: costAmount,
+        currentMonthKey: payload?.budgetDisplayName ? new Date().toISOString().slice(0, 7) : null,
+        triggeredRatio: ratio,
+        triggeredAt: admin.firestore.FieldValue.serverTimestamp(),
+        triggerReason: `Budget at ${(ratio * 100).toFixed(0)}% (${costAmount}/${budgetAmount} ${currency})`,
+      }, { merge: true });
+      console.log(`[budgetAlert] EMERGENCY STOP triggered at ${(ratio * 100).toFixed(0)}%`);
+    } else {
+      // 90% 未満 → 解除
+      const snap = await db.doc('system/aiBudgetAlert').get();
+      if (snap.data()?.monthlyEmergencyStop === true) {
+        await db.doc('system/aiBudgetAlert').set({
+          monthlyEmergencyStop: false,
+          currentMonthUSD: costAmount,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+        console.log(`[budgetAlert] emergency stop lifted (${(ratio * 100).toFixed(0)}%)`);
+      }
+    }
+  }
+);
+
 exports.sakuraSeeder = onSchedule(
   {
     // クライアント側で既にサンプル表示しているため、サーバー側はオプション
