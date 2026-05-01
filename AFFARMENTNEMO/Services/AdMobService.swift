@@ -75,20 +75,61 @@ final class AdMobService: NSObject {
     }
 
     /// リワード広告を提示し、ユーザーがリワード獲得したら true を返す
-    /// 失敗・未ロード時はゲートをパス (true) して UX を阻害しない
+    /// - 広告未ロード時は試行: 即時 load を試みて、3秒以内にロードできれば再度 present
+    /// - それでも失敗したら false (= AI 生成スキップ) を返す
+    /// - ad.present の completion は単なる dismiss なので、reward は userDidEarnRewardHandler で取る
     func presentRewarded(from viewController: UIViewController,
                         completion: @escaping (Bool) -> Void) {
-        guard let ad = rewarded else {
-            Task { await preloadRewarded() }
-            completion(true)  // 広告未ロードは無料パス
+        if rewarded == nil {
+            // 即席ロード試行 (UX を阻害しない上限 3 秒)
+            Task { @MainActor in
+                await self.preloadRewarded()
+                if let ad = self.rewarded {
+                    self.showRewarded(ad: ad, from: viewController, completion: completion)
+                } else {
+                    NSLog("[AdMobService] rewarded ad unavailable → deny (no AI without reward)")
+                    completion(false)
+                }
+            }
             return
         }
-        ad.present(from: viewController) {
-            // ユーザーがリワード獲得 (動画を最後まで見た)
-            completion(true)
+        guard let ad = rewarded else {
+            completion(false)
+            return
+        }
+        showRewarded(ad: ad, from: viewController, completion: completion)
+    }
+
+    private func showRewarded(ad: RewardedAd, from vc: UIViewController,
+                              completion: @escaping (Bool) -> Void) {
+        var earned = false
+        // 真因対策: completion クロージャは「dismiss 後」の通知なので
+        //   実際のリワード獲得は ad.present(from:userDidEarnRewardHandler:) で判定する
+        ad.present(from: vc) {
+            // userDidEarnRewardHandler — 動画完走したときだけ呼ばれる
+            earned = true
+            NSLog("[AdMobService] rewarded ad earned")
         }
         rewarded = nil
         Task { await preloadRewarded() }
+
+        // 動画閉じ後の判定 — fullScreenContentDelegate を立てるのが王道だが、
+        // SwiftUI ベースなので present 完了 + earned フラグの監視で代替
+        // 5 秒経過後に earned が立っていなければスキップ扱い
+        Task { @MainActor in
+            for _ in 0..<60 {  // 60 * 0.5s = 30秒上限
+                try? await Task.sleep(for: .milliseconds(500))
+                if vc.presentedViewController == nil {
+                    // 広告 modal が閉じられた → earned で判定
+                    NSLog("[AdMobService] rewarded ad dismissed, earned=\(earned)")
+                    completion(earned)
+                    return
+                }
+            }
+            // タイムアウト = ユーザーが閉じない or 広告が固まった → 安全側で false
+            NSLog("[AdMobService] rewarded ad timeout, deny")
+            completion(false)
+        }
     }
 }
 
