@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyAffirme</string>
+    <string name="app_subtitle">Daily Self-Talk</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_library">My Words</string>
+    <string name="tab_timeline">Wishes</string>
+    <string name="tab_settings">Settings</string>
+    <string name="home_today">Today\'s words</string>
+    <string name="home_play_self">Read</string>
+    <string name="home_play_ai">AI</string>
+    <string name="home_play_recorded">Recorded</string>
+    <string name="home_autoplay_label">Auto-play on launch</string>
+    <string name="library_empty">No affirmations yet</string>
+    <string name="timeline_empty">No posts yet</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_about">About</string>
+    <string name="settings_privacy">Privacy Policy</string>
+</resources>

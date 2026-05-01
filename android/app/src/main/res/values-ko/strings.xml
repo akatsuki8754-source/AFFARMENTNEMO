@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">마이어퍼메</string>
+    <string name="app_subtitle">매일 자기긍정</string>
+    <string name="tab_home">홈</string>
+    <string name="tab_library">내 말</string>
+    <string name="tab_timeline">모두의 소원</string>
+    <string name="tab_settings">설정</string>
+    <string name="home_today">오늘 당신에게</string>
+    <string name="home_play_self">낭독</string>
+    <string name="home_play_ai">AI</string>
+    <string name="home_play_recorded">녹음</string>
+    <string name="home_autoplay_label">앱 시작 시 자동 재생</string>
+    <string name="library_empty">아직 등록된 말이 없습니다</string>
+    <string name="timeline_empty">아직 게시물이 없습니다</string>
+    <string name="settings_language">언어</string>
+    <string name="settings_about">앱 정보</string>
+    <string name="settings_privacy">개인정보처리방침</string>
+</resources>

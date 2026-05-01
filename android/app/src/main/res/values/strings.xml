@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">コトダマ</string>
+    <!-- アプリ名: iOS と整合 — 日本語デフォルトは「マイアファメ」 -->
+    <string name="app_name">マイアファメ</string>
+    <string name="app_subtitle">毎日の自己肯定</string>
+
+    <!-- タブ -->
     <string name="tab_home">ホーム</string>
     <string name="tab_library">自分の言葉</string>
     <string name="tab_timeline">みんなの願い</string>
     <string name="tab_settings">設定</string>
+
+    <!-- ホーム -->
+    <string name="home_today">今日のあなたへ</string>
+    <string name="home_play_self">音読</string>
+    <string name="home_play_ai">AI</string>
+    <string name="home_play_recorded">録音</string>
+    <string name="home_autoplay_label">アプリ起動時に自動再生</string>
+
+    <!-- ライブラリ -->
+    <string name="library_empty">まだ登録された言葉がありません</string>
+
+    <!-- タイムライン -->
+    <string name="timeline_empty">まだ投稿がありません</string>
+
+    <!-- 設定 -->
+    <string name="settings_language">言語</string>
+    <string name="settings_about">アプリについて</string>
+    <string name="settings_privacy">プライバシーポリシー</string>
 </resources>

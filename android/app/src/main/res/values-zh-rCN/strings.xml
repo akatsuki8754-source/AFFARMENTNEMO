@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">我的肯定语</string>
+    <string name="app_subtitle">每日自我肯定</string>
+    <string name="tab_home">首页</string>
+    <string name="tab_library">我的话</string>
+    <string name="tab_timeline">大家的愿望</string>
+    <string name="tab_settings">设置</string>
+    <string name="home_today">今天给你的话</string>
+    <string name="home_play_self">朗读</string>
+    <string name="home_play_ai">AI</string>
+    <string name="home_play_recorded">录音</string>
+    <string name="home_autoplay_label">启动时自动播放</string>
+    <string name="library_empty">尚未注册任何话语</string>
+    <string name="timeline_empty">尚无投稿</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_privacy">隐私政策</string>
+</resources>

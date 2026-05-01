@@ -60,34 +60,45 @@ final class AdMobService: NSObject {
     }
 
     // MARK: - Rewarded (B8: AI生成のゲートに使用)
+    private var lastRewardedLoadError: String?
+
     func preloadRewarded() async {
         guard !isLoadingRewarded, rewarded == nil else { return }
         isLoadingRewarded = true
         defer { isLoadingRewarded = false }
+        let unitId = AdMobConfig.rewardedUnitID
+        NSLog("[AdMobService] preloadRewarded start unit=%@", unitId)
         do {
-            rewarded = try await RewardedAd.load(
-                with: AdMobConfig.rewardedUnitID,
-                request: Request()
-            )
+            rewarded = try await RewardedAd.load(with: unitId, request: Request())
+            lastRewardedLoadError = nil
+            NSLog("[AdMobService] rewarded loaded OK")
         } catch {
             rewarded = nil
+            lastRewardedLoadError = String(describing: error)
+            NSLog("[AdMobService] rewarded load FAILED: %@", lastRewardedLoadError ?? "")
+            // 30秒後に自動再試行 (アプリが起動中の間)
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(30))
+                await self.preloadRewarded()
+            }
         }
     }
 
     /// リワード広告を提示し、ユーザーがリワード獲得したら true を返す
-    /// - 広告未ロード時は試行: 即時 load を試みて、3秒以内にロードできれば再度 present
-    /// - それでも失敗したら false (= AI 生成スキップ) を返す
-    /// - ad.present の completion は単なる dismiss なので、reward は userDidEarnRewardHandler で取る
+    /// - 広告未ロード時は: 1秒だけ load 試行、それでもダメなら false (= スキップ扱い)
+    /// - 呼出側 (AdRewardGate) が結果を見て次の挙動を決める
     func presentRewarded(from viewController: UIViewController,
                         completion: @escaping (Bool) -> Void) {
         if rewarded == nil {
-            // 即席ロード試行 (UX を阻害しない上限 3 秒)
+            // 短時間 (1秒) だけロードを試して、無理なら諦める
             Task { @MainActor in
-                await self.preloadRewarded()
+                let loadTask = Task { await self.preloadRewarded() }
+                try? await Task.sleep(for: .seconds(1))
+                loadTask.cancel()
                 if let ad = self.rewarded {
                     self.showRewarded(ad: ad, from: viewController, completion: completion)
                 } else {
-                    NSLog("[AdMobService] rewarded ad unavailable → deny (no AI without reward)")
+                    NSLog("[AdMobService] rewarded ad unavailable, skip")
                     completion(false)
                 }
             }

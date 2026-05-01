@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyAffirme</string>
+    <string name="app_subtitle">Affirmations 24/7</string>
+    <string name="tab_home">Accueil</string>
+    <string name="tab_library">Mes mots</string>
+    <string name="tab_timeline">Souhaits</string>
+    <string name="tab_settings">Réglages</string>
+    <string name="home_today">Pour toi aujourd\'hui</string>
+    <string name="home_play_self">Lire</string>
+    <string name="home_play_ai">IA</string>
+    <string name="home_play_recorded">Enreg.</string>
+    <string name="home_autoplay_label">Lecture auto au démarrage</string>
+    <string name="library_empty">Aucune affirmation</string>
+    <string name="timeline_empty">Aucun message</string>
+    <string name="settings_language">Langue</string>
+    <string name="settings_about">À propos</string>
+    <string name="settings_privacy">Confidentialité</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyAffirme</string>
+    <string name="app_subtitle">Afirmações Diárias</string>
+    <string name="tab_home">Início</string>
+    <string name="tab_library">Minhas palavras</string>
+    <string name="tab_timeline">Desejos</string>
+    <string name="tab_settings">Ajustes</string>
+    <string name="home_today">Para você hoje</string>
+    <string name="home_play_self">Ler</string>
+    <string name="home_play_ai">IA</string>
+    <string name="home_play_recorded">Gravação</string>
+    <string name="home_autoplay_label">Reprodução automática</string>
+    <string name="library_empty">Sem afirmações</string>
+    <string name="timeline_empty">Sem publicações</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_privacy">Privacidade</string>
+</resources>

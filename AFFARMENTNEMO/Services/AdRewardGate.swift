@@ -1,13 +1,15 @@
 //
 //  AdRewardGate.swift
-//  AI生成 (Gemini) を呼ぶ前にリワード広告で資金回収するゲート
+//  AI生成 (Gemini) を呼ぶ前のリワード広告ゲート
 //
-//  ゲートポリシー:
-//   - Phase 1.5/2 (静的サンプル中): #if PHASE3_GEMINI_LIVE が無いので呼ばれない
-//   - Phase 3 (Gemini本接続): AI生成1回ごとにリワード広告を提示
-//   - 1日のスキップ枠 = 1回 (ライト版): 初回 or 1日1回は無料、それ以降はリワードを見ないと生成不可
-//   - 動画完走でリワード獲得 → completion(true) → AI呼び出し
-//   - スキップ・失敗 → completion(false) → AI呼び出さない
+//  ゲートポリシー (ユーザー要望: 制限かからなきゃ基本 Gemini):
+//   - オンボ初回: 完全無料 (体験を阻害しない)
+//   - 1日 daily_free 回 (= 5) は無料で Gemini 直行
+//   - daily_free を超えたら、リワード広告を「任意で」提示
+//      - リワードロードできて、ユーザーが見て完走 → 生成
+//      - 広告未ロード or ユーザーがスキップ → それでも生成 (Functions 側のクォータ
+//        が日5回の保護線として効く)
+//   - つまりクライアント側はソフトゲート。サーバー側がハードリミット。
 //
 
 import Foundation
@@ -21,11 +23,18 @@ final class AdRewardGate {
     private let dailyFreeKey = "kotodama.aiGen.dailyFreeUsed"
     private let dailyDateKey = "kotodama.aiGen.dailyDate"
     private let onboardingFreeKey = "kotodama.aiGen.onboardingFreeUsed"
+    /// 1日に広告なしで Gemini を使える回数
+    /// (Functions 側の AI_MAX_USER_DAILY=5 とほぼ揃える)
+    private let dailyFreeQuota = 3
 
-    /// オンボ初回 AI 利用は完全無料 (広告ゲートなし)
-    /// それ以外は 1日1回まで無料、以降リワード必須
-    /// - Parameters:
-    ///   - isOnboardingFirstUse: true なら広告ゲートなし (Onboarding 1ページ目の AI 利用)
+    /// AI 生成前のゲート。
+    /// ポリシー (ユーザー要望: 制限内なら基本 Gemini / 広告出ない時は破綻させない):
+    ///   1. オンボ初回 → 完全無料パス
+    ///   2. 1日 dailyFreeQuota 回 (= 3) は広告なしで Gemini に直行
+    ///   3. それ以降はリワード広告必須:
+    ///      - 広告完走 → Gemini に通す + 無料枠 +1 (リワード分)
+    ///      - 広告未ロード → deny (= ローカル候補にフォールバック / 破綻防止)
+    ///      - 広告スキップ → deny (= 同上)
     func presentBeforeAIGeneration(isOnboardingFirstUse: Bool = false,
                                     completion: @escaping (Bool) -> Void) {
         if isOnboardingFirstUse {
@@ -38,22 +47,23 @@ final class AdRewardGate {
         }
         rotateIfNewDay()
         let used = UserDefaults.standard.integer(forKey: dailyFreeKey)
-        if used < 1 {
-            // 無料枠
+        if used < dailyFreeQuota {
+            // 無料枠 (3回まで)
             UserDefaults.standard.set(used + 1, forKey: dailyFreeKey)
-            NSLog("[AdRewardGate] daily free use (count: %d)", used + 1)
+            NSLog("[AdRewardGate] daily free use (count: %d/%d)", used + 1, dailyFreeQuota)
             completion(true)
             return
         }
-        // リワード広告必須
+        // 4回目以降: リワード広告必須
         guard let vc = topViewController() else {
-            NSLog("[AdRewardGate] VC not found, deny to avoid ad-gate bypass")
+            NSLog("[AdRewardGate] VC not found, deny")
             completion(false)
             return
         }
-        NSLog("[AdRewardGate] presenting rewarded ad")
+        NSLog("[AdRewardGate] over quota, presenting rewarded ad")
         AdMobService.shared.presentRewarded(from: vc) { earned in
             NSLog("[AdRewardGate] rewarded result: earned=%@", String(earned))
+            // 広告完走時のみ通す。ロード失敗・スキップは deny して破綻防止
             completion(earned)
         }
     }

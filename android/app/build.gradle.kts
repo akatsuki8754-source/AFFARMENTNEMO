@@ -14,8 +14,10 @@ android {
         applicationId = "com.mendoi.kotodama"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.3"
+        // ユーザー要望: 全ロケール対応
+        resourceConfigurations.addAll(listOf("ja", "en", "zh-rCN", "zh-rTW", "ko", "de", "es", "fr", "pt-rBR", "ru"))
         vectorDrawables { useSupportLibrary = true }
     }
 

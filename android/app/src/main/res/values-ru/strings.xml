@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyAffirme</string>
+    <string name="app_subtitle">Ежедневные аффирмации</string>
+    <string name="tab_home">Главная</string>
+    <string name="tab_library">Мои слова</string>
+    <string name="tab_timeline">Желания</string>
+    <string name="tab_settings">Настройки</string>
+    <string name="home_today">Сегодня для тебя</string>
+    <string name="home_play_self">Чтение</string>
+    <string name="home_play_ai">ИИ</string>
+    <string name="home_play_recorded">Запись</string>
+    <string name="home_autoplay_label">Автозапуск при открытии</string>
+    <string name="library_empty">Аффирмаций пока нет</string>
+    <string name="timeline_empty">Публикаций пока нет</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_privacy">Конфиденциальность</string>
+</resources>
