@@ -305,6 +305,11 @@ struct ReadAloudView: View {
         rec.stopPlaying()
         ttsSpeaking = false
 
+        // 真因対策: 現在の項目を「読了」としてカウント
+        if items.indices.contains(index) {
+            store.incrementReadCount(for: items[index])
+        }
+
         if index + 1 < items.count {
             index += 1
             // ユーザー要望: AI/録音 自動切替時に1秒間を空ける (連続で繋がって聞こえる問題対策)

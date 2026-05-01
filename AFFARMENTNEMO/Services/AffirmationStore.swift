@@ -139,6 +139,13 @@ final class AffirmationStore {
 
     // MARK: - Read completion
 
+    /// 個別 affirmation の readCount を +1 (Library 画面 「読了 N 回」の真因対策)
+    func incrementReadCount(for affirmation: Affirmation) {
+        affirmation.readCount += 1
+        affirmation.updatedAt = Date()
+        try? context.save()
+    }
+
     /// 「✓ 読みました」タップ時の処理: ストリーク・XP更新 + ReadLog記録
     func recordRead(slot: String = "anytime") -> ReadCompletionResult {
         let stats = userStats()
