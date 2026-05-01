@@ -148,36 +148,55 @@ final class AdMobService: NSObject {
         }
     }
 
+    /// fullScreenContentDelegate ハンドラ - 広告 dismiss 時に earned で確定 completion を呼ぶ
+    private var rewardedDelegate: RewardedAdDelegate?
+
     private func showRewarded(ad: RewardedAd, from vc: UIViewController,
                               completion: @escaping (Bool) -> Void) {
-        var earned = false
-        // 真因対策: completion クロージャは「dismiss 後」の通知なので
-        //   実際のリワード獲得は ad.present(from:userDidEarnRewardHandler:) で判定する
+        // earned フラグを delegate と present completion で共有
+        let delegate = RewardedAdDelegate { [weak self] earned in
+            NSLog("[AdMobService] rewarded ad dismissed, earned=%@", String(earned))
+            completion(earned)
+            self?.rewardedDelegate = nil
+        }
+        // strong ref を保持 (delegate weak なので解放されると completion 呼ばれない)
+        self.rewardedDelegate = delegate
+        ad.fullScreenContentDelegate = delegate
+
         ad.present(from: vc) {
             // userDidEarnRewardHandler — 動画完走したときだけ呼ばれる
-            earned = true
-            NSLog("[AdMobService] rewarded ad earned")
+            delegate.earned = true
+            NSLog("[AdMobService] rewarded ad earned (handler called)")
         }
         rewarded = nil
         Task { await preloadRewarded() }
+    }
+}
 
-        // 動画閉じ後の判定 — fullScreenContentDelegate を立てるのが王道だが、
-        // SwiftUI ベースなので present 完了 + earned フラグの監視で代替
-        // 5 秒経過後に earned が立っていなければスキップ扱い
-        Task { @MainActor in
-            for _ in 0..<60 {  // 60 * 0.5s = 30秒上限
-                try? await Task.sleep(for: .milliseconds(500))
-                if vc.presentedViewController == nil {
-                    // 広告 modal が閉じられた → earned で判定
-                    NSLog("[AdMobService] rewarded ad dismissed, earned=\(earned)")
-                    completion(earned)
-                    return
-                }
-            }
-            // タイムアウト = ユーザーが閉じない or 広告が固まった → 安全側で false
-            NSLog("[AdMobService] rewarded ad timeout, deny")
-            completion(false)
-        }
+/// FullScreenContentDelegate — リワード広告の dismiss/fail を確実に拾う
+private final class RewardedAdDelegate: NSObject, FullScreenContentDelegate {
+    var earned: Bool = false
+    private let onComplete: (Bool) -> Void
+    private var completed = false
+
+    init(onComplete: @escaping (Bool) -> Void) {
+        self.onComplete = onComplete
+    }
+
+    private func finish(_ result: Bool) {
+        guard !completed else { return }
+        completed = true
+        DispatchQueue.main.async { self.onComplete(result) }
+    }
+
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        NSLog("[RewardedAdDelegate] adDidDismissFullScreenContent earned=%@", String(earned))
+        finish(earned)
+    }
+
+    func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        NSLog("[RewardedAdDelegate] didFailToPresent error=%@", error.localizedDescription)
+        finish(false)
     }
 }
 

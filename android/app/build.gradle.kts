@@ -21,6 +21,27 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
+    // ★ 順序重要: signingConfigs を buildTypes より先に定義する
+    signingConfigs {
+        create("release") {
+            // ハードコード fallback でもデフォルト値を解決できるように
+            val keystorePath = System.getenv("KOTODAMA_KEYSTORE")
+                ?: "${System.getProperty("user.home")}/.kotodama-secrets/kotodama-release.jks"
+            val storePass = System.getenv("KOTODAMA_KEYSTORE_PASSWORD") ?: "kotodama2026"
+            val alias = System.getenv("KOTODAMA_KEY_ALIAS") ?: "kotodama"
+            val keyPass = System.getenv("KOTODAMA_KEY_PASSWORD") ?: "kotodama2026"
+            if (file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = keyPass
+                println("[signingConfig] release: using $keystorePath")
+            } else {
+                println("[signingConfig] release: keystore NOT found at $keystorePath — fallback to debug")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -30,19 +51,6 @@ android {
         }
         debug {
             // applicationIdSuffix removed for google-services.json compat
-        }
-    }
-
-    signingConfigs {
-        create("release") {
-            // 後で keystore 生成して埋める
-            val keystorePath = System.getenv("KOTODAMA_KEYSTORE") ?: "${System.getProperty("user.home")}/.kotodama-secrets/kotodama-release.jks"
-            if (file(keystorePath).exists()) {
-                storeFile = file(keystorePath)
-                storePassword = System.getenv("KOTODAMA_KEYSTORE_PASSWORD") ?: ""
-                keyAlias = System.getenv("KOTODAMA_KEY_ALIAS") ?: "kotodama"
-                keyPassword = System.getenv("KOTODAMA_KEY_PASSWORD") ?: ""
-            }
         }
     }
 

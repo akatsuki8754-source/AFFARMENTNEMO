@@ -669,18 +669,14 @@ struct AIWishWizardView: View {
         generationTask = Task { @MainActor in
             // ── 1. Firestore aiRuntime.clientEnabled をチェック (runtime gate) ──
             let liveEnabled = await AIWishGenerationService.shared.liveGenerationEnabled()
+            NSLog("[AIWishWizard] liveEnabled=%@", String(liveEnabled))
             if Task.isCancelled { return }
 
             if !liveEnabled {
-                // Phase 1.5: 静的サンプルにフォールバック
-                generatingMode = .localOnly
-                try? await Task.sleep(for: .milliseconds(700))
-                if Task.isCancelled { return }
-                candidates = KnowledgeMap.generateCandidates(for: path)
-                candidateSource = .local
-                selectedTexts = []
-                step = .showCandidates
-                return
+                // Firestore 取得失敗 (オフライン / 認証エラー等) でも、
+                // Gemini を1度叩いてみる。失敗したらローカルにフォールバック。
+                // これで「ローカルしか出ない」体験を最小化。
+                NSLog("[AIWishWizard] liveEnabled=false but trying Gemini once")
             }
 
             // ── 2. リワード広告ゲート ──
@@ -701,13 +697,22 @@ struct AIWishWizardView: View {
             #else
             granted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
                 AdRewardGate.shared.presentBeforeAIGeneration(isOnboardingFirstUse: isOnboardingFirstUse) { g in
+                    NSLog("[AIWishWizard] gate completion: granted=%@", String(g))
                     cont.resume(returning: g)
                 }
             }
             #endif
+            NSLog("[AIWishWizard] granted=%@ → %@", String(granted),
+                  granted ? "Gemini call" : "DENIED, fallback to local")
             if !granted {
-                // ユーザーが広告スキップ → 生成中断、選択画面に戻る
-                step = .selectingPath
+                // ユーザーが広告スキップ → ローカル候補にフォールバック (画面遷移はしない)
+                generatingMode = .localOnly
+                try? await Task.sleep(for: .milliseconds(500))
+                if Task.isCancelled { return }
+                candidates = KnowledgeMap.generateCandidates(for: path)
+                candidateSource = .local
+                selectedTexts = []
+                step = .showCandidates
                 return
             }
             if Task.isCancelled { return }
