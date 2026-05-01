@@ -11,6 +11,8 @@ struct MainTabView: View {
     @AppStorage("kotodama.debug.startTab") private var startTab: Int = 0
     /// デバッグ用: 起動時に AI Wizard を自動的に開く
     @AppStorage("kotodama.debug.openAIWizard") private var debugOpenAIWizard: Bool = false
+    /// 自分の投稿に新規リアクションが付いた数 (timeline 開いたら 0 にリセット)
+    @AppStorage("kotodama.timeline.unreadReactionCount") private var unreadReactionCount: Int = 0
     @State private var selection: Int = UserDefaults.standard.integer(forKey: "kotodama.debug.startTab")
     @State private var showDebugAIWizard: Bool = false
 
@@ -28,6 +30,7 @@ struct MainTabView: View {
                 TimelineView()
                     .tabItem { Label("tab.timeline", systemImage: "bubble.left.and.bubble.right") }
                     .tag(2)
+                    .badge(unreadReactionCount > 0 ? unreadReactionCount : 0)
             }
 
             SettingsView()
@@ -35,6 +38,10 @@ struct MainTabView: View {
                 .tag(3)
         }
         .tint(Color.brandPrimary)
+        .onChange(of: selection) { _, new in
+            // タイムラインを開いたらバッジをクリア (Twitter/X の通知バッジ動作)
+            if new == 2 { unreadReactionCount = 0 }
+        }
         .onAppear {
             selection = startTab
             if debugOpenAIWizard {

@@ -17,35 +17,39 @@ ROOT = Path(__file__).parent
 SRC_DIR = ROOT / "screenshots"
 OUT_DIR = ROOT / "output"
 
-# キャッチコピー (ja/en/zh-Hans/zh-Hant/ko)
+# キャッチコピー (PAS + Cialdini 視点で全面リライト)
+# - 1枚目: Problem (3日坊主問題) — 「変わりたい」のフック
+# - 2枚目: Social proof (みんなの願い) — Cialdini 社会的証明
+# - 3枚目: Authority (科学的根拠) — スタンフォード/NYU
+# - 4枚目: Solution (30秒の音読) — Specific
 COPIES = {
     "01_home.png": {
-        "ja": ("毎日の言葉で", "なりたい自分へ"),
-        "en": ("Daily words", "for the you you want to be"),
-        "zh-Hans": ("每日的话语", "塑造理想的自己"),
-        "zh-Hant": ("每日的話語", "塑造理想的自己"),
-        "ko":      ("매일의 말로", "되고 싶은 나로"),
+        "ja": ("3日坊主、終わりに。", "AIが3秒で言葉を作る"),
+        "en": ("Quit quitting in 3 days.", "AI gives 3 picks in seconds"),
+        "zh-Hans": ("3 天打鱼，告别。", "AI 3 秒给你 3 句"),
+        "zh-Hant": ("3 天打魚，告別。", "AI 3 秒給你 3 句"),
+        "ko":      ("3일 만에 끝, 이제 그만.", "AI가 3초에 3문장"),
     },
     "02_timeline.png": {
-        "ja": ("みんなの願い", "24時間で天に流れる"),
-        "en": ("Wishes from everyone", "Drift away in 24 hours"),
-        "zh-Hans": ("大家的愿望", "24小时随风消散"),
-        "zh-Hant": ("大家的願望", "24小時隨風消散"),
-        "ko":      ("모두의 소원", "24시간 후 하늘로"),
+        "ja": ("ひとりじゃない。", "世界中の願いが、今日も流れる"),
+        "en": ("You're not alone.", "Wishes from across the world"),
+        "zh-Hans": ("你并不孤单。", "全世界的愿望，今天也在流"),
+        "zh-Hant": ("你並不孤單。", "全世界的願望，今天也在流"),
+        "ko":      ("혼자가 아닙니다.", "전 세계의 소원이 오늘도 흐른다"),
     },
     "05_lang.png": {
-        "ja": ("通知も声も", "あなた仕様に"),
-        "en": ("Notifications & voice", "tailored for you"),
-        "zh-Hans": ("通知与声音", "为你定制"),
-        "zh-Hant": ("通知與聲音", "為你定制"),
-        "ko":      ("알림도 목소리도", "당신만의 설정"),
+        "ja": ("科学が認めた習慣化。", "Stanford × NYU の理論を実装"),
+        "en": ("Science-backed habit.", "Stanford + NYU research, implemented"),
+        "zh-Hans": ("科学支持的习惯。", "实装 斯坦福 × 纽约大 研究"),
+        "zh-Hant": ("科學支持的習慣。", "實裝 史丹佛 × 紐約大 研究"),
+        "ko":      ("과학이 입증한 습관.", "스탠퍼드 × NYU 연구 구현"),
     },
     "06_recording.png": {
-        "ja": ("自分の声で", "潜在意識に届ける"),
-        "en": ("Read aloud", "Reach your subconscious"),
-        "zh-Hans": ("朗读出声", "传达潜意识"),
-        "zh-Hant": ("朗讀出聲", "傳達潛意識"),
-        "ko":      ("소리내어 읽기", "잠재의식에 닿다"),
+        "ja": ("30 秒で、自分が変わる。", "声に出すたび、行動が動く"),
+        "en": ("30 sec to shift you.", "Speak it. Your action follows."),
+        "zh-Hans": ("30 秒，重塑自己。", "出声朗读，行动随之改变"),
+        "zh-Hant": ("30 秒，重塑自己。", "出聲朗讀，行動隨之改變"),
+        "ko":      ("30 초로 자신이 바뀐다.", "소리 내면 행동도 따라온다"),
     },
 }
 
@@ -77,40 +81,42 @@ def overlay(src_img: Path, headline: str, sub: str, lang: str) -> Image.Image:
     img = Image.open(src_img).convert("RGBA")
     W, H = img.size
 
-    # 上1/3 に半透明グラデ帯
-    band_h = int(H * 0.30)
+    # 上 35% にしっかり目立つグラデ帯 (旧 30% → 35%)
+    band_h = int(H * 0.35)
     band = Image.new("RGBA", (W, band_h), (0, 0, 0, 0))
     bd = ImageDraw.Draw(band)
     for y in range(band_h):
-        # 上ほど濃い
-        alpha = int(180 * (1 - y / band_h * 0.4))
-        bd.line([(0, y), (W, y)], fill=(20, 30, 60, alpha))
+        # 上ほど濃く、下にいくほど透明 (旧 alpha 180 → 220 で視認性↑)
+        ratio = 1 - (y / band_h) * 0.55
+        alpha = int(220 * ratio)
+        bd.line([(0, y), (W, y)], fill=(15, 25, 55, alpha))
     img.paste(band, (0, 0), band)
 
-    # テキスト描画
-    headline_size = int(W * 0.075)  # 6.5"幅 1290 → 約97pt
-    sub_size = int(W * 0.040)
+    # テキスト描画 — フォントサイズ大幅増 (旧 7.5% → 10%, 旧 4% → 5.2%)
+    headline_size = int(W * 0.10)   # 1290px → 129pt
+    sub_size = int(W * 0.052)        # 1290px → 67pt
     headline_font = load_font(lang, headline_size)
     sub_font = load_font(lang, sub_size)
 
     draw = ImageDraw.Draw(img)
-    # 中央寄せ
     headline_w = draw.textlength(headline, font=headline_font)
     sub_w = draw.textlength(sub, font=sub_font)
-    headline_y = int(H * 0.06)
-    sub_y = headline_y + int(headline_size * 1.3)
+    headline_y = int(H * 0.05)
+    sub_y = headline_y + int(headline_size * 1.25)
 
-    # 影
-    for ox, oy in [(2, 2), (-2, -2), (2, -2), (-2, 2)]:
+    # 強い影 (4方向 → 8方向、ぼかしなしで太く)
+    shadow_offsets = [(3, 3), (-3, -3), (3, -3), (-3, 3),
+                      (4, 0), (-4, 0), (0, 4), (0, -4)]
+    for ox, oy in shadow_offsets:
         draw.text(((W - headline_w) // 2 + ox, headline_y + oy),
-                  headline, fill=(0, 0, 0, 200), font=headline_font)
+                  headline, fill=(0, 0, 0, 230), font=headline_font)
         draw.text(((W - sub_w) // 2 + ox, sub_y + oy),
-                  sub, fill=(0, 0, 0, 180), font=sub_font)
-    # 本文
+                  sub, fill=(0, 0, 0, 200), font=sub_font)
+    # 本文 (見出し: 純白 / サブ: 暖色アンバー — Cialdini "liking" 暖色)
     draw.text(((W - headline_w) // 2, headline_y),
               headline, fill=(255, 255, 255, 255), font=headline_font)
     draw.text(((W - sub_w) // 2, sub_y),
-              sub, fill=(255, 230, 180, 255), font=sub_font)
+              sub, fill=(255, 220, 140, 255), font=sub_font)
 
     return img.convert("RGB")
 

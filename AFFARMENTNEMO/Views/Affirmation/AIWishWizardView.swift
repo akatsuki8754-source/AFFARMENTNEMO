@@ -33,6 +33,12 @@ struct AIWishWizardView: View {
     @State private var selectedTexts: Set<String> = []
     @State private var step: WizardStep = .selectingPath
     @State private var generationTask: Task<Void, Never>?
+    /// 任意の追加コンテキスト (200 字上限 — Hick's Law / コストリターン設計)
+    @State private var freeformContext: String = ""
+    @State private var showFreeformInput: Bool = false
+    @StateObject private var freeformHandler = EditableTextHandler()
+    @State private var freeformFocused: Bool = false
+    private let maxFreeformLen = 200
     /// 各階層で「その他」を押した回数 (3択ローテーションのため)
     @State private var rotationOffsetByLevel: [Int: Int] = [:]
     /// 候補再生成カウント (静的サンプルでも順序を変えるため)
@@ -272,9 +278,66 @@ struct AIWishWizardView: View {
                         .padding(.top, AppSpacing.sm)
                 }
 
+                // 任意の追加コンテキスト (200字 — Hick's Law / Choice Overload 回避)
+                if !path.isEmpty {
+                    freeformInputSection
+                        .padding(.horizontal, AppSpacing.screenEdge)
+                        .padding(.top, AppSpacing.md)
+                }
+
                 Spacer().frame(height: AppSpacing.xl)
             }
             .padding(.top, AppSpacing.md)
+        }
+    }
+
+    /// AIに渡す任意の追加情報入力エリア
+    /// - 200字上限: Hick's Law / Context Rot (Chroma 2024 研究) / コスト管理
+    /// - 任意: 損失回避 (入力強制すると離脱率↑) を回避
+    private var freeformInputSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Button {
+                withAnimation { showFreeformInput.toggle() }
+                if showFreeformInput {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        freeformFocused = true
+                    }
+                }
+            } label: {
+                HStack(spacing: AppSpacing.xs) {
+                    Image(systemName: showFreeformInput ? "chevron.up.circle" : "text.bubble")
+                        .foregroundStyle(Color.brandSecondary)
+                    Text(showFreeformInput ? "閉じる" : "もっと詳しく伝える (任意)")
+                        .appFont(.caption)
+                        .foregroundStyle(Color.brandSecondary)
+                    Spacer()
+                    if !freeformContext.isEmpty {
+                        Text("\(freeformContext.count)/\(maxFreeformLen)")
+                            .appFont(.micro)
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                }
+            }
+            if showFreeformInput {
+                EditableTextView(
+                    text: $freeformContext,
+                    handler: .constant(freeformHandler),
+                    placeholder: "例: 来月の英語試験で 8 割取りたい / 子どもとの時間をもっと大切にしたい",
+                    maxLength: maxFreeformLen,
+                    minHeight: 90,
+                    isFocused: $freeformFocused
+                )
+                .frame(minHeight: 90)
+                .background(Color.bgSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+                .overlay(alignment: .top) {
+                    EditableActionToast(handler: freeformHandler)
+                        .padding(.top, 4)
+                }
+                Text("※ 入力すると AI があなたの状況に合わせた言葉を作ります。空欄でも OK")
+                    .appFont(.micro)
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
     }
 
@@ -601,7 +664,10 @@ struct AIWishWizardView: View {
             // ── 3. Gemini Cloud Function 呼出 ──
             generatingMode = .askingAI
             do {
-                let result = try await AIWishGenerationService.shared.generate(path: path)
+                let result = try await AIWishGenerationService.shared.generate(
+                    path: path,
+                    userContext: freeformContext
+                )
                 if Task.isCancelled { return }
                 candidates = result
                 candidateSource = .gemini

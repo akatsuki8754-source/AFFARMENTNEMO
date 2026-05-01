@@ -13,6 +13,7 @@
 
 import SwiftUI
 import UIKit
+import Combine
 
 /// SwiftUI で編集ツールバーを完全制御できる TextView
 /// - 全選択 / コピー / 貼付 / 切取 / 取消 / 全削除 を ToolbarHandler 経由で操作
@@ -296,7 +297,9 @@ struct EditableActionToast: View {
                 .clipShape(Capsule())
                 .shadow(radius: 4, y: 2)
                 .transition(.move(edge: .top).combined(with: .opacity))
-                .accessibilityLiveRegion(.polite)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(action.rawValue))
+                .accessibilityAddTraits(.updatesFrequently)
         }
     }
 }

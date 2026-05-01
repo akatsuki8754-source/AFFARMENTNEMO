@@ -15,9 +15,27 @@ private enum TimelineReaction: String, CaseIterable {
 
     var icon: String {
         switch self {
+        case .like: "hand.thumbsup"
+        case .heart: "heart"
+        case .peace: "sparkles"
+        }
+    }
+
+    /// 自分が選択中のときの fill アイコン (X/Twitter 風)
+    var iconActive: String {
+        switch self {
         case .like: "hand.thumbsup.fill"
         case .heart: "heart.fill"
-        case .peace: "sparkles"      // 「祈り・応援」のキラキラ (peace アイコン未表示問題対策で sparkles に変更)
+        case .peace: "sparkles"
+        }
+    }
+
+    /// 選択中のアクセントカラー (Cialdini 「liking」 — 暖色は好感度↑)
+    var activeColor: Color {
+        switch self {
+        case .like:  return .blue
+        case .heart: return .pink
+        case .peace: return .orange
         }
     }
 
@@ -350,30 +368,60 @@ struct TimelineView: View {
         }
     }
 
+    /// Twitter/X 風リアクション行
+    /// 行動経済学根拠:
+    /// - Cialdini "社会的証明" — 数字を見せる → 「他の人もリアクションしている」サイン
+    /// - フィードバック (Norman 1988) — タップ時のアイコン色変化 + Haptic
+    /// - 0 件時は数字非表示 (情報過多回避 → Hick's Law)
     private func reactionRow(_ post: TimelinePost) -> some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: AppSpacing.sm) {
             ForEach(TimelineReaction.allCases, id: \.rawValue) { reaction in
                 let selected = selectedReaction(for: post) == reaction.rawValue
+                let count = reactionCount(post, reaction: reaction)
                 Button {
                     Task { await toggleReaction(post, reaction: reaction) }
+                    UISelectionFeedbackGenerator().selectionChanged()
                 } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: reaction.icon)
-                        Text("\(reactionCount(post, reaction: reaction))")
+                        Image(systemName: selected ? reaction.iconActive : reaction.icon)
+                            .symbolEffect(.bounce, value: selected)
+                            .font(.system(size: 14, weight: selected ? .semibold : .regular))
+                            .foregroundStyle(selected ? reaction.activeColor : Color.textSecondary)
+                        if count > 0 {
+                            Text(formatCount(count))
+                                .appFont(.micro)
+                                .foregroundStyle(selected ? reaction.activeColor : Color.textSecondary)
+                                .contentTransition(.numericText(value: Double(count)))
+                        }
                     }
-                    .appFont(.micro)
-                    .foregroundStyle(selected ? Color.bgPrimary : Color.textSecondary)
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, 6)
-                    .background(selected ? Color.brandPrimary : Color.bgPrimary)
+                    .background(
+                        selected
+                            ? reaction.activeColor.opacity(0.12)
+                            : Color.bgPrimary
+                    )
                     .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text(reaction.label))
+                .accessibilityLabel(Text("\(reaction.label) \(count)"))
             }
             Spacer()
         }
         .padding(.top, AppSpacing.xs)
+        .animation(.spring(duration: 0.25), value: post.reactionLike + post.reactionHeart + post.reactionPeace)
+    }
+
+    /// 1234 → 1.2K, 1000000 → 1M (Twitter 風省略)
+    private func formatCount(_ n: Int) -> String {
+        if n < 1000 { return "\(n)" }
+        if n < 10000 {
+            let v = Double(n) / 1000.0
+            return String(format: "%.1fK", v)
+        }
+        if n < 1000000 { return "\(n / 1000)K" }
+        let v = Double(n) / 1000000.0
+        return String(format: "%.1fM", v)
     }
 
     private func selectedReaction(for post: TimelinePost) -> String? {
@@ -458,11 +506,32 @@ struct TimelineView: View {
             await MainActor.run {
                 listener?.remove()
                 listener = TimelineService.shared.subscribePosts(room: targetRoom) { newPosts in
+                    // 自分の投稿に対する新規リアクション数の増分を計算しバッジへ反映
+                    self.updateUnreadBadge(oldPosts: self.posts, newPosts: newPosts)
                     self.posts = newPosts
                 }
             }
         }
         #endif
+    }
+
+    /// 自分の投稿の総リアクション数の増分を unreadReactionCount に加算
+    /// (Twitter/X 風通知バッジ — 行動経済学 Cialdini 「社会的証明」の動的可視化)
+    private func updateUnreadBadge(oldPosts: [TimelinePost], newPosts: [TimelinePost]) {
+        let oldMap = Dictionary(uniqueKeysWithValues: oldPosts.map { ($0.id, $0) })
+        var delta = 0
+        for new in newPosts where new.isMine {
+            let oldPost = oldMap[new.id]
+            let oldTotal = (oldPost?.reactionLike ?? 0) + (oldPost?.reactionHeart ?? 0) + (oldPost?.reactionPeace ?? 0)
+            let newTotal = new.reactionLike + new.reactionHeart + new.reactionPeace
+            if newTotal > oldTotal {
+                delta += (newTotal - oldTotal)
+            }
+        }
+        if delta > 0 {
+            let cur = UserDefaults.standard.integer(forKey: "kotodama.timeline.unreadReactionCount")
+            UserDefaults.standard.set(cur + delta, forKey: "kotodama.timeline.unreadReactionCount")
+        }
     }
 
     private func unsubscribe() {

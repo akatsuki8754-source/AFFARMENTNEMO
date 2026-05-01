@@ -5,6 +5,9 @@
 //
 
 import Foundation
+#if canImport(FirebaseAuth)
+import FirebaseAuth
+#endif
 
 struct TimelinePost: Identifiable, Hashable {
     let id: String
@@ -19,6 +22,15 @@ struct TimelinePost: Identifiable, Hashable {
     var reactionHeart: Int
     var reactionPeace: Int
     var myReaction: String?
+
+    /// 自分の投稿か (現在の anonymous uid と一致)
+    var isMine: Bool {
+        #if canImport(FirebaseAuth)
+        return authorUid == Auth.auth().currentUser?.uid
+        #else
+        return false
+        #endif
+    }
 }
 
 #if canImport(FirebaseFirestore) && canImport(FirebaseAuth)

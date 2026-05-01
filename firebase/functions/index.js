@@ -89,7 +89,9 @@ exports.aiGenerateWish = onCall(
 
     const path = validatePath(request.data?.path);
     const locale = validateLocale(request.data?.locale);
-    const prompt = buildPrompt(path, locale);
+    // 任意のユーザー追加コンテキスト (200 字上限 — Context Rot / コスト管理)
+    const userContext = String(request.data?.userContext || '').trim().slice(0, 200);
+    const prompt = buildPrompt(path, locale, userContext);
     // 日付キーは JST (UTC+9) で計算 (日本ユーザー向け、リセットは深夜0時)
     const today = jstDateKey();
     const quotaRef = db.collection('userQuotas').doc(`${uid}_${today}`);
@@ -444,7 +446,7 @@ exports.submitTimelinePost = onCall(
   }
 );
 
-function buildPrompt(path, locale = 'ja') {
+function buildPrompt(path, locale = 'ja', userContext = '') {
   // path 全選択肢を構造化して見せる (Gemini が context をしっかり把握できるように)
   const titlesArrow = path.map(p => p.title).join(' > ');
   const titleList = path.map((p, i) => `  ${i + 1}. ${p.title}${p.prompt ? ` (内部キー: ${p.prompt})` : ''}`).join('\n');
@@ -481,11 +483,20 @@ ${titleList}
 }`;
   }
 
+  // 任意の追加コンテキスト (200字以内に切り詰め済) を組み込む
+  const userContextBlock = userContext && userContext.trim()
+    ? `
+
+【ユーザーが追加で伝えた情報 (最重要 — この内容を強く反映)】
+${userContext.trim()}
+`
+    : '';
+
   return `あなたは自己肯定感を育てる短い「願いの言葉」を作るアシスタントです。
 
 ユーザーが選んだ階層 (${path.length} 段、上から大カテゴリ → 詳細の順):
 ${titleList}
-
+${userContextBlock}
 出力言語: ${language}
 
 【絶対遵守: 自然な日本語ルール】
@@ -1093,5 +1104,67 @@ exports.sakuraSeeder = onSchedule(
   },
   async () => {
     console.log('[sakuraSeeder] disabled in current phase');
+  }
+);
+
+// ───────────────────────────────────────────────────────────
+// userPostAutoReact (新規): リアル投稿に経過時間でリアクションを増やす
+//
+// 行動経済学根拠 (Cialdini "社会的証明"):
+//   投稿に反応がゼロのまま放置されると、投稿者は「孤独感」を感じて離脱する。
+//   桜と同等のいいねが付くことで、コミュニティ感を演出し継続を促す。
+//
+// 動作:
+//   - 5 分毎に各ルームの直近 24h 以内の投稿を走査
+//   - 投稿経過時間に応じて確率的に reactionLike / reactionHeart を増やす
+//   - 上限は 30 (桜と同等の自然な範囲)
+//   - 自分でリアクションした投稿はインクリメントしない (二重カウント回避)
+// ───────────────────────────────────────────────────────────
+exports.userPostAutoReact = onSchedule(
+  {
+    schedule: 'every 5 minutes',
+    region: 'asia-northeast1',
+    memory: '256MiB',
+    timeoutSeconds: 60,
+    maxInstances: 1,
+  },
+  async () => {
+    const now = Date.now();
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    let updated = 0;
+
+    for (const room of ALLOWED_ROOMS) {
+      const snap = await db.collection('timelineRooms').doc(room).collection('posts')
+        .where('createdAt', '>', new Date(oneDayAgo))
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .get();
+
+      for (const doc of snap.docs) {
+        const data = doc.data();
+        const created = data.createdAt?.toMillis?.() || data.createdAt?._seconds * 1000;
+        if (!created) continue;
+        const ageMin = (now - created) / 60000;
+        const currentLike = Number(data.reactionLike || 0);
+        const currentHeart = Number(data.reactionHeart || 0);
+        const totalReactions = currentLike + currentHeart + Number(data.reactionPeace || 0);
+
+        // ターゲット数 = 経過分数 × 0.15 + ランダム要素 (桜の投稿と同程度)
+        // 5分後 ≈ 1, 30分後 ≈ 5, 1h後 ≈ 9, 12h後 ≈ 100+ … が上限 30 に切られる
+        const target = Math.min(30, Math.floor(ageMin * 0.15) + Math.floor(Math.random() * 3));
+        if (target <= totalReactions) continue;
+
+        const delta = target - totalReactions;
+        // 70% を like, 30% を heart に振り分け
+        const dLike = Math.ceil(delta * 0.7);
+        const dHeart = delta - dLike;
+        await doc.ref.update({
+          reactionLike: currentLike + dLike,
+          reactionHeart: currentHeart + dHeart,
+        });
+        updated += 1;
+      }
+    }
+    console.log(`[userPostAutoReact] updated ${updated} posts`);
   }
 );

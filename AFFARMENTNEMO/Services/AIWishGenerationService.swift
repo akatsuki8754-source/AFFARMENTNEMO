@@ -68,7 +68,8 @@ final class AIWishGenerationService {
     /// - 認証: 匿名サインイン経由 (Functions 側で uid 必須)
     /// - quota: ユーザー5/日、グローバル800/日 (Functions 側で enforce)
     /// - エラー時は throw → 呼出元で静的フォールバックに切替
-    func generate(path: [WishMapNode]) async throws -> [String] {
+    /// - userContext: 任意の自由テキスト (200字以内, AI 入力に追加するコンテキスト)
+    func generate(path: [WishMapNode], userContext: String = "") async throws -> [String] {
         #if canImport(FirebaseAuth)
         await AuthService.shared.signInAnonymouslyIfNeeded()
         guard Auth.auth().currentUser != nil else {
@@ -81,10 +82,17 @@ final class AIWishGenerationService {
         let callable = functions.httpsCallable("aiGenerateWish")
         let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
         let localeIdentifier = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             "path": path.map { ["title": $0.title, "prompt": $0.prompt] },
             "locale": localeIdentifier
         ]
+        // 任意のコンテキストは 200 字上限で送る (コスト & Context Rot 回避)
+        let trimmedContext = userContext
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .prefix(200)
+        if !trimmedContext.isEmpty {
+            payload["userContext"] = String(trimmedContext)
+        }
         let result: HTTPSCallableResult
         do {
             NSLog("[AIWishGen] calling aiGenerateWish with path: \(payload)")
@@ -118,7 +126,7 @@ final class AIWishGenerationService {
     }
 
     private static func normalizeCandidate(_ raw: String) -> String {
-        var trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return trimmed }
         let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
         let localeIdentifier = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
