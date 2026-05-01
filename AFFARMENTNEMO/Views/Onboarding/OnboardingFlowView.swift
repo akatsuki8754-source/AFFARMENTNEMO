@@ -260,6 +260,8 @@ private struct FirstAffirmationStep: View {
     @State private var history: [String] = [""]
     @State private var historyIndex: Int = 0
     @State private var showAIWizard: Bool = false
+    @StateObject private var editorHandler = EditableTextHandler()
+    @State private var editorFocused: Bool = false
     private let maxLen = 200
 
     var body: some View {
@@ -274,11 +276,12 @@ private struct FirstAffirmationStep: View {
             focused = false
         }
         .toolbar {
-            // キーボード上部に「完了」ボタン
+            // キーボード上部に編集ツールバー (全選択/コピー/貼付/切取/取消/全削除/完了)
             ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("完了") { focused = false }
-                    .appFont(.bodyEmphasis)
+                EditableTextToolbar(handler: editorHandler) {
+                    editorFocused = false
+                    focused = false
+                }
             }
         }
         .onChange(of: text) { _, _ in }
@@ -312,26 +315,22 @@ private struct FirstAffirmationStep: View {
                 .appFont(.caption)
                 .foregroundStyle(Color.textSecondary)
 
-            TextEditor(text: $text)
-                .focused($focused)
-                .appFont(.body)
-                .scrollContentBackground(.hidden)
-                .padding(AppSpacing.sm)
-                .frame(minHeight: 140)
-                .background(Color.bgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary, style: .continuous))
-                .overlay(alignment: .topLeading) {
-                    if text.isEmpty {
-                        Text("first.placeholder")
-                            .appFont(.body)
-                            .foregroundStyle(Color.textDisabled)
-                            .padding(AppSpacing.sm + 4)
-                            .allowsHitTesting(false)
-                    }
-                }
-                .onChange(of: text) { _, new in
-                    if new.count > maxLen { text = String(new.prefix(maxLen)) }
-                }
+            EditableTextView(
+                text: $text,
+                handler: .constant(editorHandler),
+                placeholder: NSLocalizedString("first.placeholder", comment: ""),
+                maxLength: maxLen,
+                minHeight: 140,
+                isFocused: $editorFocused
+            )
+            .frame(minHeight: 140)
+            .background(Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary, style: .continuous))
+            .overlay(alignment: .top) {
+                EditableActionToast(handler: editorHandler)
+                    .padding(.top, 6)
+            }
+            .animation(.spring(duration: 0.25), value: editorHandler.lastAction)
 
             HStack {
                 Spacer()

@@ -32,6 +32,10 @@ struct AddAffirmationView: View {
     @State private var showCancelConfirm: Bool = false
     @State private var showAIWizard: Bool = false
 
+    // 行動経済学・UX 文献 (Thaler/Sunstein, Kahneman, Fitts) に基づく編集ハンドラ
+    @StateObject private var editorHandler = EditableTextHandler()
+    @State private var editorFocused: Bool = false
+
     @FocusState private var focused: Bool
     private let maxLen = 200
 
@@ -128,17 +132,24 @@ struct AddAffirmationView: View {
                     }
                     .disabled(!canSave)
                 }
-                // キーボード上部に「完了」(textEditor 入力時にすぐ閉じれるように)
+                // キーボード上部に編集ツールバー (全選択/コピー/貼付/切取/取消/全削除/完了)
                 ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("完了") { focused = false }
-                        .appFont(.bodyEmphasis)
+                    EditableTextToolbar(handler: editorHandler) {
+                        editorFocused = false
+                        focused = false
+                    }
                 }
             }
             .onChange(of: text) { _, _ in
                 hint = SmartHintEngine.evaluate(text)
             }
-            .onAppear { focused = true }
+            .onAppear {
+                focused = true
+                // 摩擦削減: モーダル表示直後にすぐ入力できる状態に
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    editorFocused = true
+                }
+            }
             .sheet(isPresented: $showAIWizard, onDismiss: {
                 // AI ウィザードで選択した文を draft から読み戻す (B4)
                 let updated = UserDefaults.standard.string(forKey: "kotodama.draft.text") ?? ""
@@ -171,26 +182,23 @@ struct AddAffirmationView: View {
     }
 
     private var textInputArea: some View {
-        TextEditor(text: $text)
-            .focused($focused)
-            .appFont(.body)
-            .scrollContentBackground(.hidden)
-            .padding(AppSpacing.sm)
-            .frame(minHeight: 160)
-            .background(Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
-            .overlay(alignment: .topLeading) {
-                if text.isEmpty {
-                    Text("first.placeholder")
-                        .appFont(.body)
-                        .foregroundStyle(Color.textDisabled)
-                        .padding(AppSpacing.sm + 4)
-                        .allowsHitTesting(false)
-                }
-            }
-            .onChange(of: text) { _, new in
-                if new.count > maxLen { text = String(new.prefix(maxLen)) }
-            }
+        // UITextView ラッパで全選択/コピー/貼付/切取/取消/全削除 ツールバーを利用可能に
+        EditableTextView(
+            text: $text,
+            handler: .constant(editorHandler),
+            placeholder: NSLocalizedString("first.placeholder", comment: ""),
+            maxLength: maxLen,
+            minHeight: 160,
+            isFocused: $editorFocused
+        )
+        .frame(minHeight: 160)
+        .background(Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+        .overlay(alignment: .top) {
+            EditableActionToast(handler: editorHandler)
+                .padding(.top, 6)
+        }
+        .animation(.spring(duration: 0.25), value: editorHandler.lastAction)
     }
 
     @ViewBuilder
