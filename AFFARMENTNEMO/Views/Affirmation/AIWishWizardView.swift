@@ -173,8 +173,9 @@ struct AIWishWizardView: View {
 
     // MARK: - Step 1: パス選択
     private var pathSelector: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
                 // 現在のパスをパンくず表示
                 if !path.isEmpty {
                     HStack {
@@ -312,6 +313,7 @@ struct AIWishWizardView: View {
                     freeformInputSection
                         .padding(.horizontal, AppSpacing.screenEdge)
                         .padding(.top, AppSpacing.md)
+                        .id("freeformInput")
 
                     // 自由入力からそのまま AI 生成へ進める CTA
                     Button {
@@ -338,11 +340,34 @@ struct AIWishWizardView: View {
                     .opacity(freeformContext.trimmingCharacters(in: .whitespacesAndNewlines).count < 3 ? 0.5 : 1)
                     .padding(.horizontal, AppSpacing.screenEdge)
                     .padding(.top, AppSpacing.md)
+                    .id("freeformGenerateButton")
                 }
 
-                Spacer().frame(height: AppSpacing.xl)
+                Spacer().frame(height: AppSpacing.xl * 3)  // キーボード分の余白
+                    .id("bottomAnchor")
             }
             .padding(.top, AppSpacing.md)
+            .onChange(of: showFreeformInput) { _, isShown in
+                // 自由入力を開いたら入力欄が見える位置までスクロール
+                if isShown {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            proxy.scrollTo("freeformInput", anchor: .top)
+                        }
+                    }
+                }
+            }
+            .onChange(of: freeformFocused) { _, focused in
+                // キーボード出現でテキストエリア + 確定ボタンが見えるよう bottom にスクロール
+                if focused {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            proxy.scrollTo("freeformGenerateButton", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+            }  // ScrollView 終了
         }
     }
 
