@@ -118,7 +118,7 @@ final class AIWishGenerationService {
     }
 
     private static func normalizeCandidate(_ raw: String) -> String {
-        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        var trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return trimmed }
         let appLanguage = UserDefaults.standard.string(forKey: "kotodama.appLanguage") ?? "system"
         let localeIdentifier = LanguageCatalog.effectiveAppLocaleIdentifier(userDefaultValue: appLanguage)
@@ -129,11 +129,35 @@ final class AIWishGenerationService {
             }
             return "\(trimmed)."
         }
-        let cleaned = trimmed
-            .replacingOccurrences(of: "ですしたい", with: "です")
-            .replacingOccurrences(of: "ますしたい", with: "ます")
-            .replacingOccurrences(of: "であるしたい", with: "である")
-            .trimmingCharacters(in: CharacterSet(charactersIn: "。.!！？"))
-        return "\(cleaned)。"
+
+        // 末尾記号を一旦剥がす
+        var t = trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "。.!！？\n\r 　"))
+
+        // 文末「したい」連結を全パターン除去 (最大 4 ループで連結を完全に解す)
+        for _ in 0..<4 {
+            let before = t
+            // 1. 末尾 「(語尾)したい(と思います|と思う|と思って(い|る)|です|でしょう)?」 を削除
+            if let r = t.range(
+                of: "したい(?:と思います|と思う|と思っている|と思って|です|でしょう)?$",
+                options: .regularExpression
+            ) {
+                t = String(t[..<r.lowerBound])
+            }
+            // 2. 末尾の句点・空白を再度トリム
+            t = t.trimmingCharacters(in: CharacterSet(charactersIn: "。.!！？\n\r 　"))
+            // 3. 末尾が「し」「いし」「をし」など中途半端な連結なら削除
+            if let r = t.range(of: "(?:を|に|が|は|も|と)?[しじ]$", options: .regularExpression) {
+                t = String(t[..<r.lowerBound])
+            }
+            // 4. 重複したパターン (例: 「思います思います」) を1つに
+            t = t.replacingOccurrences(of: "思います思います", with: "思います")
+                 .replacingOccurrences(of: "信じます信じます", with: "信じます")
+                 .replacingOccurrences(of: "できますできます", with: "できます")
+            t = t.trimmingCharacters(in: CharacterSet(charactersIn: "、,，。.!！？\n\r 　"))
+            if t == before { break }
+        }
+
+        guard t.count >= 4 else { return "" }
+        return "\(t)。"
     }
 }

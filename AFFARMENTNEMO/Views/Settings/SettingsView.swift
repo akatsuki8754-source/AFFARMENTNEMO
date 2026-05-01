@@ -59,7 +59,7 @@ struct SettingsView: View {
                     }
                 }
 
-                // ユーザー要望: アプリ内言語切替
+                // ユーザー要望: アプリ内言語切替 (1項目のみ — 重複表示を解消)
                 Section(header: Text("言語")) {
                     Picker("アプリの言語", selection: $appLanguage) {
                         Text("システム言語に従う").tag("system")
@@ -67,8 +67,6 @@ struct SettingsView: View {
                             Text("\(language.flag)  \(language.label)").tag(language.code)
                         }
                     }
-                    LabeledContent("現在の設定",
-                                   value: LanguageCatalog.appLanguageLabel(for: appLanguage))
                     Text("変更後はアプリを再起動すると反映されます")
                         .appFont(.caption)
                         .foregroundStyle(Color.textSecondary)

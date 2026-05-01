@@ -246,10 +246,11 @@ struct HomeView: View {
                     .tint(Color.brandSecondary)
 
                     if ttsPrefs.autoplayOnLaunch {
+                        // 縦並びにして短ラベル化 (見切れ防止)
                         Picker("再生方法", selection: $ttsPrefs.autoplayMode) {
-                            Text("音読をする").tag("self")
-                            Text("AIで読み上げる").tag("ai")
-                            Text("録音した音声で流す").tag("recorded")
+                            Text("音読").tag("self")
+                            Text("AI").tag("ai")
+                            Text("録音").tag("recorded")
                         }
                         .pickerStyle(.segmented)
                     }

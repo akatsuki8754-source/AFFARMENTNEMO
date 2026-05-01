@@ -163,6 +163,9 @@ private struct WelcomeStep: View {
             }
             .frame(maxWidth: .infinity)
 
+            // 願いの数 (リアルタイム感を演出 — UI 1ページ目のみ)
+            WishCountTicker()
+
             // Body (左寄せ — リスト形式は左寄せが視認性最高)
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 BulletRow(titleKey: "welcome.bullet1.title", bodyKey: "welcome.bullet1.body")
@@ -308,8 +311,6 @@ private struct FirstAffirmationStep: View {
             Text("first.subtitle")
                 .appFont(.caption)
                 .foregroundStyle(Color.textSecondary)
-
-            WishCountTicker()
 
             TextEditor(text: $text)
                 .focused($focused)
