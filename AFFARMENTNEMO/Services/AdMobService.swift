@@ -26,9 +26,23 @@ final class AdMobService: NSObject {
     private var isLoadingRewarded = false
 
     func start() {
-        MobileAds.shared.start(completionHandler: nil)
-        Task { await preloadInterstitial() }
-        Task { await preloadRewarded() }
+        MobileAds.shared.start(completionHandler: { [weak self] _ in
+            // 起動完了後にプリロード開始
+            Task { @MainActor in
+                await self?.preloadInterstitial()
+                await self?.preloadRewarded()
+            }
+        })
+        // 定期的にリワード広告のロード状態を確認 (60s 間隔、未ロードなら再試行)
+        Task { @MainActor in
+            while true {
+                try? await Task.sleep(for: .seconds(60))
+                if self.rewarded == nil && !self.isLoadingRewarded {
+                    NSLog("[AdMobService] periodic reload of rewarded")
+                    await self.preloadRewarded()
+                }
+            }
+        }
     }
 
     // MARK: - Interstitial
@@ -85,16 +99,12 @@ final class AdMobService: NSObject {
     }
 
     /// リワード広告を提示し、ユーザーがリワード獲得したら true を返す
-    /// - 広告未ロード時は: 1秒だけ load 試行、それでもダメなら false (= スキップ扱い)
-    /// - 呼出側 (AdRewardGate) が結果を見て次の挙動を決める
+    /// - 広告未ロード時は短時間ロード試行 + 失敗したら false
     func presentRewarded(from viewController: UIViewController,
                         completion: @escaping (Bool) -> Void) {
         if rewarded == nil {
-            // 短時間 (1秒) だけロードを試して、無理なら諦める
             Task { @MainActor in
-                let loadTask = Task { await self.preloadRewarded() }
-                try? await Task.sleep(for: .seconds(1))
-                loadTask.cancel()
+                await self.preloadRewarded()
                 if let ad = self.rewarded {
                     self.showRewarded(ad: ad, from: viewController, completion: completion)
                 } else {
@@ -109,6 +119,33 @@ final class AdMobService: NSObject {
             return
         }
         showRewarded(ad: ad, from: viewController, completion: completion)
+    }
+
+    /// リトライ付きリワード提示
+    /// ロードできるまで `retries` 回 (各 `intervalSec` 秒) 試行する。
+    /// AdMob の Mediation や fill rate の問題で広告が出ないケース対策。
+    func presentRewardedWithRetry(from viewController: UIViewController,
+                                  retries: Int,
+                                  intervalSec: Double,
+                                  completion: @escaping (Bool) -> Void) {
+        Task { @MainActor in
+            for attempt in 0...retries {
+                if rewarded == nil {
+                    NSLog("[AdMobService] retry attempt %d/%d - loading…", attempt + 1, retries + 1)
+                    await self.preloadRewarded()
+                }
+                if let ad = self.rewarded {
+                    self.showRewarded(ad: ad, from: viewController, completion: completion)
+                    return
+                }
+                if attempt < retries {
+                    NSLog("[AdMobService] retry attempt %d failed, waiting %.1fs", attempt + 1, intervalSec)
+                    try? await Task.sleep(for: .seconds(intervalSec))
+                }
+            }
+            NSLog("[AdMobService] all retry attempts exhausted, deny")
+            completion(false)
+        }
     }
 
     private func showRewarded(ad: RewardedAd, from vc: UIViewController,
