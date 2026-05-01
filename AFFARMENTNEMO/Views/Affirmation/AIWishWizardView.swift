@@ -307,11 +307,37 @@ struct AIWishWizardView: View {
                         .padding(.top, AppSpacing.sm)
                 }
 
-                // 任意の追加コンテキスト (200字 — Hick's Law / Choice Overload 回避)
-                if !path.isEmpty {
+                // 自由入力 (showFreeformInput が ON のとき path に依らず表示)
+                if showFreeformInput {
                     freeformInputSection
                         .padding(.horizontal, AppSpacing.screenEdge)
                         .padding(.top, AppSpacing.md)
+
+                    // 自由入力からそのまま AI 生成へ進める CTA
+                    Button {
+                        if path.isEmpty {
+                            // path なしでも動くよう root の最初の子を仮 path として設定
+                            if let first = KnowledgeMap.root.children.first {
+                                path = [first]
+                            }
+                        }
+                        generate()
+                    } label: {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("この内容で AI に作ってもらう")
+                                .appFont(.bodyEmphasis)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: AppTouchTarget.buttonHeight)
+                        .foregroundStyle(Color.bgPrimary)
+                        .background(Color.brandPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(freeformContext.trimmingCharacters(in: .whitespacesAndNewlines).count < 3)
+                    .opacity(freeformContext.trimmingCharacters(in: .whitespacesAndNewlines).count < 3 ? 0.5 : 1)
+                    .padding(.horizontal, AppSpacing.screenEdge)
+                    .padding(.top, AppSpacing.md)
                 }
 
                 Spacer().frame(height: AppSpacing.xl)

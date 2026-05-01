@@ -18,8 +18,12 @@ final class PermissionDiagnostics: ObservableObject {
     @Published var notificationStatusText: String = "未確認"
     @Published var microphoneStatusText: String = "未確認"
     @Published var lastChecked: Date?
+    /// 「再確認」を押した直後の視覚フィードバック (ボタン側で観測)
+    @Published var refreshingTick: Int = 0
 
     func refresh() async {
+        // 押された瞬間に Tick を上げて UI に「動いた」サインを送る
+        refreshingTick += 1
         // ATT
         let att = ATTrackingManager.trackingAuthorizationStatus
         let attLabel: String

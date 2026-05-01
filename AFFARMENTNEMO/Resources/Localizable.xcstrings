@@ -23118,6 +23118,686 @@
           }
         }
       }
+    },
+    "tip.x.habit_stack": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい習慣は「もし○○したら、△△する」の形で既存の習慣に紐付けると続きやすい (Habit Stacking)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stack new habits onto existing ones with 'After I X, I will Y'. Habit Stacking sticks."
+          }
+        }
+      }
+    },
+    "tip.x.two_minute_rule": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新習慣は最初の 2 分で終わるサイズに。「やる気が出たらやる」ではなく「やってからやる気が出る」。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make new habits doable in 2 minutes. Action precedes motivation."
+          }
+        }
+      }
+    },
+    "tip.x.environment_design": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目に入るものが行動を作る。机に本を、引き出しにお菓子を。環境設計が一番強い。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you see drives what you do. Design your environment first."
+          }
+        }
+      }
+    },
+    "tip.x.identity_first": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「やる」ではなく「自分はそういう人だ」と決める。アイデンティティが行動を引き連れる。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't 'do' — 'be'. Identity drags behavior with it."
+          }
+        }
+      }
+    },
+    "tip.x.compound_effect": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日 1% の改善でも 1 年で 37 倍。小さな積み上げが指数で効いてくる。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1% better daily = 37× per year. Small steps compound."
+          }
+        }
+      }
+    },
+    "tip.x.fresh_start": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月曜・月初・誕生日など節目は「やり直し効果」が働く。新しい習慣はそこから。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mondays, month-starts, birthdays — Fresh Start effect. Begin new habits there."
+          }
+        }
+      }
+    },
+    "tip.x.commitment_device": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未来の自分を縛る装置を作る (約束 / 公言 / 自動引き落とし)。意志に頼らず構造で勝つ。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build commitment devices (promises, public stakes, auto-debits). Beat willpower with structure."
+          }
+        }
+      }
+    },
+    "tip.x.temptation_bundling": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好きなこと (動画) と、やるべきこと (運動) をセットにする (Temptation Bundling)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair what you want (Netflix) with what you need (exercise). Temptation Bundling."
+          }
+        }
+      }
+    },
+    "tip.x.never_miss_twice": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 日休んでも崩れない。2 日連続で休まない、を最低ラインに。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing one day is fine. Never miss two in a row."
+          }
+        }
+      }
+    },
+    "tip.x.tracking": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記録すると続く。可視化したものは改善される。読了カウントは小さな成功体験。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What gets tracked gets done. Reading count is a small win record."
+          }
+        }
+      }
+    },
+    "tip.x.self_compassion": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗した自分に「親友にかける言葉」を。自己批判より自己思いやりの方が伸びる (Neff)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speak to yourself as you would a dear friend. Self-compassion outperforms self-criticism (Neff)."
+          }
+        }
+      }
+    },
+    "tip.x.growth_mindset": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「まだ」できないだけ。能力は固定ではなく筋肉のように育つ (Carol Dweck)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can't do it 'yet'. Ability grows like muscle (Dweck)."
+          }
+        }
+      }
+    },
+    "tip.x.body_first": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "心が落ちる日は、まず姿勢を伸ばす・水を飲む・歩く。身体から心を整える。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the mind sags, fix the body first: posture, water, walk."
+          }
+        }
+      }
+    },
+    "tip.x.deep_breath": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 秒吸って 6 秒吐く呼吸を 3 セット。副交感神経が入って言葉が深く届く。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4-sec inhale, 6-sec exhale ×3. Activates rest mode; words land deeper."
+          }
+        }
+      }
+    },
+    "tip.x.gratitude_three": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寝る前に「良かったこと 3 つ」を書くと、前向き感受性が育つ (Seligman)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write 3 good things before sleep. Trains positive perception (Seligman)."
+          }
+        }
+      }
+    },
+    "tip.x.compare_yesterday": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "他人ではなく昨日の自分と比べる。比べる相手を変えるだけで気分が変わる。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare to yesterday's self, not others. Change the reference, change the day."
+          }
+        }
+      }
+    },
+    "tip.x.permission_rest": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "休む許可を自分に出す。休息は怠けではなく、明日の燃料。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Give yourself permission to rest. Rest isn't laziness — it's tomorrow's fuel."
+          }
+        }
+      }
+    },
+    "tip.x.smile_first": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "口角を 1cm 上げるだけで脳が「楽しい」と判定する (顔面フィードバック仮説)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the corner of your mouth 1 cm. The brain interprets it as joy (facial feedback)."
+          }
+        }
+      }
+    },
+    "tip.x.proud_moment": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日の自分を 1 つだけ褒める。小さな承認が連続を作る。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praise yourself for one thing today. Small approval breeds streaks."
+          }
+        }
+      }
+    },
+    "tip.x.future_self_letter": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 年後の自分に手紙を書く。書いた未来は具体性で力を持つ。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write a letter to your future self in 1 year. Written futures gain power through specificity."
+          }
+        }
+      }
+    },
+    "tip.x.smart_goal": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目標は SMART (具体・測定可能・達成可能・関連性・期限)。曖昧は燃料切れ。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goals are SMART: Specific, Measurable, Achievable, Relevant, Time-bound. Vague kills momentum."
+          }
+        }
+      }
+    },
+    "tip.x.daily_focus_one": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日の最重要 1 つを朝に決める。完了率と満足度が劇的に変わる。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick today's most important task in the morning. Completion rate and satisfaction explode."
+          }
+        }
+      }
+    },
+    "tip.x.eat_the_frog": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 番嫌な仕事を朝イチに。あとは下り坂 (Mark Twain)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do the worst task first thing. Everything's downhill after (Mark Twain)."
+          }
+        }
+      }
+    },
+    "tip.x.pomodoro": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25 分集中 + 5 分休憩。脳のスタミナは無限ではない。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25 min focus + 5 min rest. Brain stamina isn't infinite."
+          }
+        }
+      }
+    },
+    "tip.x.wins_record": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了したタスクをリストに残す。やった自分の証拠を貯める。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep a list of what you finished. Stack proof of doing."
+          }
+        }
+      }
+    },
+    "tip.x.deadline_self": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分との締切は人前で公言すると守れる (Peer pressure)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-deadlines stick when announced publicly (peer pressure)."
+          }
+        }
+      }
+    },
+    "tip.x.review_friday": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金曜の終わりに 5 分だけ週を振り返る。次週の自分にプレゼントを残す。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spend 5 min reviewing your week on Friday. Gift to next-week-you."
+          }
+        }
+      }
+    },
+    "tip.x.next_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「やる気が出たら」ではなく「次の小さな 1 ステップ」を決める。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't wait to feel motivated. Define the next small step."
+          }
+        }
+      }
+    },
+    "tip.x.read_aloud_volume": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声に出すと、内なる声より 4 倍記憶に残る (Production Effect)。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading aloud is 4× more memorable than silent reading (Production Effect)."
+          }
+        }
+      }
+    },
+    "tip.x.first_person": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「私は」で始める。自分のことだと脳が認識する。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start with 'I'. The brain registers it as personal."
+          }
+        }
+      }
+    },
+    "tip.x.present_tense": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「なる」ではなく「である」。現在形が脳を動かす。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not 'will become' — 'I am'. Present tense moves the brain."
+          }
+        }
+      }
+    },
+    "tip.x.specific_situation": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「いつ・どこで・何を」を具体に。曖昧な言葉は記憶に残らない。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When, where, what — specific. Vague words don't stick."
+          }
+        }
+      }
+    },
+    "tip.x.morning_first_word": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朝起きて最初の言葉が、その日の方向を決める。最初の 30 秒を大切に。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first word of your morning shapes the day. Treasure those 30 seconds."
+          }
+        }
+      }
+    },
+    "tip.x.evening_reflect": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寝る前の言葉が、次の朝の自分を作る。否定で終わらず、肯定で締める。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your last words at night build tomorrow's self. End on affirmation, not negation."
+          }
+        }
+      }
+    },
+    "tip.x.short_sentence": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20 字以内の短文の方が記憶に残る。長い宣言は詩であり、行動ではない。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentences under 20 chars stick best. Long declarations are poetry, not action."
+          }
+        }
+      }
+    },
+    "tip.x.quote_socrates": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「自分自身を知れ。」 — ソクラテス"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Know thyself.\" — Socrates"
+          }
+        }
+      }
+    },
+    "tip.x.quote_confucius": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「学んで時にこれを習う、また喜ばしからずや。」 — 孔子"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Is it not delightful to learn and review what you've learned?\" — Confucius"
+          }
+        }
+      }
+    },
+    "tip.x.quote_thoreau": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「自分の夢の方向に確信をもって進め。」 — ヘンリー・D・ソロー"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Go confidently in the direction of your dreams.\" — Henry D. Thoreau"
+          }
+        }
+      }
+    },
+    "tip.x.quote_helen_keller": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「楽観主義は成功への信念であり、希望なくして何もなし得ない。」 — ヘレン・ケラー"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Optimism is the faith that leads to achievement; nothing can be done without hope.\" — Helen Keller"
+          }
+        }
+      }
+    },
+    "tip.x.quote_picasso": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「やってみせ、できるまで続けろ。」 — パブロ・ピカソ"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Action is the foundational key to all success.\" — Pablo Picasso"
+          }
+        }
+      }
     }
   }
 }

@@ -73,6 +73,34 @@ struct EditableTextView: UIViewRepresentable {
             handler.bind(textView: tv)
         }
 
+        // ★ 真因対策: SwiftUI ToolbarItemGroup(.keyboard) は UIViewRepresentable
+        //    では発火しないことが多いため、UITextView 自体の inputAccessoryView に
+        //    UIToolbar を直接セットする。これでキーボード上に編集ツールバーが必ず出る
+        let tb = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        tb.barStyle = .default
+        tb.translatesAutoresizingMaskIntoConstraints = true
+        tb.autoresizingMask = .flexibleWidth
+
+        let coord = context.coordinator
+        let selectAll = UIBarButtonItem(image: UIImage(systemName: "selection.pin.in.out"),
+                                        style: .plain, target: coord, action: #selector(Coordinator.actSelectAll))
+        let copy = UIBarButtonItem(image: UIImage(systemName: "doc.on.doc"),
+                                   style: .plain, target: coord, action: #selector(Coordinator.actCopy))
+        let paste = UIBarButtonItem(image: UIImage(systemName: "doc.on.clipboard"),
+                                    style: .plain, target: coord, action: #selector(Coordinator.actPaste))
+        let cut = UIBarButtonItem(image: UIImage(systemName: "scissors"),
+                                  style: .plain, target: coord, action: #selector(Coordinator.actCut))
+        let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
+                                   style: .plain, target: coord, action: #selector(Coordinator.actUndo))
+        let clear = UIBarButtonItem(image: UIImage(systemName: "trash"),
+                                    style: .plain, target: coord, action: #selector(Coordinator.actClear))
+        clear.tintColor = .systemRed
+        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done = UIBarButtonItem(title: "完了", style: .done, target: coord, action: #selector(Coordinator.actDone))
+        tb.items = [selectAll, copy, paste, cut, undo, clear, flex, done]
+        tb.sizeToFit()
+        tv.inputAccessoryView = tb
+
         return tv
     }
 
@@ -111,6 +139,18 @@ struct EditableTextView: UIViewRepresentable {
 
         func textViewDidEndEditing(_ textView: UITextView) {
             DispatchQueue.main.async { self.parent.isFocused = false }
+        }
+
+        // MARK: - inputAccessoryView UIToolbar アクション
+        @objc func actSelectAll() { parent.handler.selectAll() }
+        @objc func actCopy()      { parent.handler.copy() }
+        @objc func actPaste()     { parent.handler.paste() }
+        @objc func actCut()       { parent.handler.cut() }
+        @objc func actUndo()      { parent.handler.undo() }
+        @objc func actClear()     { parent.handler.clearAll() }
+        @objc func actDone() {
+            // キーボードを閉じる
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
     }
 }

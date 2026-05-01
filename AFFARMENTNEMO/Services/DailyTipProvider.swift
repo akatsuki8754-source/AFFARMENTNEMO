@@ -82,6 +82,56 @@ enum DailyTipProvider {
         DailyTip(id: "tip58", messageKey: "tip.science_loehr", templateId: nil),
         DailyTip(id: "tip59", messageKey: "tip.science_neff", templateId: "hagemashi"),
         DailyTip(id: "tip60", messageKey: "tip.science_creswell", templateId: "taisetsu"),
+
+        // ─── 拡張: 行動経済学・習慣化テクニック (実用集) ───
+        DailyTip(id: "tip61", messageKey: "tip.x.habit_stack", templateId: "ifthen"),
+        DailyTip(id: "tip62", messageKey: "tip.x.two_minute_rule", templateId: nil),
+        DailyTip(id: "tip63", messageKey: "tip.x.environment_design", templateId: nil),
+        DailyTip(id: "tip64", messageKey: "tip.x.identity_first", templateId: "narikatai"),
+        DailyTip(id: "tip65", messageKey: "tip.x.compound_effect", templateId: nil),
+        DailyTip(id: "tip66", messageKey: "tip.x.fresh_start", templateId: nil),
+        DailyTip(id: "tip67", messageKey: "tip.x.commitment_device", templateId: nil),
+        DailyTip(id: "tip68", messageKey: "tip.x.temptation_bundling", templateId: nil),
+        DailyTip(id: "tip69", messageKey: "tip.x.never_miss_twice", templateId: nil),
+        DailyTip(id: "tip70", messageKey: "tip.x.tracking", templateId: nil),
+
+        // ─── 拡張: 自己肯定感・メンタル ───
+        DailyTip(id: "tip71", messageKey: "tip.x.self_compassion", templateId: "hagemashi"),
+        DailyTip(id: "tip72", messageKey: "tip.x.growth_mindset", templateId: "narikatai"),
+        DailyTip(id: "tip73", messageKey: "tip.x.body_first", templateId: nil),
+        DailyTip(id: "tip74", messageKey: "tip.x.deep_breath", templateId: nil),
+        DailyTip(id: "tip75", messageKey: "tip.x.gratitude_three", templateId: nil),
+        DailyTip(id: "tip76", messageKey: "tip.x.compare_yesterday", templateId: nil),
+        DailyTip(id: "tip77", messageKey: "tip.x.permission_rest", templateId: "hagemashi"),
+        DailyTip(id: "tip78", messageKey: "tip.x.smile_first", templateId: nil),
+        DailyTip(id: "tip79", messageKey: "tip.x.proud_moment", templateId: nil),
+        DailyTip(id: "tip80", messageKey: "tip.x.future_self_letter", templateId: "negai"),
+
+        // ─── 拡張: 営業・目標達成 ───
+        DailyTip(id: "tip81", messageKey: "tip.x.smart_goal", templateId: "negai"),
+        DailyTip(id: "tip82", messageKey: "tip.x.daily_focus_one", templateId: nil),
+        DailyTip(id: "tip83", messageKey: "tip.x.eat_the_frog", templateId: "ifthen"),
+        DailyTip(id: "tip84", messageKey: "tip.x.pomodoro", templateId: "ifthen"),
+        DailyTip(id: "tip85", messageKey: "tip.x.wins_record", templateId: nil),
+        DailyTip(id: "tip86", messageKey: "tip.x.deadline_self", templateId: nil),
+        DailyTip(id: "tip87", messageKey: "tip.x.review_friday", templateId: nil),
+        DailyTip(id: "tip88", messageKey: "tip.x.next_action", templateId: "ifthen"),
+
+        // ─── 拡張: 言葉・声・読み方 ───
+        DailyTip(id: "tip89", messageKey: "tip.x.read_aloud_volume", templateId: nil),
+        DailyTip(id: "tip90", messageKey: "tip.x.first_person", templateId: nil),
+        DailyTip(id: "tip91", messageKey: "tip.x.present_tense", templateId: nil),
+        DailyTip(id: "tip92", messageKey: "tip.x.specific_situation", templateId: "ifthen"),
+        DailyTip(id: "tip93", messageKey: "tip.x.morning_first_word", templateId: nil),
+        DailyTip(id: "tip94", messageKey: "tip.x.evening_reflect", templateId: nil),
+        DailyTip(id: "tip95", messageKey: "tip.x.short_sentence", templateId: nil),
+
+        // ─── 拡張: 名言追加 (古典中心) ───
+        DailyTip(id: "tip96", messageKey: "tip.x.quote_socrates", templateId: nil),
+        DailyTip(id: "tip97", messageKey: "tip.x.quote_confucius", templateId: nil),
+        DailyTip(id: "tip98", messageKey: "tip.x.quote_thoreau", templateId: nil),
+        DailyTip(id: "tip99", messageKey: "tip.x.quote_helen_keller", templateId: "hagemashi"),
+        DailyTip(id: "tip100", messageKey: "tip.x.quote_picasso", templateId: nil),
     ]
 
     static func tipForToday(_ date: Date = Date()) -> DailyTip {

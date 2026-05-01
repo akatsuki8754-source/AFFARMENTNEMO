@@ -105,10 +105,18 @@ struct SettingsView: View {
                     LabeledContent("広告トラッキング", value: perms.attStatusText)
                     LabeledContent("通知", value: perms.notificationStatusText)
                     LabeledContent("マイク", value: perms.microphoneStatusText)
+                    if let last = perms.lastChecked {
+                        LabeledContent("最終確認",
+                                       value: DateFormatter.localizedString(from: last, dateStyle: .none, timeStyle: .medium))
+                            .appFont(.micro)
+                            .foregroundStyle(Color.textSecondary)
+                    }
                     Button {
+                        UISelectionFeedbackGenerator().selectionChanged()
                         Task { await perms.refresh() }
                     } label: {
                         Label("再確認", systemImage: "arrow.clockwise")
+                            .symbolEffect(.rotate, value: perms.refreshingTick)
                     }
                     Button {
                         if let url = URL(string: UIApplication.openSettingsURLString) {

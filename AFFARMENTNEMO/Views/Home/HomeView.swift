@@ -161,7 +161,8 @@ struct HomeView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
-                    Text("今日の言葉")
+                    // ユーザー要望: 「アファメーション」は伝わらないので「あなたへの言葉」に
+                    Text("今日のあなたへ")
                         .appFont(.h1)
                         .foregroundStyle(Color.textPrimary)
                     Text("(\(items.count))")
@@ -240,7 +241,7 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     Toggle(isOn: $ttsPrefs.autoplayOnLaunch) {
-                        Text("アプリ起動時に音声を自動再生")
+                        Text("アプリ起動時に自動再生")
                             .appFont(.bodyEmphasis)
                     }
                     .tint(Color.brandSecondary)
@@ -262,6 +263,8 @@ struct HomeView: View {
     }
 
     private func playbackButton(mode: ReadPlaybackMode) -> some View {
+        // ユーザー要望: 3 ボタンとも同じ色 (青系) に統一。
+        // 「直近選択モード」のハイライトはユーザーには意味が伝わらないため削除。
         Button {
             requestedMode = mode
             showReadAloud = true
@@ -275,9 +278,9 @@ struct HomeView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.82)
             }
-            .foregroundStyle(mode == .ai ? Color.bgPrimary : Color.textPrimary)
+            .foregroundStyle(Color.bgPrimary)
             .frame(maxWidth: .infinity, minHeight: 64)
-            .background(mode == .ai ? Color.brandPrimary : Color.bgTertiary)
+            .background(Color.brandPrimary)
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
         }
         .buttonStyle(.plain)

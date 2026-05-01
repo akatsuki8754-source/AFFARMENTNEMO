@@ -182,23 +182,46 @@ struct AddAffirmationView: View {
     }
 
     private var textInputArea: some View {
-        // UITextView ラッパで全選択/コピー/貼付/切取/取消/全削除 ツールバーを利用可能に
-        EditableTextView(
-            text: $text,
-            handler: .constant(editorHandler),
-            placeholder: NSLocalizedString("first.placeholder", comment: ""),
-            maxLength: maxLen,
-            minHeight: 160,
-            isFocused: $editorFocused
-        )
-        .frame(minHeight: 160)
-        .background(Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
-        .overlay(alignment: .top) {
-            EditableActionToast(handler: editorHandler)
-                .padding(.top, 6)
+        VStack(alignment: .trailing, spacing: AppSpacing.xs) {
+            // UITextView ラッパで全選択/コピー/貼付/切取/取消/全削除 ツールバーを利用可能に
+            EditableTextView(
+                text: $text,
+                handler: .constant(editorHandler),
+                placeholder: NSLocalizedString("first.placeholder", comment: ""),
+                maxLength: maxLen,
+                minHeight: 160,
+                isFocused: $editorFocused
+            )
+            .frame(minHeight: 160)
+            .background(Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+            .overlay(alignment: .top) {
+                EditableActionToast(handler: editorHandler)
+                    .padding(.top, 6)
+            }
+            .animation(.spring(duration: 0.25), value: editorHandler.lastAction)
+
+            // リセットボタン (ユーザー要望: 全消し導線を独立化)
+            // 行動経済学根拠: Loss Aversion (Kahneman) — 全消しは ToolBar の「全削除」で
+            // Undo 可能なので、ユーザーは安心してリセットできる
+            if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Button {
+                    editorHandler.clearAll()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.counterclockwise.circle")
+                        Text("リセット")
+                    }
+                    .appFont(.micro)
+                    .foregroundStyle(Color.textSecondary)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, 4)
+                    .background(Color.bgSecondary)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .animation(.spring(duration: 0.25), value: editorHandler.lastAction)
     }
 
     @ViewBuilder
