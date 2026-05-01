@@ -719,15 +719,18 @@ struct AIWishWizardView: View {
 
             // ── 3. Gemini Cloud Function 呼出 ──
             generatingMode = .askingAI
+            NSLog("[AIWishWizard] calling AIWishGenerationService.generate")
             do {
                 let result = try await AIWishGenerationService.shared.generate(
                     path: path,
                     userContext: freeformContext
                 )
+                NSLog("[AIWishWizard] Gemini result count=%d", result.count)
                 if Task.isCancelled { return }
                 candidates = result
                 candidateSource = .gemini
             } catch {
+                NSLog("[AIWishWizard] Gemini FAILED, falling back to local: %@", String(describing: error))
                 // Gemini 失敗時は静的サンプルにフォールバック (UX 阻害しない)
                 if Task.isCancelled { return }
                 candidates = KnowledgeMap.generateCandidates(for: path)

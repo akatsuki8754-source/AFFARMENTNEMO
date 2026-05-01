@@ -72,7 +72,10 @@ final class AIWishGenerationService {
     func generate(path: [WishMapNode], userContext: String = "") async throws -> [String] {
         #if canImport(FirebaseAuth)
         await AuthService.shared.signInAnonymouslyIfNeeded()
+        let uid = Auth.auth().currentUser?.uid ?? "(none)"
+        NSLog("[AIWishGen] generate() uid=%@", uid)
         guard Auth.auth().currentUser != nil else {
+            NSLog("[AIWishGen] no currentUser → throwing unavailable")
             throw AIWishGenerationError.unavailable
         }
         #endif
