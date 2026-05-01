@@ -255,11 +255,7 @@ struct HomeView: View {
                         .pickerStyle(.segmented)
                     }
 
-                    Toggle(isOn: $ttsPrefs.backgroundAIPlaybackEnabled) {
-                        Text("バックグラウンドでAI音声を流す")
-                            .appFont(.caption)
-                    }
-                    .tint(Color.brandSecondary)
+                    // BG AI 音声トグル削除 (審査通過済 / ユーザー要望: 設定不要)
                 }
             }
         }

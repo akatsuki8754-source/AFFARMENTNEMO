@@ -89,8 +89,8 @@ exports.aiGenerateWish = onCall(
 
     const path = validatePath(request.data?.path);
     const locale = validateLocale(request.data?.locale);
-    // 任意のユーザー追加コンテキスト (200 字上限 — Context Rot / コスト管理)
-    const userContext = String(request.data?.userContext || '').trim().slice(0, 200);
+    // 任意のユーザー追加コンテキスト (300 字上限 — Context Rot / コスト管理)
+    const userContext = String(request.data?.userContext || '').trim().slice(0, 300);
     const prompt = buildPrompt(path, locale, userContext);
     // 日付キーは JST (UTC+9) で計算 (日本ユーザー向け、リセットは深夜0時)
     const today = jstDateKey();

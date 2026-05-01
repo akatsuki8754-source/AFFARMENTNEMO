@@ -33,12 +33,12 @@ struct AIWishWizardView: View {
     @State private var selectedTexts: Set<String> = []
     @State private var step: WizardStep = .selectingPath
     @State private var generationTask: Task<Void, Never>?
-    /// 任意の追加コンテキスト (200 字上限 — Hick's Law / コストリターン設計)
+    /// 任意の追加コンテキスト (300 字上限 — Hick's Law / Context Rot 配慮 / コスト設計)
     @State private var freeformContext: String = ""
     @State private var showFreeformInput: Bool = false
     @StateObject private var freeformHandler = EditableTextHandler()
     @State private var freeformFocused: Bool = false
-    private let maxFreeformLen = 200
+    private let maxFreeformLen = 300
     /// 各階層で「その他」を押した回数 (3択ローテーションのため)
     @State private var rotationOffsetByLevel: [Int: Int] = [:]
     /// 候補再生成カウント (静的サンプルでも順序を変えるため)
@@ -267,6 +267,35 @@ struct AIWishWizardView: View {
                             )
                         }
                     }
+
+                    // 自分で入力 — Choice Architecture (Thaler) で「自由記述」を明示的選択肢に格上げ
+                    Button {
+                        withAnimation { showFreeformInput = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            freeformFocused = true
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "pencil.and.outline")
+                                .foregroundStyle(Color.brandPrimary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("自分の言葉で伝える")
+                                    .appFont(.bodyEmphasis)
+                                    .foregroundStyle(Color.textPrimary)
+                                Text("300字までAIに状況を伝えて生成")
+                                    .appFont(.micro)
+                                    .foregroundStyle(Color.textSecondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(Color.textSecondary)
+                        }
+                        .padding(.horizontal, AppSpacing.md)
+                        .padding(.vertical, AppSpacing.md)
+                        .background(Color.brandAccent.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, AppSpacing.screenEdge)
 
@@ -291,53 +320,49 @@ struct AIWishWizardView: View {
         }
     }
 
-    /// AIに渡す任意の追加情報入力エリア
-    /// - 200字上限: Hick's Law / Context Rot (Chroma 2024 研究) / コスト管理
-    /// - 任意: 損失回避 (入力強制すると離脱率↑) を回避
+    /// AIに渡す自由テキスト入力エリア
+    /// - 300字上限: Hick's Law / Context Rot (Chroma 2024 研究) / コスト管理
+    /// - パス選択肢に並ぶ独立 CTA から展開
+    /// - EditableTextView を流用 (全選択/コピー/貼付/取消/全削除)
     private var freeformInputSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Button {
-                withAnimation { showFreeformInput.toggle() }
-                if showFreeformInput {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        freeformFocused = true
-                    }
-                }
-            } label: {
-                HStack(spacing: AppSpacing.xs) {
-                    Image(systemName: showFreeformInput ? "chevron.up.circle" : "text.bubble")
-                        .foregroundStyle(Color.brandSecondary)
-                    Text(showFreeformInput ? "閉じる" : "もっと詳しく伝える (任意)")
-                        .appFont(.caption)
-                        .foregroundStyle(Color.brandSecondary)
-                    Spacer()
-                    if !freeformContext.isEmpty {
-                        Text("\(freeformContext.count)/\(maxFreeformLen)")
-                            .appFont(.micro)
-                            .foregroundStyle(Color.textSecondary)
-                    }
-                }
-            }
-            if showFreeformInput {
-                EditableTextView(
-                    text: $freeformContext,
-                    handler: .constant(freeformHandler),
-                    placeholder: "例: 来月の英語試験で 8 割取りたい / 子どもとの時間をもっと大切にしたい",
-                    maxLength: maxFreeformLen,
-                    minHeight: 90,
-                    isFocused: $freeformFocused
-                )
-                .frame(minHeight: 90)
-                .background(Color.bgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
-                .overlay(alignment: .top) {
-                    EditableActionToast(handler: freeformHandler)
-                        .padding(.top, 4)
-                }
-                Text("※ 入力すると AI があなたの状況に合わせた言葉を作ります。空欄でも OK")
+            HStack(spacing: AppSpacing.xs) {
+                Image(systemName: "pencil.and.outline")
+                    .foregroundStyle(Color.brandPrimary)
+                Text("自分の言葉で詳しく")
+                    .appFont(.bodyEmphasis)
+                    .foregroundStyle(Color.textPrimary)
+                Spacer()
+                Text("\(freeformContext.count) / \(maxFreeformLen)")
                     .appFont(.micro)
-                    .foregroundStyle(Color.textSecondary)
+                    .foregroundStyle(freeformContext.count > maxFreeformLen
+                        ? Color.semanticError : Color.textSecondary)
+                Button {
+                    withAnimation { showFreeformInput = false }
+                    freeformFocused = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color.textSecondary)
+                }
             }
+            EditableTextView(
+                text: $freeformContext,
+                handler: .constant(freeformHandler),
+                placeholder: "例: 来月の英語試験で 8 割取りたい。集中力が課題で、毎晩スマホを見て寝るのが遅くなる。改善したい。",
+                maxLength: maxFreeformLen,
+                minHeight: 120,
+                isFocused: $freeformFocused
+            )
+            .frame(minHeight: 120)
+            .background(Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.buttonSecondary))
+            .overlay(alignment: .top) {
+                EditableActionToast(handler: freeformHandler)
+                    .padding(.top, 4)
+            }
+            Text("※ あなたの状況・期間・障害を入れると AI が具体的な言葉を返します")
+                .appFont(.micro)
+                .foregroundStyle(Color.textSecondary)
         }
     }
 

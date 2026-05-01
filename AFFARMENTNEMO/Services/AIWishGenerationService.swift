@@ -86,10 +86,10 @@ final class AIWishGenerationService {
             "path": path.map { ["title": $0.title, "prompt": $0.prompt] },
             "locale": localeIdentifier
         ]
-        // 任意のコンテキストは 200 字上限で送る (コスト & Context Rot 回避)
+        // 任意のコンテキストは 300 字上限で送る (Hick's Law / Context Rot 回避)
         let trimmedContext = userContext
             .trimmingCharacters(in: .whitespacesAndNewlines)
-            .prefix(200)
+            .prefix(300)
         if !trimmedContext.isEmpty {
             payload["userContext"] = String(trimmedContext)
         }

@@ -97,14 +97,7 @@ struct SettingsView: View {
                             Text("録音した音声で流す").tag("recorded")
                         }
                     }
-                    Toggle(isOn: $ttsPrefs.backgroundAIPlaybackEnabled) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("バックグラウンドでAI音声を流す")
-                            Text("ONにすると起動時再生もAIに揃えます")
-                                .appFont(.micro)
-                                .foregroundStyle(Color.textSecondary)
-                        }
-                    }
+                    // BG AI 音声トグル削除 (審査通過済 / ユーザー要望: 設定不要)
                 }
 
                 // ユーザー要望: 権限の現状を可視化 (シミュリセット問題確認用)

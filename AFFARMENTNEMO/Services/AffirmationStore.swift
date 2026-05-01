@@ -140,10 +140,38 @@ final class AffirmationStore {
     // MARK: - Read completion
 
     /// 個別 affirmation の readCount を +1 (Library 画面 「読了 N 回」の真因対策)
+    /// - 渡された Affirmation が context に未登録 (別 context のオブジェクト) でも動くよう
+    ///   id で fetch しなおして context 上のインスタンスを更新する
     func incrementReadCount(for affirmation: Affirmation) {
+        let targetId = affirmation.id
+        // ① まずは渡されたオブジェクトを直接更新 (同一 context の場合これで動く)
         affirmation.readCount += 1
         affirmation.updatedAt = Date()
-        try? context.save()
+        do {
+            try context.save()
+            NSLog("[AffirmationStore] readCount=%d for id=%@ (direct save)",
+                  affirmation.readCount, targetId.uuidString)
+            return
+        } catch {
+            NSLog("[AffirmationStore] direct save failed: %@", String(describing: error))
+        }
+        // ② フォールバック: id で fetch して再更新
+        do {
+            let descriptor = FetchDescriptor<Affirmation>(
+                predicate: #Predicate { $0.id == targetId }
+            )
+            if let fetched = try context.fetch(descriptor).first {
+                fetched.readCount += 1
+                fetched.updatedAt = Date()
+                try context.save()
+                NSLog("[AffirmationStore] readCount=%d for id=%@ (refetch save)",
+                      fetched.readCount, targetId.uuidString)
+            } else {
+                NSLog("[AffirmationStore] no Affirmation matching id=%@", targetId.uuidString)
+            }
+        } catch {
+            NSLog("[AffirmationStore] refetch save failed: %@", String(describing: error))
+        }
     }
 
     /// 「✓ 読みました」タップ時の処理: ストリーク・XP更新 + ReadLog記録
