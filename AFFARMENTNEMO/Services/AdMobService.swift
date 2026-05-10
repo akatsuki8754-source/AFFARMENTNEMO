@@ -24,6 +24,9 @@ final class AdMobService: NSObject {
     private var isLoadingInterstitial = false
     private var rewarded: RewardedAd?
     private var isLoadingRewarded = false
+    /// Strong ref so the FullScreenContentDelegate is retained for the
+    /// interstitial's lifetime (delegate is held weakly by the SDK).
+    private var interstitialDelegate: InterstitialFullScreenDelegate?
 
     func start() {
         MobileAds.shared.start(completionHandler: { [weak self] _ in
@@ -52,12 +55,25 @@ final class AdMobService: NSObject {
         defer { isLoadingInterstitial = false }
 
         do {
-            interstitial = try await InterstitialAd.load(
+            let ad = try await InterstitialAd.load(
                 with: AdMobConfig.interstitialUnitID,
                 request: Request()
             )
+            // Wire up FullScreenContentDelegate BEFORE the ad is ever presented
+            // so impression/click/dismiss callbacks fire and AdMob counts the show.
+            let delegate = InterstitialFullScreenDelegate()
+            self.interstitialDelegate = delegate
+            ad.fullScreenContentDelegate = delegate
+            interstitial = ad
+            #if DEBUG
+            print("[AdMob] interstitial loaded responseInfo=\(String(describing: ad.responseInfo))")
+            #endif
         } catch {
             interstitial = nil
+            #if DEBUG
+            let nsErr = error as NSError
+            print("[AdMob] interstitial load failed code=\(nsErr.code) domain=\(nsErr.domain) msg=\(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -189,14 +205,103 @@ private final class RewardedAdDelegate: NSObject, FullScreenContentDelegate {
         DispatchQueue.main.async { self.onComplete(result) }
     }
 
+    func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] rewarded adWillPresentFullScreenContent")
+        #endif
+    }
+
+    func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] rewarded adDidRecordImpression")
+        #endif
+    }
+
+    func adDidRecordClick(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] rewarded adDidRecordClick")
+        #endif
+    }
+
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] rewarded adDidDismissFullScreenContent earned=\(earned)")
+        #endif
         NSLog("[RewardedAdDelegate] adDidDismissFullScreenContent earned=%@", String(earned))
         finish(earned)
     }
 
     func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        #if DEBUG
+        let nsErr = error as NSError
+        print("[AdMob] rewarded didFailToPresent code=\(nsErr.code) domain=\(nsErr.domain) msg=\(error.localizedDescription)")
+        #endif
         NSLog("[RewardedAdDelegate] didFailToPresent error=%@", error.localizedDescription)
         finish(false)
+    }
+}
+
+/// FullScreenContentDelegate for interstitial ads — diagnostic logging
+private final class InterstitialFullScreenDelegate: NSObject, FullScreenContentDelegate {
+    func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] interstitial adWillPresentFullScreenContent")
+        #endif
+    }
+
+    func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] interstitial adDidRecordImpression")
+        #endif
+    }
+
+    func adDidRecordClick(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] interstitial adDidRecordClick")
+        #endif
+    }
+
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        #if DEBUG
+        print("[AdMob] interstitial adDidDismissFullScreenContent")
+        #endif
+    }
+
+    func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        #if DEBUG
+        let nsErr = error as NSError
+        print("[AdMob] interstitial didFailToPresent code=\(nsErr.code) domain=\(nsErr.domain) msg=\(error.localizedDescription)")
+        #endif
+    }
+}
+
+/// BannerViewDelegate — banner load/impression/click diagnostics
+fileprivate final class BannerDelegate: NSObject, BannerViewDelegate {
+    func bannerViewDidReceiveAd(_ bannerView: BannerView) {
+        #if DEBUG
+        let info = bannerView.responseInfo.map { String(describing: $0) } ?? "nil"
+        print("[AdMob] banner loaded responseInfo=\(info)")
+        #endif
+    }
+
+    func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
+        #if DEBUG
+        let nsErr = error as NSError
+        let info = bannerView.responseInfo.map { String(describing: $0) } ?? "nil"
+        print("[AdMob] banner failed code=\(nsErr.code) domain=\(nsErr.domain) msg=\(error.localizedDescription) responseInfo=\(info)")
+        #endif
+    }
+
+    func bannerViewDidRecordImpression(_ bannerView: BannerView) {
+        #if DEBUG
+        print("[AdMob] banner impression")
+        #endif
+    }
+
+    func bannerViewDidRecordClick(_ bannerView: BannerView) {
+        #if DEBUG
+        print("[AdMob] banner click")
+        #endif
     }
 }
 
@@ -207,6 +312,8 @@ struct AdBannerView: UIViewRepresentable {
 
     final class Coordinator {
         var refreshTimer: Timer?
+        /// Strong ref to BannerDelegate (SDK holds delegate weakly).
+        fileprivate var bannerDelegate: BannerDelegate?
         deinit { refreshTimer?.invalidate() }
     }
 
@@ -214,6 +321,15 @@ struct AdBannerView: UIViewRepresentable {
         let banner = BannerView(adSize: AdSizeBanner)
         banner.adUnitID = AdMobConfig.bannerUnitID
         banner.rootViewController = Self.topViewController()
+        // Attach delegate BEFORE the first load so we capture every callback.
+        let delegate = BannerDelegate()
+        context.coordinator.bannerDelegate = delegate
+        banner.delegate = delegate
+        #if DEBUG
+        // Faint green tint so we can visually confirm the banner slot is on
+        // screen with non-zero height even when the ad has not yet filled.
+        banner.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.08)
+        #endif
         banner.load(Request())
         // ユーザー要望: 30秒ごとに更新 (AdMob 推奨値、収益最適化)
         context.coordinator.refreshTimer = Timer.scheduledTimer(
