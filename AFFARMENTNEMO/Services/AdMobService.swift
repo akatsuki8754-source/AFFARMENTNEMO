@@ -22,8 +22,37 @@ final class AdMobService: NSObject {
     static let shared = AdMobService()
     private var interstitial: InterstitialAd?
     private var isLoadingInterstitial = false
+    private var interstitialRetryCount = 0
     private var rewarded: RewardedAd?
     private var isLoadingRewarded = false
+    private var rewardedRetryCount = 0
+
+    // MARK: - Emergency Rate Limiter
+    // Caps total ad requests per device per hour. Healthy use: 10-20/hour.
+    // 60 is generous; anything beyond strongly suggests a runaway loop.
+    private static var requestCountThisHour = 0
+    private static var hourBucketKey = ""
+    private func canMakeAdRequest(type: String) -> Bool {
+        let now = Date()
+        let key = ISO8601DateFormatter().string(from: now).prefix(13)  // hour bucket "yyyy-MM-ddTHH"
+        if AdMobService.hourBucketKey != key {
+            AdMobService.hourBucketKey = String(key)
+            AdMobService.requestCountThisHour = 0
+        }
+        AdMobService.requestCountThisHour += 1
+        if AdMobService.requestCountThisHour > 60 {
+            #if DEBUG
+            print("[AdMob] RATE LIMITED type=\(type) count=\(AdMobService.requestCountThisHour) — refusing request")
+            #endif
+            return false
+        }
+        return true
+    }
+
+    // MARK: - Backoff schedule for failed loads
+    // 60s -> 120s -> 300s, then stop after 5 attempts.
+    private static let backoffSchedule: [TimeInterval] = [60, 120, 300, 300, 300]
+    private static let maxRetries = 5
 
     func start() {
         MobileAds.shared.start(completionHandler: { [weak self] _ in
@@ -33,21 +62,14 @@ final class AdMobService: NSObject {
                 await self?.preloadRewarded()
             }
         })
-        // 定期的にリワード広告のロード状態を確認 (60s 間隔、未ロードなら再試行)
-        Task { @MainActor in
-            while true {
-                try? await Task.sleep(for: .seconds(60))
-                if self.rewarded == nil && !self.isLoadingRewarded {
-                    NSLog("[AdMobService] periodic reload of rewarded")
-                    await self.preloadRewarded()
-                }
-            }
-        }
+        // NOTE: 旧実装にあった 60秒間隔のリワード再ロードループは削除。
+        // ロード失敗時はそれぞれの preload 内で指数バックオフで再試行する。
     }
 
     // MARK: - Interstitial
     func preloadInterstitial() async {
         guard !isLoadingInterstitial, interstitial == nil else { return }
+        guard canMakeAdRequest(type: "interstitial") else { return }
         isLoadingInterstitial = true
         defer { isLoadingInterstitial = false }
 
@@ -56,21 +78,40 @@ final class AdMobService: NSObject {
                 with: AdMobConfig.interstitialUnitID,
                 request: Request()
             )
+            interstitialRetryCount = 0
         } catch {
             interstitial = nil
+            scheduleInterstitialRetry()
+        }
+    }
+
+    private func scheduleInterstitialRetry() {
+        guard interstitialRetryCount < AdMobService.maxRetries else {
+            NSLog("[AdMobService] interstitial load: max retries reached, giving up")
+            return
+        }
+        let delay = AdMobService.backoffSchedule[interstitialRetryCount]
+        interstitialRetryCount += 1
+        NSLog("[AdMobService] interstitial backoff: retry %d in %.0fs", interstitialRetryCount, delay)
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard let self else { return }
+            await self.preloadInterstitial()
         }
     }
 
     func showInterstitialIfReady(from viewController: UIViewController, stats: UserStats) {
         guard InterstitialPolicy.shared.canShow(stats: stats) else { return }
         guard let ad = interstitial else {
+            // 表示不可能だったときは静かに preload（バックオフで自己制御）
             Task { await preloadInterstitial() }
             return
         }
         ad.present(from: viewController)
         InterstitialPolicy.shared.recordShown()
         interstitial = nil
-        Task { await preloadInterstitial() }  // 次回のためにプリロード
+        // 表示成功後だけ次の preload を行う (loop 防止)
+        Task { await preloadInterstitial() }
     }
 
     // MARK: - Rewarded (B8: AI生成のゲートに使用)
@@ -78,6 +119,7 @@ final class AdMobService: NSObject {
 
     func preloadRewarded() async {
         guard !isLoadingRewarded, rewarded == nil else { return }
+        guard canMakeAdRequest(type: "rewarded") else { return }
         isLoadingRewarded = true
         defer { isLoadingRewarded = false }
         let unitId = AdMobConfig.rewardedUnitID
@@ -85,16 +127,28 @@ final class AdMobService: NSObject {
         do {
             rewarded = try await RewardedAd.load(with: unitId, request: Request())
             lastRewardedLoadError = nil
+            rewardedRetryCount = 0
             NSLog("[AdMobService] rewarded loaded OK")
         } catch {
             rewarded = nil
             lastRewardedLoadError = String(describing: error)
             NSLog("[AdMobService] rewarded load FAILED: %@", lastRewardedLoadError ?? "")
-            // 30秒後に自動再試行 (アプリが起動中の間)
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(30))
-                await self.preloadRewarded()
-            }
+            scheduleRewardedRetry()
+        }
+    }
+
+    private func scheduleRewardedRetry() {
+        guard rewardedRetryCount < AdMobService.maxRetries else {
+            NSLog("[AdMobService] rewarded load: max retries reached, giving up")
+            return
+        }
+        let delay = AdMobService.backoffSchedule[rewardedRetryCount]
+        rewardedRetryCount += 1
+        NSLog("[AdMobService] rewarded backoff: retry %d in %.0fs", rewardedRetryCount, delay)
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard let self else { return }
+            await self.preloadRewarded()
         }
     }
 
@@ -171,6 +225,11 @@ final class AdMobService: NSObject {
         rewarded = nil
         Task { await preloadRewarded() }
     }
+
+    // MARK: - Banner request gate (used by AdBannerView)
+    fileprivate func canRequestBanner() -> Bool {
+        return canMakeAdRequest(type: "banner")
+    }
 }
 
 /// FullScreenContentDelegate — リワード広告の dismiss/fail を確実に拾う
@@ -205,24 +264,70 @@ private final class RewardedAdDelegate: NSObject, FullScreenContentDelegate {
 struct AdBannerView: UIViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator() }
 
+    /// Coordinator が BannerView を保持し、SwiftUI 再描画でも単一のバナーを使い回す。
+    /// バックグラウンド遷移の通知監視もここで行い、保留中ロードを抑止する。
     final class Coordinator {
-        var refreshTimer: Timer?
-        deinit { refreshTimer?.invalidate() }
+        weak var banner: BannerView?
+        var hasLoadedOnce = false
+        var isAppActive: Bool = true
+        var pendingLoadOnForeground = false
+        var willResignObserver: NSObjectProtocol?
+        var didBecomeActiveObserver: NSObjectProtocol?
+
+        init() {
+            willResignObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.willResignActiveNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.isAppActive = false
+            }
+            didBecomeActiveObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self else { return }
+                self.isAppActive = true
+                if self.pendingLoadOnForeground, let b = self.banner {
+                    self.pendingLoadOnForeground = false
+                    if AdMobService.shared.canRequestBanner() {
+                        b.load(Request())
+                    }
+                }
+            }
+        }
+
+        deinit {
+            if let o = willResignObserver { NotificationCenter.default.removeObserver(o) }
+            if let o = didBecomeActiveObserver { NotificationCenter.default.removeObserver(o) }
+        }
     }
 
     func makeUIView(context: Context) -> BannerView {
+        // SwiftUI 再描画で makeUIView が再度呼ばれた場合、既存 banner があれば返す。
+        // 既存 banner があるということは「同じ Coordinator が再利用された」ケースのみ。
+        if let existing = context.coordinator.banner {
+            return existing
+        }
         let banner = BannerView(adSize: AdSizeBanner)
         banner.adUnitID = AdMobConfig.bannerUnitID
         banner.rootViewController = Self.topViewController()
-        banner.load(Request())
-        // ユーザー要望: 30秒ごとに更新 (AdMob 推奨値、収益最適化)
-        context.coordinator.refreshTimer = Timer.scheduledTimer(
-            withTimeInterval: 30, repeats: true
-        ) { [weak banner] _ in
-            DispatchQueue.main.async {
-                banner?.load(Request())
+        context.coordinator.banner = banner
+
+        // バックグラウンド時は load せず、フォアグラウンド復帰時にロードする。
+        if context.coordinator.isAppActive {
+            if AdMobService.shared.canRequestBanner() {
+                banner.load(Request())
+                context.coordinator.hasLoadedOnce = true
             }
+        } else {
+            context.coordinator.pendingLoadOnForeground = true
         }
+
+        // NOTE: 旧実装の 30秒タイマー再ロードは削除済み。
+        // モダン AdMob バナーは AdMob コンソールの refresh rate に従ってサーバー側で
+        // 自動更新されるため、クライアント側の繰り返しロードは "Invalid Traffic" の温床。
         return banner
     }
 
