@@ -65,6 +65,11 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // モデレーション停止ユーザー: Cloud Functions / Admin SDK 専用
+    match /bannedUsers/{uid} {
+      allow read, write: if false;
+    }
+
     // システム設定: read のみ (Admin SDK のみ write)
     match /system/{docId} {
       allow read: if authed()

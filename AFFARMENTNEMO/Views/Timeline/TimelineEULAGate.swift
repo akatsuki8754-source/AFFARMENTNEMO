@@ -9,6 +9,7 @@ struct TimelineEULAGate: View {
     let onAgreed: () -> Void
     let onCancel: () -> Void
     @State private var hasScrolledToEnd: Bool = false
+    @State private var confirmedAdultOnly: Bool = false
     @State private var checkedAgreement: Bool = false
 
     var body: some View {
@@ -23,6 +24,12 @@ struct TimelineEULAGate: View {
                         .foregroundStyle(Color.textSecondary)
 
                     Group {
+                        section("0. 対象年齢",
+                                """
+                                流すだけタイムラインは【18歳以上】を対象とした公開投稿機能です。
+                                未成年者は利用しないでください。
+                                """)
+
                         section("1. ライセンス付与",
                                 "本アプリ「コトダマ｜自分の言葉」は、ユーザに対して個人利用に限る譲渡不可・非独占・取消可能なライセンスを付与します。")
 
@@ -76,6 +83,14 @@ struct TimelineEULAGate: View {
                     Color.clear.frame(height: 1)
                         .onAppear { hasScrolledToEnd = true }
 
+                    Toggle(isOn: $confirmedAdultOnly) {
+                        Text("私は18歳以上であり、公開タイムライン機能の対象年齢を満たしています")
+                            .appFont(.body)
+                            .foregroundStyle(Color.textPrimary)
+                    }
+                    .disabled(!hasScrolledToEnd)
+                    .opacity(hasScrolledToEnd ? 1 : 0.4)
+
                     Toggle(isOn: $checkedAgreement) {
                         Text("上記の規約をすべて読み、同意します")
                             .appFont(.body)
@@ -89,20 +104,24 @@ struct TimelineEULAGate: View {
                         Text("⬇ 最後までスクロールしてください")
                             .appFont(.caption)
                             .foregroundStyle(Color.textSecondary)
+                    } else if !confirmedAdultOnly {
+                        Text("18歳以上であることを確認してください")
+                            .appFont(.caption)
+                            .foregroundStyle(Color.textSecondary)
                     }
 
                     // ユーザー要望: 同意ボタンを右上だけでなくトグル直下にも出す
                     Button {
-                        if checkedAgreement { onAgreed() }
+                        if confirmedAdultOnly && checkedAgreement { onAgreed() }
                     } label: {
                         Text("同意して進む")
                             .appFont(.bodyEmphasis)
                             .foregroundStyle(Color.bgPrimary)
                             .frame(maxWidth: .infinity, minHeight: 56)
-                            .background(checkedAgreement ? Color.brandPrimary : Color.textDisabled)
+                            .background((confirmedAdultOnly && checkedAgreement) ? Color.brandPrimary : Color.textDisabled)
                             .clipShape(RoundedRectangle(cornerRadius: AppRadius.button))
                     }
-                    .disabled(!checkedAgreement)
+                    .disabled(!(confirmedAdultOnly && checkedAgreement))
                     .padding(.top, AppSpacing.sm)
                 }
                 .padding(AppSpacing.lg)
@@ -116,7 +135,7 @@ struct TimelineEULAGate: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("同意する") { onAgreed() }
-                        .disabled(!checkedAgreement)
+                        .disabled(!(confirmedAdultOnly && checkedAgreement))
                         .fontWeight(.semibold)
                 }
             }

@@ -232,11 +232,20 @@ async function checkBudgetAndAuth(request) {
   requireAppCheck(request);
   const uid = request.auth?.uid;
   if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+  await ensureNotBanned(uid);
   const budgetSnap = await db.doc('system/aiBudgetAlert').get();
   if (budgetSnap.data()?.monthlyEmergencyStop === true) {
     throw new HttpsError('resource-exhausted', 'Service temporarily unavailable (budget protection)');
   }
   return uid;
+}
+
+async function ensureNotBanned(uid) {
+  const snap = await db.collection('bannedUsers').doc(uid).get();
+  if (!snap.exists) return;
+  const data = snap.data() || {};
+  if (data.active === false) return;
+  throw new HttpsError('permission-denied', 'posting disabled by moderation');
 }
 
 function requireAppCheck(request) {
@@ -344,9 +353,17 @@ exports.reportPost = onCall(
         reason,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
+      const nextReportCount = (post.reportCount || 0) + 1;
       tx.update(postRef, {
         reportedBy: admin.firestore.FieldValue.arrayUnion(uid),
         reportCount: admin.firestore.FieldValue.increment(1),
+        ...(nextReportCount >= 3
+          ? {
+              isHidden: true,
+              autoHiddenAt: admin.firestore.FieldValue.serverTimestamp(),
+              autoHiddenReason: 'report-threshold',
+            }
+          : {}),
       });
       return { ok: true, duplicate: false };
     });
@@ -374,6 +391,7 @@ exports.submitTimelinePost = onCall(
     requireAppCheck(request);
     const uid = request.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+    await ensureNotBanned(uid);
 
     // Emergency stop チェック
     const budgetSnap = await db.doc('system/aiBudgetAlert').get();
